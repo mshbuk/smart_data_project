@@ -68,6 +68,42 @@ Preview the production build locally:
 npm run preview
 ```
 
+## GitHub Pages Deployment
+
+This project is configured to deploy the Vite production build to GitHub Pages with GitHub Actions.
+
+Expected public URL after GitHub Pages is enabled:
+
+```text
+https://mshbuk.github.io/smart_data_project/
+```
+
+Deployment files and settings:
+
+- `vite.config.ts` sets `base: "/smart_data_project/"` so production assets load correctly under the repository URL.
+- `.github/workflows/deploy.yml` installs dependencies, runs `npm run build`, uploads `dist/`, and deploys it to GitHub Pages.
+- Every push to `main` triggers a deployment.
+- You can also run the workflow manually from the GitHub `Actions` tab.
+
+### One-Time GitHub Website Setup
+
+After this commit is pushed:
+
+1. Open the repository on GitHub: `mshbuk/smart_data_project`.
+2. Go to `Settings`.
+3. In the left sidebar, open `Pages`.
+4. Under `Build and deployment`, set `Source` to `GitHub Actions`.
+5. Open the `Actions` tab.
+6. Select the `Deploy to GitHub Pages` workflow.
+7. If it has not run automatically yet, click `Run workflow` and choose the `main` branch.
+8. After the workflow succeeds, open:
+
+```text
+https://mshbuk.github.io/smart_data_project/
+```
+
+If the site shows a 404 immediately after deployment, wait a minute and refresh. GitHub Pages can take a short time to publish the first deployment.
+
 ## Editing Dummy Data
 
 District data lives in:
