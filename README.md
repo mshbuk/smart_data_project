@@ -4,6 +4,8 @@ District Finder is a mobile-first React prototype for a university Smart Data pr
 
 The app uses local dummy district data, transparent scoring logic, result cards, saved comparisons, and a Leaflet map with highlighted recommended districts.
 
+Styling uses Tailwind CSS v4 through the official Vite plugin. The UI is built with Tailwind utility classes in the React components rather than a custom plain CSS stylesheet.
+
 ## Setup
 
 ### Requirements
@@ -22,13 +24,15 @@ Runtime packages:
 
 Development and build packages:
 
-- `typescript`
-- `vite`
 - `@vitejs/plugin-react`
+- `@tailwindcss/vite`
 - `@types/react`
 - `@types/react-dom`
 - `@types/leaflet`
 - `@types/node`
+- `tailwindcss`
+- `typescript`
+- `vite`
 
 All required packages are listed in `package.json` and installed by npm.
 

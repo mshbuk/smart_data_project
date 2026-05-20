@@ -9,7 +9,7 @@ type ResultsListProps = {
 
 export function ResultsList({ matches, savedDistrictIds, onToggleSave }: ResultsListProps) {
   return (
-    <section className="results-list">
+    <section className="grid gap-3 md:grid-cols-2">
       {matches.map((match) => (
         <DistrictCard
           isSaved={savedDistrictIds.includes(match.district.id)}
