@@ -178,17 +178,6 @@ export function DistrictCard({ match, isSaved, onToggleSave, rank }: DistrictCar
                 </span>
               ))}
             </div>
-            <button
-              className={[
-                "inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl px-4 text-sm font-black transition-colors",
-                isSaved ? "bg-slate-950 text-white" : "bg-indigo-600 text-white hover:bg-indigo-700",
-              ].join(" ")}
-              onClick={() => onToggleSave(district.id)}
-              type="button"
-            >
-              <Heart aria-hidden="true" className={isSaved ? "h-4 w-4 fill-current" : "h-4 w-4"} />
-              {isSaved ? "Saved" : "Save"}
-            </button>
           </div>
         </div>
       </div>

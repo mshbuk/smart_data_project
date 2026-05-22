@@ -1,16 +1,17 @@
 import "leaflet/dist/leaflet.css";
-import { useEffect, useMemo, useState } from "react";
-import { Heart, List, Map as MapIcon, RotateCcw, Save, Sparkles, type LucideIcon } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Heart, List, Map as MapIcon, User, type LucideIcon } from "lucide-react";
 import districts from "./data/districts.json";
 import { MapView } from "./components/MapView";
 import { PreferenceForm } from "./components/PreferenceForm";
+import { ProfilePage } from "./components/ProfilePage";
 import { ProfileSelector } from "./components/ProfileSelector";
 import { ResultsList } from "./components/ResultsList";
 import { SavedComparison } from "./components/SavedComparison";
 import type { District, Preferences, UserProfile } from "./types/District";
 import { calculateDistrictMatches, profileDefaults } from "./utils/scoring";
 
-type ActiveView = "results" | "saved" | "map";
+type ActiveView = "results" | "map" | "saved" | "profile";
 
 type PersistedState = {
   activeView?: ActiveView;
@@ -27,9 +28,10 @@ type ViewOption = {
 };
 
 const districtData = districts as District[];
+const city = "Hamburg";
 const storageKey = "district-finder-state-v2";
 const userProfiles: UserProfile[] = ["tourist", "family", "longTerm"];
-const activeViews: ActiveView[] = ["results", "saved", "map"];
+const activeViews: ActiveView[] = ["results", "map", "saved", "profile"];
 const preferenceKeys: Array<keyof Preferences> = [
   "maxRentPerSqm",
   "safety",
@@ -77,8 +79,17 @@ function loadPersistedState(): PersistedState {
   }
 }
 
+function clearPersistedState() {
+  try {
+    window.localStorage.removeItem(storageKey);
+  } catch {
+    // Storage cleanup can fail in locked-down browser contexts.
+  }
+}
+
 function App() {
   const [initialState] = useState(loadPersistedState);
+  const skipNextPersist = useRef(false);
   const [selectedProfile, setSelectedProfile] = useState<UserProfile>(initialState.selectedProfile ?? "longTerm");
   const [preferences, setPreferences] = useState<Preferences>(initialState.preferences ?? profileDefaults.longTerm);
   const [savedDistrictIds, setSavedDistrictIds] = useState<string[]>(initialState.savedDistrictIds ?? []);
@@ -92,6 +103,12 @@ function App() {
   const topMatch = matches[0];
 
   useEffect(() => {
+    if (skipNextPersist.current) {
+      skipNextPersist.current = false;
+      clearPersistedState();
+      return;
+    }
+
     const stateToStore: PersistedState = {
       activeView,
       preferences,
@@ -119,18 +136,35 @@ function App() {
     );
   };
 
-  const resetDemoState = () => {
+  const clearLocalData = () => {
+    skipNextPersist.current = true;
+    clearPersistedState();
     setSelectedProfile("longTerm");
     setPreferences(profileDefaults.longTerm);
     setSavedDistrictIds([]);
-    setActiveView("results");
+    setActiveView("profile");
   };
 
   const viewOptions: ViewOption[] = [
     { view: "results", label: "Results", icon: List, count: matches.length },
-    { view: "saved", label: "Saved", icon: Heart, count: savedDistrictIds.length },
     { view: "map", label: "Map", icon: MapIcon },
+    { view: "saved", label: "Saved", icon: Heart, count: savedDistrictIds.length },
   ];
+
+  if (activeView === "profile") {
+    return (
+      <main className="min-h-screen bg-[#f4f7fb] pb-10 font-sans text-slate-950 antialiased">
+        <ProfilePage
+          city={city}
+          favoriteCount={savedDistrictIds.length}
+          onBack={() => setActiveView("results")}
+          onClearLocalData={clearLocalData}
+          preferences={preferences}
+          selectedProfile={selectedProfile}
+        />
+      </main>
+    );
+  }
 
   return (
     <main className="min-h-screen bg-[#f4f7fb] pb-28 font-sans text-slate-950 antialiased md:pb-16">
@@ -141,57 +175,38 @@ function App() {
         }}
       >
         <div className="mx-auto flex min-h-[350px] w-full max-w-[1080px] flex-col justify-end px-4 py-7 md:min-h-[430px] md:px-6 md:py-10">
+          <button
+            aria-label="Open profile"
+            className="absolute right-4 top-4 grid h-12 w-12 place-items-center rounded-2xl bg-white/95 text-indigo-600 shadow-xl shadow-slate-950/20 backdrop-blur transition-colors hover:bg-indigo-50 md:right-6 md:top-6"
+            onClick={() => setActiveView("profile")}
+            type="button"
+          >
+            <User aria-hidden="true" className="h-6 w-6" strokeWidth={2.5} />
+          </button>
+
           <div className="max-w-3xl">
-            <p className="mb-3 inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1.5 text-xs font-black uppercase tracking-wide text-white ring-1 ring-white/25 backdrop-blur">
-              <Sparkles aria-hidden="true" className="h-4 w-4" />
-              Hamburg Smart Data Project
-            </p>
             <h1 className="text-5xl font-black leading-none text-white drop-shadow md:text-7xl">District Finder</h1>
             <p className="mt-4 max-w-2xl text-base leading-7 text-white/90 md:text-lg">
               Find Hamburg districts that match your lifestyle, budget, and priorities with transparent scoring.
             </p>
           </div>
-
-          <div className="mt-6 grid gap-3 rounded-[1.4rem] border border-white/20 bg-white/15 p-3 text-white backdrop-blur md:max-w-2xl md:grid-cols-[1fr_auto] md:items-center">
-            <div className="flex items-center gap-3">
-              <span className="grid h-11 w-11 place-items-center rounded-2xl bg-white text-indigo-600">
-                <Save aria-hidden="true" className="h-5 w-5" />
-              </span>
-              <div>
-                <p className="text-sm font-black">Current demo profile is remembered</p>
-                <p className="text-xs leading-5 text-white/75">Preferences, saved districts, and the open tab persist in this browser.</p>
-              </div>
-            </div>
-            <button
-              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-white px-4 text-sm font-black text-slate-950 transition-colors hover:bg-indigo-50"
-              onClick={resetDemoState}
-              type="button"
-            >
-              <RotateCcw aria-hidden="true" className="h-4 w-4" />
-              Reset
-            </button>
-          </div>
         </div>
       </section>
 
-      <div className="mx-auto -mt-8 w-full max-w-[1080px] px-3.5 md:px-6">
-        <div className="relative">
+      <div className="mx-auto mt-6 w-full max-w-[1080px] px-3.5 md:px-6">
+        <div className="relative grid gap-4">
           <ProfileSelector onSelect={handleProfileSelect} selectedProfile={selectedProfile} />
           <PreferenceForm onChange={setPreferences} preferences={preferences} />
         </div>
 
         <section className="mt-8 mb-4 px-1">
           <div className="grid gap-4 md:grid-cols-[1fr_auto] md:items-end">
-            <div className="flex items-start gap-3">
-              <span className="grid h-9 w-9 shrink-0 place-items-center rounded-2xl bg-[#101828] text-sm font-black text-white shadow-lg shadow-slate-900/15">
-                3
-              </span>
-              <div>
-                <h2 className="m-0 text-2xl font-black text-slate-950">Your recommendations</h2>
-                <p className="mt-1 text-sm leading-6 text-slate-600">
-                  {matches.length} districts ranked by fit. Save favorites to compare them.
-                </p>
-              </div>
+            <div>
+              <p className="text-xs font-black uppercase tracking-wide text-indigo-600">Live ranking</p>
+              <h2 className="m-0 mt-1 text-2xl font-black text-slate-950">Your recommendations</h2>
+              <p className="mt-1 text-sm leading-6 text-slate-600">
+                {matches.length} districts ranked by fit. Save favorites to compare them.
+              </p>
             </div>
 
             {topMatch && (
@@ -204,7 +219,7 @@ function App() {
 
         <nav
           aria-label="Recommendation views"
-          className="fixed inset-x-3 bottom-3 z-40 mx-auto max-w-[640px] rounded-[1.4rem] border border-white/80 bg-white/95 p-2 shadow-[0_18px_50px_rgba(15,23,42,0.2)] backdrop-blur-xl md:sticky md:inset-x-auto md:top-3 md:bottom-auto md:mb-4 md:max-w-none md:rounded-2xl"
+          className="fixed inset-x-3 bottom-3 z-[1200] mx-auto max-w-[640px] rounded-[1.4rem] border border-white/80 bg-white/95 p-2 shadow-[0_18px_50px_rgba(15,23,42,0.2)] backdrop-blur-xl md:sticky md:inset-x-auto md:top-3 md:bottom-auto md:mb-4 md:max-w-none md:rounded-2xl"
         >
           <div className="grid grid-cols-3 gap-2">
             {viewOptions.map((option) => {
