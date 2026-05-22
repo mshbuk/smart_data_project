@@ -1,1 +1,57 @@
 @import "tailwindcss";
+
+.preference-range {
+  --range-color: #4f46e5;
+  --range-progress: 50%;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+  height: 1.75rem;
+  width: 100%;
+}
+
+.preference-range::-webkit-slider-runnable-track {
+  background: linear-gradient(
+    to right,
+    var(--range-color) 0,
+    var(--range-color) var(--range-progress),
+    #dbe3ee var(--range-progress),
+    #dbe3ee 100%
+  );
+  border: 0;
+  border-radius: 999px;
+  height: 0.42rem;
+}
+
+.preference-range::-webkit-slider-thumb {
+  appearance: none;
+  background: var(--range-color);
+  border: 3px solid #ffffff;
+  border-radius: 999px;
+  box-shadow: 0 3px 10px rgba(15, 23, 42, 0.22);
+  height: 1.25rem;
+  margin-top: -0.42rem;
+  width: 1.25rem;
+}
+
+.preference-range::-moz-range-track {
+  background: #dbe3ee;
+  border: 0;
+  border-radius: 999px;
+  height: 0.42rem;
+}
+
+.preference-range::-moz-range-progress {
+  background: var(--range-color);
+  border-radius: 999px;
+  height: 0.42rem;
+}
+
+.preference-range::-moz-range-thumb {
+  background: var(--range-color);
+  border: 3px solid #ffffff;
+  border-radius: 999px;
+  box-shadow: 0 3px 10px rgba(15, 23, 42, 0.22);
+  height: 1rem;
+  width: 1rem;
+}

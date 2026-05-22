@@ -12,6 +12,7 @@
     "nightlifeScore": 8.2,
     "populationDensity": 3550,
     "shortDescription": "A lively west-side district with strong transport, parks, culture, and access to the Elbe.",
+    "imageUrl": "hamburg-harbor.png",
     "latitude": 53.5503,
     "longitude": 9.9358
   },
@@ -28,6 +29,7 @@
     "nightlifeScore": 6.7,
     "populationDensity": 7600,
     "shortDescription": "Popular residential area with cafes, schools, reliable transit, and a balanced urban feel.",
+    "imageUrl": "hamburg-harbor.png",
     "latitude": 53.5796,
     "longitude": 9.9516
   },
@@ -44,6 +46,7 @@
     "nightlifeScore": 9.8,
     "populationDensity": 11200,
     "shortDescription": "Compact, central, creative, and energetic, with excellent transit and a famous nightlife scene.",
+    "imageUrl": "hamburg-harbor.png",
     "latitude": 53.5628,
     "longitude": 9.9624
   },
@@ -60,6 +63,7 @@
     "nightlifeScore": 7.4,
     "populationDensity": 2600,
     "shortDescription": "Modern waterfront district with new housing, cultural landmarks, and premium rents.",
+    "imageUrl": "hamburg-harbor.png",
     "latitude": 53.5413,
     "longitude": 10.0014
   },
@@ -76,6 +80,7 @@
     "nightlifeScore": 6.4,
     "populationDensity": 6100,
     "shortDescription": "Green, polished, and family-friendly, with Stadtpark nearby and comfortable urban amenities.",
+    "imageUrl": "hamburg-harbor.png",
     "latitude": 53.595,
     "longitude": 10.0007
   },
@@ -92,6 +97,7 @@
     "nightlifeScore": 5.7,
     "populationDensity": 6400,
     "shortDescription": "Practical and well-connected residential district with comparatively moderate rents.",
+    "imageUrl": "hamburg-harbor.png",
     "latitude": 53.6073,
     "longitude": 10.0424
   },
@@ -108,6 +114,7 @@
     "nightlifeScore": 5.4,
     "populationDensity": 2100,
     "shortDescription": "Spacious, diverse island district with green areas, lower rents, and improving connections.",
+    "imageUrl": "hamburg-harbor.png",
     "latitude": 53.4983,
     "longitude": 10.0129
   },
@@ -124,6 +131,7 @@
     "nightlifeScore": 4.8,
     "populationDensity": 4300,
     "shortDescription": "Affordable and steady east-side option with family services and calmer residential streets.",
+    "imageUrl": "hamburg-harbor.png",
     "latitude": 53.5753,
     "longitude": 10.066
   },
@@ -140,6 +148,7 @@
     "nightlifeScore": 3.2,
     "populationDensity": 1900,
     "shortDescription": "Quiet, scenic, and upscale Elbe-side district with strong safety and green surroundings.",
+    "imageUrl": "hamburg-harbor.png",
     "latitude": 53.558,
     "longitude": 9.8114
   },
@@ -156,6 +165,7 @@
     "nightlifeScore": 10,
     "populationDensity": 9200,
     "shortDescription": "Central, iconic, and very lively, with excellent transit and Hamburg's strongest nightlife.",
+    "imageUrl": "hamburg-harbor.png",
     "latitude": 53.5497,
     "longitude": 9.9646
   }

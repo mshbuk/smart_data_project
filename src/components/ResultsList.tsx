@@ -9,13 +9,14 @@ type ResultsListProps = {
 
 export function ResultsList({ matches, savedDistrictIds, onToggleSave }: ResultsListProps) {
   return (
-    <section className="grid gap-3 md:grid-cols-2">
-      {matches.map((match) => (
+    <section className="grid gap-4">
+      {matches.map((match, index) => (
         <DistrictCard
           isSaved={savedDistrictIds.includes(match.district.id)}
           key={match.district.id}
           match={match}
           onToggleSave={onToggleSave}
+          rank={index + 1}
         />
       ))}
     </section>

@@ -11,6 +11,7 @@ export interface District {
   nightlifeScore: number;
   populationDensity: number;
   shortDescription: string;
+  imageUrl?: string;
   latitude: number;
   longitude: number;
 }
@@ -33,4 +34,6 @@ export interface DistrictMatch {
   score: number;
   explanation: string;
   highlights: string[];
+  strengths: string[];
+  tradeoffs: string[];
 }

@@ -28,6 +28,7 @@ Runtime packages:
 - `react`
 - `react-dom`
 - `leaflet`
+- `lucide-react`
 - `react-leaflet`
 
 Development and build packages:
