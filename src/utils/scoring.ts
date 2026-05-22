@@ -91,6 +91,34 @@ function explainMatch(district: District, preferences: Preferences, profile: Use
   return `${highlightsText} ${rentText} Tuned for ${profileLabels[profile]}.`;
 }
 
+function getStrengths(district: District, preferences: Preferences, metrics: WeightedMetric[]) {
+  const metricStrengths = metrics
+    .filter((metric) => metric.weight > 0 && metric.label !== "Rent fit" && metric.score >= 72)
+    .sort((a, b) => b.score * b.weight - a.score * a.weight)
+    .slice(0, 3)
+    .map((metric) => metric.label);
+
+  const rentStrength = district.rentPerSqm <= preferences.maxRentPerSqm ? ["Rent within budget"] : [];
+  const strengths = [...rentStrength, ...metricStrengths].slice(0, 4);
+
+  return strengths.length ? strengths : ["Balanced across priorities"];
+}
+
+function getTradeoffs(district: District, preferences: Preferences, metrics: WeightedMetric[]) {
+  const metricTradeoffs = metrics
+    .filter((metric) => metric.weight >= 3 && metric.label !== "Rent fit" && metric.score < 62)
+    .sort((a, b) => a.score * a.weight - b.score * b.weight)
+    .slice(0, 2)
+    .map((metric) => `${metric.label} is lower`);
+
+  const rentTradeoff =
+    district.rentPerSqm > preferences.maxRentPerSqm
+      ? [`EUR ${(district.rentPerSqm - preferences.maxRentPerSqm).toFixed(1)}/sqm over budget`]
+      : [];
+
+  return [...rentTradeoff, ...metricTradeoffs].slice(0, 3);
+}
+
 export function calculateDistrictMatches(
   districts: District[],
   preferences: Preferences,
@@ -120,6 +148,8 @@ export function calculateDistrictMatches(
         score: Math.round(score),
         explanation: explainMatch(district, preferences, profile, metrics),
         highlights,
+        strengths: getStrengths(district, preferences, metrics),
+        tradeoffs: getTradeoffs(district, preferences, metrics),
       };
     })
     .sort((a, b) => b.score - a.score);
