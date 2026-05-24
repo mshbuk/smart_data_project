@@ -2,7 +2,7 @@
 
 District Finder is a mobile-first React prototype for a university Smart Data project. It recommends Hamburg districts based on a selected lifestyle profile, budget, and personal priorities.
 
-The app uses local dummy district data, transparent scoring logic, result cards, saved comparisons, and a Leaflet map with highlighted recommended districts.
+The app uses local dummy district data, transparent scoring logic, result cards, saved comparisons, and a Leaflet map with Hamburg district borders from GeoJSON.
 
 Styling uses Tailwind CSS v4 through the official Vite plugin. The UI is built with Tailwind utility classes in the React components rather than a custom plain CSS stylesheet.
 
@@ -89,7 +89,13 @@ District data lives in:
 src/data/districts.json
 ```
 
-Each district includes rent, quality indicators, population density, a short description, and center coordinates. Quality indicators use a 0-10 scale:
+Border geometry lives in:
+
+```text
+src/data/districts.geojson
+```
+
+`districts.json` has one recommendation row for each district available in the GeoJSON file. Each district includes rent, quality indicators, population density, a short description, and center coordinates. Quality indicators use a 0-10 scale:
 
 - `safetyScore`
 - `quietnessScore`
@@ -100,6 +106,7 @@ Each district includes rent, quality indicators, population density, a short des
 - `nightlifeScore`
 
 To update the prototype, edit the JSON values directly. Keep the same property names so TypeScript and the scoring function continue to work.
+Keep district names aligned with the `Stadtteil` names in `districts.geojson` so the map can match scores to borders.
 
 ## Replacing Dummy Data Later
 
@@ -108,5 +115,5 @@ When real public Hamburg datasets are available, replace the values in `src/data
 1. Match every public dataset row to a stable district `id`.
 2. Normalize each quality indicator to the current 0-10 scale.
 3. Keep rent as euros per square meter.
-4. Replace center coordinates with more accurate district centers if needed.
-5. For exact boundaries, add district GeoJSON and update `MapView.tsx` to render Leaflet GeoJSON layers instead of simple markers.
+4. Keep or replace `src/data/districts.geojson` with exact district boundaries.
+5. Regenerate center coordinates if the geometry source changes.

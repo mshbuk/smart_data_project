@@ -28,6 +28,7 @@ type ViewOption = {
 };
 
 const districtData = districts as District[];
+const districtIds = new Set(districtData.map((district) => district.id));
 const city = "Hamburg";
 const storageKey = "district-finder-state-v2";
 const userProfiles: UserProfile[] = ["tourist", "family", "longTerm"];
@@ -70,7 +71,7 @@ function loadPersistedState(): PersistedState {
       activeView: isActiveView(parsed.activeView) ? parsed.activeView : undefined,
       preferences: isPreferences(parsed.preferences) ? parsed.preferences : undefined,
       savedDistrictIds: Array.isArray(parsed.savedDistrictIds)
-        ? parsed.savedDistrictIds.filter((id): id is string => typeof id === "string")
+        ? parsed.savedDistrictIds.filter((id): id is string => typeof id === "string" && districtIds.has(id))
         : undefined,
       selectedProfile: isUserProfile(parsed.selectedProfile) ? parsed.selectedProfile : undefined,
     };
