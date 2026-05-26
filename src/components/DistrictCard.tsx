@@ -1,17 +1,22 @@
 import {
   AlertCircle,
+  BadgeCheck,
+  BarChart3,
+  Building2,
   Check,
+  Database,
   Euro,
   GraduationCap,
   Heart,
-  MapPin,
+  Siren,
   Shield,
   Train,
   TreePine,
+  Users,
   Volume2,
   type LucideIcon,
 } from "lucide-react";
-import type { DistrictMatch } from "../types/District";
+import type { District, DistrictMatch } from "../types/District";
 
 type DistrictCardProps = {
   match: DistrictMatch;
@@ -26,6 +31,16 @@ type StatItem = {
   icon: LucideIcon;
   color: string;
 };
+
+type EvidenceMetric = {
+  label: string;
+  value: string;
+  detail: string;
+  icon: LucideIcon;
+  color: string;
+};
+
+const numberFormatter = new Intl.NumberFormat("en-US");
 
 function getScoreTone(score: number) {
   if (score >= 85) {
@@ -49,6 +64,128 @@ function getScoreTone(score: number) {
     badge: "bg-orange-500 text-white shadow-orange-500/25",
     accent: "border-orange-200 bg-orange-50 text-orange-700",
   };
+}
+
+function formatNumber(value: number) {
+  return numberFormatter.format(value);
+}
+
+function getDataQuality(district: District) {
+  if (district.dataQuality === "sourced") {
+    return {
+      label: "Sourced",
+      detail: "Source-backed profile",
+      icon: BadgeCheck,
+      className: "border-emerald-200 bg-emerald-50 text-emerald-700",
+    };
+  }
+
+  if (district.dataQuality === "partially-sourced") {
+    return {
+      label: "Partial",
+      detail: "Some fields still use demo values",
+      icon: Database,
+      className: "border-amber-200 bg-amber-50 text-amber-700",
+    };
+  }
+
+  return {
+    label: "Demo",
+    detail: "Placeholder profile",
+    icon: BarChart3,
+    className: "border-slate-200 bg-slate-50 text-slate-600",
+  };
+}
+
+function getEvidenceMetrics(district: District): EvidenceMetric[] {
+  const hasSourcedRent = Boolean(district.sourceSummary?.includes("Miet-Check"));
+  const metrics: EvidenceMetric[] = [];
+
+  if (hasSourcedRent || district.dataQuality === "placeholder") {
+    metrics.push({
+      label: "Rent",
+      value: `EUR ${district.rentPerSqm.toFixed(2)}`,
+      detail: hasSourcedRent ? "Miet-Check / sqm" : "Demo rent / sqm",
+      icon: Euro,
+      color: "#059669",
+    });
+  }
+
+  if (typeof district.population === "number") {
+    metrics.push({
+      label: "Residents",
+      value: formatNumber(district.population),
+      detail: "Statistikamt 2024",
+      icon: Users,
+      color: "#4f46e5",
+    });
+    metrics.push({
+      label: "Density",
+      value: formatNumber(district.populationDensity),
+      detail: "Residents / km²",
+      icon: Building2,
+      color: "#0f766e",
+    });
+  }
+
+  if (typeof district.crimeCases2024 === "number") {
+    metrics.push({
+      label: "PKS cases",
+      value: formatNumber(district.crimeCases2024),
+      detail: "Police 2024",
+      icon: Siren,
+      color: "#dc2626",
+    });
+  }
+
+  return metrics;
+}
+
+function EvidencePanel({ district }: { district: District }) {
+  const quality = getDataQuality(district);
+  const QualityIcon = quality.icon;
+  const evidenceMetrics = getEvidenceMetrics(district);
+
+  return (
+    <div className="mt-3 rounded-2xl border border-slate-100 bg-slate-50/80 p-3">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <span className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-black ${quality.className}`}>
+          <QualityIcon aria-hidden="true" className="h-4 w-4" />
+          {quality.label}
+        </span>
+        <span className="text-xs font-bold text-slate-500">{quality.detail}</span>
+      </div>
+
+      <div className="mt-3 grid grid-cols-2 gap-2 md:grid-cols-4">
+        {evidenceMetrics.map((metric) => {
+          const Icon = metric.icon;
+
+          return (
+            <div className="min-w-0 rounded-2xl bg-white px-3 py-2 shadow-sm shadow-slate-950/5" key={metric.label}>
+              <div className="flex items-center gap-2">
+                <span className="grid h-7 w-7 shrink-0 place-items-center rounded-xl bg-slate-50" style={{ color: metric.color }}>
+                  <Icon aria-hidden="true" className="h-4 w-4" strokeWidth={2.4} />
+                </span>
+                <span className="min-w-0">
+                  <span className="block truncate text-[0.64rem] font-black uppercase tracking-wide text-slate-400">
+                    {metric.label}
+                  </span>
+                  <span className="block truncate text-sm font-black text-slate-900">{metric.value}</span>
+                </span>
+              </div>
+              <div className="mt-1 truncate text-[0.68rem] font-bold text-slate-500">{metric.detail}</div>
+            </div>
+          );
+        })}
+      </div>
+
+      {district.missingSources && district.missingSources.length > 0 && (
+        <div className="mt-2 rounded-2xl border border-amber-100 bg-amber-50 px-3 py-2 text-xs font-bold text-amber-800">
+          Missing source rows: {district.missingSources.join(", ")}
+        </div>
+      )}
+    </div>
+  );
 }
 
 export function DistrictCard({ match, isSaved, onToggleSave, rank }: DistrictCardProps) {
@@ -91,12 +228,10 @@ export function DistrictCard({ match, isSaved, onToggleSave, rank }: DistrictCar
         <div className="p-4 md:p-5">
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
-              <div className="flex items-center gap-2 text-sm font-bold text-slate-500">
-                <MapPin aria-hidden="true" className="h-4 w-4 text-indigo-500" />
-                Hamburg district
-              </div>
               <h3 className="mt-1 text-2xl font-black leading-tight text-slate-950">{district.name}</h3>
-              <p className="mt-2 text-sm leading-6 text-slate-600">{district.shortDescription}</p>
+              {district.dataQuality === "placeholder" && (
+                <p className="mt-2 text-sm leading-6 text-slate-600">{district.shortDescription}</p>
+              )}
             </div>
             <button
               aria-label={isSaved ? `Remove ${district.name} from saved districts` : `Save ${district.name}`}
@@ -113,6 +248,8 @@ export function DistrictCard({ match, isSaved, onToggleSave, rank }: DistrictCar
               <Heart aria-hidden="true" className={isSaved ? "h-5 w-5 fill-current" : "h-5 w-5"} />
             </button>
           </div>
+
+          <EvidencePanel district={district} />
 
           <p className="mt-4 rounded-2xl bg-slate-50 px-4 py-3 text-sm leading-6 text-slate-700">{match.explanation}</p>
 

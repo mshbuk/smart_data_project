@@ -28,6 +28,7 @@ type ViewOption = {
 };
 
 const districtData = districts as District[];
+const districtIds = new Set(districtData.map((district) => district.id));
 const city = "Hamburg";
 const storageKey = "district-finder-state-v2";
 const userProfiles: UserProfile[] = ["tourist", "family", "longTerm"];
@@ -70,7 +71,7 @@ function loadPersistedState(): PersistedState {
       activeView: isActiveView(parsed.activeView) ? parsed.activeView : undefined,
       preferences: isPreferences(parsed.preferences) ? parsed.preferences : undefined,
       savedDistrictIds: Array.isArray(parsed.savedDistrictIds)
-        ? parsed.savedDistrictIds.filter((id): id is string => typeof id === "string")
+        ? parsed.savedDistrictIds.filter((id): id is string => typeof id === "string" && districtIds.has(id))
         : undefined,
       selectedProfile: isUserProfile(parsed.selectedProfile) ? parsed.selectedProfile : undefined,
     };
@@ -230,7 +231,7 @@ function App() {
                 <button
                   aria-pressed={isActive}
                   className={[
-                    "relative flex min-h-14 items-center justify-center gap-2 rounded-2xl px-3 text-sm font-black transition-colors",
+                    "relative flex min-h-16 flex-col items-center justify-center gap-1 rounded-2xl px-2 text-xs font-black transition-colors sm:min-h-14 sm:flex-row sm:gap-2 sm:px-3 sm:text-sm",
                     "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600",
                     isActive ? "bg-indigo-600 text-white shadow-lg shadow-indigo-600/20" : "text-slate-600 hover:bg-slate-100",
                   ].join(" ")}
@@ -239,11 +240,11 @@ function App() {
                   type="button"
                 >
                   <Icon aria-hidden="true" className="h-5 w-5" />
-                  <span className="text-xs sm:text-sm">{option.label}</span>
+                  <span className="max-w-full truncate">{option.label}</span>
                   {typeof option.count === "number" && (
                     <span
                       className={[
-                        "grid min-w-6 place-items-center rounded-full px-1.5 py-0.5 text-xs font-black",
+                        "absolute right-2 top-2 grid h-5 min-w-6 place-items-center rounded-full px-1.5 text-[0.62rem] font-black leading-none sm:static sm:h-auto sm:min-w-6 sm:px-1.5 sm:py-0.5 sm:text-xs",
                         isActive ? "bg-white/20 text-white" : "bg-slate-100 text-slate-700",
                       ].join(" ")}
                     >

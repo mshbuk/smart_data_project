@@ -1,6 +1,8 @@
 export interface District {
   id: string;
   name: string;
+  population?: number;
+  crimeCases2024?: number;
   rentPerSqm: number;
   safetyScore: number;
   quietnessScore: number;
@@ -12,6 +14,9 @@ export interface District {
   populationDensity: number;
   shortDescription: string;
   imageUrl?: string;
+  dataQuality?: "sourced" | "partially-sourced" | "placeholder";
+  missingSources?: string[];
+  sourceSummary?: string;
   latitude: number;
   longitude: number;
 }
