@@ -1,7 +1,7 @@
-import L, { type Layer, type PathOptions } from "leaflet";
+import { type Layer, type Path, type PathOptions } from "leaflet";
 import { useEffect, useMemo, useState } from "react";
 import type { Feature, FeatureCollection, MultiPolygon, Polygon } from "geojson";
-import { GeoJSON, MapContainer, TileLayer, useMap } from "react-leaflet";
+import { Circle, CircleMarker, GeoJSON, MapContainer, Popup, TileLayer, useMap } from "react-leaflet";
 import { Layers, MapPinned, Navigation } from "lucide-react";
 import districtBoundariesUrl from "../data/districts.geojson?url";
 import type { DistrictMatch } from "../types/District";
@@ -36,6 +36,14 @@ type BoundaryMatch = {
   rank: number;
 };
 
+type UserLocation = {
+  accuracy?: number;
+  latitude: number;
+  longitude: number;
+};
+
+type LocationStatus = "idle" | "locating" | "found" | "error";
+
 type TopBoundaryCount = 10 | 25 | 50 | "all";
 
 const emptyDistrictBoundaries: DistrictBoundaryCollection = {
@@ -43,6 +51,7 @@ const emptyDistrictBoundaries: DistrictBoundaryCollection = {
   features: [],
 };
 
+const hamburgAltstadtCenter: [number, number] = [53.55062, 9.9955];
 const topBoundaryOptions: TopBoundaryCount[] = [10, 25, 50, "all"];
 
 const legendItems = [
@@ -82,7 +91,7 @@ function getBoundaryStyle(feature?: DistrictBoundaryFeature): PathOptions {
       fillColor: "#e2e8f0",
       fillOpacity: 0.13,
       opacity: 0.85,
-      weight: 1,
+      weight: 0.7,
     };
   }
 
@@ -95,7 +104,7 @@ function getBoundaryStyle(feature?: DistrictBoundaryFeature): PathOptions {
     fillColor: color,
     fillOpacity: isTopMatch ? 0.44 : 0.3,
     opacity: 0.95,
-    weight: isTopMatch ? 3 : 2,
+    weight: isTopMatch ? 2 : 1.25,
   };
 }
 
@@ -195,7 +204,7 @@ function createBoundaryPopup(feature: DistrictBoundaryFeature) {
 }
 
 function attachBoundaryInteractions(feature: DistrictBoundaryFeature, layer: Layer) {
-  const pathLayer = layer as L.Path;
+  const pathLayer = layer as Path;
 
   layer.bindPopup(createBoundaryPopup(feature));
   layer.on({
@@ -209,7 +218,7 @@ function attachBoundaryInteractions(feature: DistrictBoundaryFeature, layer: Lay
       pathLayer.setStyle({
         ...getBoundaryStyle(feature),
         fillOpacity: isHighlighted ? 0.54 : hasMatch ? 0.24 : 0.2,
-        weight: isHighlighted ? 4 : 2,
+        weight: isHighlighted ? 2.6 : 1.5,
       });
       pathLayer.bringToFront();
     },
@@ -308,26 +317,25 @@ function useDistrictBoundaries() {
   return { boundaries, hasError };
 }
 
-function FitMapToBoundaries({ data }: { data: DistrictBoundaryCollection }) {
+function FocusUserLocation({ location }: { location: UserLocation | null }) {
   const map = useMap();
 
   useEffect(() => {
-    if (!data.features.length) return;
+    if (!location) return;
 
-    const bounds = L.geoJSON(data).getBounds();
-    if (bounds.isValid()) {
-      map.fitBounds(bounds, {
-        maxZoom: 12,
-        padding: [26, 26],
-      });
-    }
-  }, [data, map]);
+    map.setView([location.latitude, location.longitude], Math.max(map.getZoom(), 13), {
+      animate: true,
+    });
+  }, [location, map]);
 
   return null;
 }
 
 export function MapView({ matches }: MapViewProps) {
   const [topBoundaryCount, setTopBoundaryCount] = useState<TopBoundaryCount>(25);
+  const [locationStatus, setLocationStatus] = useState<LocationStatus>("idle");
+  const [locationMessage, setLocationMessage] = useState("");
+  const [userLocation, setUserLocation] = useState<UserLocation | null>(null);
   const { boundaries: rawDistrictBoundaries, hasError: boundaryLoadError } = useDistrictBoundaries();
   const highlightedRankLimit = topBoundaryCount === "all" ? Number.POSITIVE_INFINITY : topBoundaryCount;
   const boundaryCollection = useMemo(
@@ -350,6 +358,38 @@ export function MapView({ matches }: MapViewProps) {
         `${feature.properties?.districtId}:${feature.properties?.matchScore}:${feature.properties?.isHighlighted}:${feature.properties?.Stadtteil}`,
     )
     .join("|");
+
+  const findCurrentLocation = () => {
+    if (!navigator.geolocation) {
+      setLocationStatus("error");
+      setLocationMessage("Current location is not available in this browser.");
+      return;
+    }
+
+    setLocationStatus("locating");
+    setLocationMessage("");
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setUserLocation({
+          accuracy: position.coords.accuracy,
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+        });
+        setLocationStatus("found");
+        setLocationMessage("Your location is now shown on the map.");
+      },
+      () => {
+        setLocationStatus("error");
+        setLocationMessage("Location permission was not granted, so the map stayed centered on Hamburg.");
+      },
+      {
+        enableHighAccuracy: true,
+        maximumAge: 60_000,
+        timeout: 10_000,
+      },
+    );
+  };
 
   return (
     <section className="overflow-hidden rounded-[1.6rem] border border-white/80 bg-white shadow-[0_18px_45px_rgba(15,23,42,0.08)]">
@@ -400,7 +440,7 @@ export function MapView({ matches }: MapViewProps) {
 
         <div className="relative overflow-hidden rounded-[1.35rem]">
           <MapContainer
-            center={[53.5511, 9.9937]}
+            center={hamburgAltstadtCenter}
             className="h-[70vh] max-h-[560px] min-h-[430px] w-full"
             scrollWheelZoom={false}
             zoom={11}
@@ -415,21 +455,74 @@ export function MapView({ matches }: MapViewProps) {
               onEachFeature={(feature, layer) => attachBoundaryInteractions(feature as DistrictBoundaryFeature, layer)}
               style={(feature) => getBoundaryStyle(feature as DistrictBoundaryFeature)}
             />
-            <FitMapToBoundaries data={boundaryCollection} />
+            {userLocation && (
+              <>
+                {typeof userLocation.accuracy === "number" && (
+                  <Circle
+                    center={[userLocation.latitude, userLocation.longitude]}
+                    pathOptions={{
+                      color: "#4f46e5",
+                      fillColor: "#4f46e5",
+                      fillOpacity: 0.08,
+                      opacity: 0.25,
+                      weight: 1,
+                    }}
+                    radius={userLocation.accuracy}
+                  />
+                )}
+                <CircleMarker
+                  center={[userLocation.latitude, userLocation.longitude]}
+                  pathOptions={{
+                    color: "#ffffff",
+                    fillColor: "#4f46e5",
+                    fillOpacity: 1,
+                    opacity: 1,
+                    weight: 3,
+                  }}
+                  radius={8}
+                >
+                  <Popup>Your current location</Popup>
+                </CircleMarker>
+              </>
+            )}
+            <FocusUserLocation location={userLocation} />
           </MapContainer>
+
+          <button
+            className="absolute bottom-3 left-3 z-[650] inline-flex min-h-12 items-center gap-2 rounded-2xl bg-white/95 px-4 text-sm font-black text-indigo-600 shadow-xl shadow-slate-950/20 backdrop-blur transition-colors hover:bg-indigo-50 disabled:cursor-wait disabled:opacity-80"
+            disabled={locationStatus === "locating"}
+            onClick={findCurrentLocation}
+            type="button"
+          >
+            <Navigation
+              aria-hidden="true"
+              className={["h-5 w-5", locationStatus === "locating" ? "animate-pulse" : ""].join(" ")}
+              strokeWidth={2.5}
+            />
+            {locationStatus === "locating" ? "Locating" : "My location"}
+          </button>
 
           {(isLoadingBoundaries || boundaryLoadError) && (
             <div className="absolute inset-x-3 top-3 z-[500] rounded-2xl border border-white/80 bg-white/95 px-3 py-2 text-xs font-black text-slate-600 shadow-lg shadow-slate-950/10">
               {boundaryLoadError ? "District borders could not be loaded." : "Loading Hamburg district borders..."}
             </div>
           )}
+
+          {locationMessage && (
+            <div
+              className={[
+                "absolute inset-x-3 bottom-[4.75rem] z-[650] rounded-2xl border px-3 py-2 text-xs font-black shadow-lg shadow-slate-950/10 md:left-3 md:right-auto md:max-w-[320px]",
+                locationStatus === "error"
+                  ? "border-amber-200 bg-amber-50/95 text-amber-800"
+                  : "border-indigo-100 bg-white/95 text-slate-600",
+              ].join(" ")}
+            >
+              {locationMessage}
+            </div>
+          )}
         </div>
 
         <div className="mt-3 grid gap-3 md:grid-cols-[1fr_auto] md:items-center">
-          <div className="flex flex-wrap items-center gap-2 text-xs font-bold text-slate-500">
-            <Navigation aria-hidden="true" className="h-4 w-4 text-indigo-500" />
-            All scored values are local demo data; border geometry comes from the local Hamburg GeoJSON file.
-          </div>
           <div className="flex flex-wrap gap-2">
             {legendItems.map((item) => (
               <span

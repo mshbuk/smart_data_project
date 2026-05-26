@@ -8,7 +8,6 @@ import {
   Euro,
   GraduationCap,
   Heart,
-  MapPin,
   Siren,
   Shield,
   Train,
@@ -229,10 +228,6 @@ export function DistrictCard({ match, isSaved, onToggleSave, rank }: DistrictCar
         <div className="p-4 md:p-5">
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
-              <div className="flex items-center gap-2 text-sm font-bold text-slate-500">
-                <MapPin aria-hidden="true" className="h-4 w-4 text-indigo-500" />
-                Hamburg district
-              </div>
               <h3 className="mt-1 text-2xl font-black leading-tight text-slate-950">{district.name}</h3>
               {district.dataQuality === "placeholder" && (
                 <p className="mt-2 text-sm leading-6 text-slate-600">{district.shortDescription}</p>
