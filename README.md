@@ -108,6 +108,14 @@ src/data/districts.geojson
 To update the prototype, edit the JSON values directly. Keep the same property names so TypeScript and the scoring function continue to work.
 Keep district names aligned with the `Stadtteil` names in `districts.geojson` so the map can match scores to borders.
 
+Source evidence for factual data updates is saved in:
+
+```text
+evidence/data-sources/
+```
+
+The top 25 districts by 2024 resident population have sourced values and derived app scores documented in `top-25-hamburg-district-source-metrics-2026-05-24.csv` and `score-methodology.md`.
+
 ## Replacing Dummy Data Later
 
 When real public Hamburg datasets are available, replace the values in `src/data/districts.json` with normalized district-level values. Recommended steps:
