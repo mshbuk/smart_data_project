@@ -114,7 +114,7 @@ Source evidence for factual data updates is saved in:
 evidence/data-sources/
 ```
 
-The top 25 districts by 2024 resident population have sourced values and derived app scores documented in `top-25-hamburg-district-source-metrics-2026-05-24.csv` and `score-methodology.md`.
+The sourced values and derived app scores for all 104 app districts are documented in `hamburg-district-source-metrics-2026-05-26.csv` and `score-methodology.md`. The earlier top-25 extraction snapshot is kept in the same folder for traceability.
 
 ## Replacing Dummy Data Later
 

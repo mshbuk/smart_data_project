@@ -37,4 +37,4 @@ Access date: 2026-05-24
 
 ## Derived App Scores
 
-`top-25-hamburg-district-source-metrics-2026-05-24.csv` stores the raw metrics used for the top 25 district updates plus the derived 0-10 app scores. `score-methodology.md` explains how raw source indicators are translated into the current app scoring fields.
+`hamburg-district-source-metrics-2026-05-26.csv` stores source coverage, raw metrics, missing-source notes, and derived 0-10 app scores for all 104 app districts. `top-25-hamburg-district-source-metrics-2026-05-24.csv` is retained as the earlier top-25 extraction snapshot. `score-methodology.md` explains how raw source indicators are translated into the current app scoring fields.

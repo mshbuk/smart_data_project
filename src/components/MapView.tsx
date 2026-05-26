@@ -12,13 +12,20 @@ type MapViewProps = {
 
 type BoundaryProperties = {
   Stadtteil?: string;
+  crimeCases2024?: number;
+  dataQuality?: string;
   districtId?: string;
   districtName?: string;
   isHighlighted?: boolean;
   isTopMatch?: boolean;
+  missingSources?: string[];
   matchScore?: number;
+  population?: number;
+  populationDensity?: number;
   rank?: number;
+  rentPerSqm?: number;
   shortDescription?: string;
+  sourceSummary?: string;
 };
 
 type DistrictBoundaryFeature = Feature<Polygon | MultiPolygon, BoundaryProperties>;
@@ -106,6 +113,26 @@ function escapeHtml(value: string) {
   });
 }
 
+function formatNumber(value: number) {
+  return new Intl.NumberFormat("en-US").format(value);
+}
+
+function getPopupQualityLabel(dataQuality?: string) {
+  if (dataQuality === "sourced") return { label: "Sourced", color: "#047857", background: "#ecfdf5" };
+  if (dataQuality === "partially-sourced") return { label: "Partial", color: "#b45309", background: "#fffbeb" };
+  return { label: "Demo", color: "#475569", background: "#f8fafc" };
+}
+
+function createPopupMetric(label: string, value: string, detail: string) {
+  return `
+    <div style="border:1px solid #e2e8f0;border-radius:14px;padding:8px;background:#f8fafc;">
+      <div style="font-size:10px;font-weight:800;text-transform:uppercase;color:#94a3b8;letter-spacing:.04em;">${escapeHtml(label)}</div>
+      <div style="margin-top:2px;font-size:14px;font-weight:900;color:#0f172a;">${escapeHtml(value)}</div>
+      <div style="margin-top:2px;font-size:11px;font-weight:700;color:#64748b;">${escapeHtml(detail)}</div>
+    </div>
+  `;
+}
+
 function createBoundaryPopup(feature: DistrictBoundaryFeature) {
   const properties = feature.properties ?? {};
   const boundaryName = properties.Stadtteil ?? "District";
@@ -124,18 +151,44 @@ function createBoundaryPopup(feature: DistrictBoundaryFeature) {
 
   const score = properties.matchScore ?? 0;
   const rank = properties.rank ? `#${properties.rank}` : "Recommended";
-  const description = properties.shortDescription ?? "No summary available.";
   const statusText = properties.isHighlighted
     ? "Shown in current top set"
     : "Scored, outside the current top set";
   const statusColor = properties.isHighlighted ? "#16a34a" : "#64748b";
+  const quality = getPopupQualityLabel(properties.dataQuality);
+  const metrics = [
+    typeof properties.rentPerSqm === "number" &&
+    (properties.sourceSummary?.includes("Miet-Check") || properties.dataQuality === "placeholder")
+      ? createPopupMetric(
+          "Rent",
+          `EUR ${properties.rentPerSqm.toFixed(2)}`,
+          properties.sourceSummary?.includes("Miet-Check") ? "per sqm" : "demo / sqm",
+        )
+      : null,
+    typeof properties.population === "number"
+      ? createPopupMetric("Residents", formatNumber(properties.population), "2024")
+      : null,
+    typeof properties.population === "number" && typeof properties.populationDensity === "number"
+      ? createPopupMetric("Density", formatNumber(properties.populationDensity), "per km²")
+      : null,
+    typeof properties.crimeCases2024 === "number"
+      ? createPopupMetric("PKS", formatNumber(properties.crimeCases2024), "cases 2024")
+      : null,
+  ].filter(Boolean).join("");
+  const missingSources = properties.missingSources?.length
+    ? `<div style="margin-top:8px;border-radius:12px;background:#fffbeb;padding:7px 9px;color:#92400e;font-size:11px;font-weight:800;">Missing: ${escapeHtml(properties.missingSources.join(", "))}</div>`
+    : "";
 
   return `
-    <div style="min-width:190px;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
+    <div style="min-width:230px;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
       <div style="font-size:12px;font-weight:800;text-transform:uppercase;color:#4f46e5;letter-spacing:.04em;">${rank} match</div>
       <strong style="display:block;margin-top:3px;font-size:16px;color:#0f172a;">${escapeHtml(districtName)}</strong>
-      <div style="margin-top:6px;font-weight:800;color:#16a34a;">${score}% match</div>
-      <div style="margin-top:6px;line-height:1.45;color:#334155;">${escapeHtml(description)}</div>
+      <div style="margin-top:7px;display:flex;align-items:center;gap:7px;flex-wrap:wrap;">
+        <span style="border-radius:999px;background:#ecfdf5;color:#16a34a;padding:5px 9px;font-size:12px;font-weight:900;">${score}% match</span>
+        <span style="border-radius:999px;background:${quality.background};color:${quality.color};padding:5px 9px;font-size:12px;font-weight:900;">${quality.label}</span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:9px;">${metrics}</div>
+      ${missingSources}
       <div style="margin-top:6px;color:${statusColor};font-size:12px;font-weight:800;">${statusText}</div>
     </div>
   `;
@@ -201,11 +254,18 @@ function buildBoundaryCollection(
         ...feature.properties,
         districtId: match.district.id,
         districtName: match.district.name,
+        crimeCases2024: match.district.crimeCases2024,
+        dataQuality: match.district.dataQuality,
         isHighlighted,
         isTopMatch: isHighlighted && rank <= 3,
+        missingSources: match.district.missingSources,
         matchScore: match.score,
+        population: match.district.population,
+        populationDensity: match.district.populationDensity,
         rank,
+        rentPerSqm: match.district.rentPerSqm,
         shortDescription: match.district.shortDescription,
+        sourceSummary: match.district.sourceSummary,
       },
     };
   });
