@@ -5,10 +5,12 @@ import {
   Heart,
   Home,
   Info,
+  LogIn,
   MapPin,
   ShieldCheck,
   SlidersHorizontal,
   User,
+  UserPlus,
 } from "lucide-react";
 import type { Preferences, UserProfile } from "../types/District";
 
@@ -90,6 +92,32 @@ export function ProfilePage({
         </div>
 
         <div className="mt-7 grid gap-4 lg:grid-cols-[1fr_1fr]">
+          <section className="rounded-[1.35rem] border border-indigo-100 bg-indigo-50 p-4 lg:col-span-2">
+            <div className="flex items-center gap-2">
+              <LogIn aria-hidden="true" className="h-5 w-5 text-indigo-600" />
+              <h2 className="text-xl font-black text-slate-950">Sign in or register</h2>
+            </div>
+            <p className="mt-2 text-sm leading-6 text-slate-600">
+              Demo account actions are shown here for the tested flow. A real release would connect these buttons to authentication and saved cross-device profiles.
+            </p>
+            <div className="mt-4 grid gap-2 sm:grid-cols-2">
+              <button
+                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-white px-4 text-sm font-black text-indigo-600 shadow-sm shadow-slate-950/5 transition-colors hover:bg-indigo-50"
+                type="button"
+              >
+                <LogIn aria-hidden="true" className="h-4 w-4" />
+                Sign in
+              </button>
+              <button
+                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-indigo-600 px-4 text-sm font-black text-white shadow-lg shadow-indigo-600/20 transition-colors hover:bg-indigo-700"
+                type="button"
+              >
+                <UserPlus aria-hidden="true" className="h-4 w-4" />
+                Register
+              </button>
+            </div>
+          </section>
+
           <section className="rounded-[1.35rem] border border-slate-200 bg-white p-4">
             <div className="flex items-center gap-2">
               <SlidersHorizontal aria-hidden="true" className="h-5 w-5 text-indigo-600" />

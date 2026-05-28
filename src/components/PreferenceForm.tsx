@@ -13,12 +13,14 @@ import {
   Volume2,
   type LucideIcon,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { Preferences } from "../types/District";
+import { getImportanceLabel } from "../utils/districtInsights";
 
 type PreferenceFormProps = {
   preferences: Preferences;
   onChange: (preferences: Preferences) => void;
+  expandSignal?: number;
 };
 
 type SliderKey = Exclude<keyof Preferences, "maxRentPerSqm">;
@@ -40,9 +42,13 @@ function getPrioritySummary(preferences: Preferences) {
     .slice(0, 4);
 }
 
-export function PreferenceForm({ preferences, onChange }: PreferenceFormProps) {
+export function PreferenceForm({ preferences, onChange, expandSignal = 0 }: PreferenceFormProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const prioritySummary = getPrioritySummary(preferences);
+
+  useEffect(() => {
+    if (expandSignal > 0) setIsExpanded(true);
+  }, [expandSignal]);
 
   const updatePreference = (key: keyof Preferences, value: number) => {
     onChange({ ...preferences, [key]: value });
@@ -96,7 +102,7 @@ export function PreferenceForm({ preferences, onChange }: PreferenceFormProps) {
               style={{ backgroundColor: `${slider.color}14`, color: slider.color }}
             >
               <Icon aria-hidden="true" className="h-3.5 w-3.5" />
-              {slider.label} {preferences[slider.key]}/5
+              {slider.label} {preferences[slider.key]}/5 · {getImportanceLabel(preferences[slider.key])}
             </span>
           );
         })}
@@ -150,10 +156,15 @@ export function PreferenceForm({ preferences, onChange }: PreferenceFormProps) {
                       </span>
                     </span>
                     <strong
-                      className="grid h-9 w-9 shrink-0 place-items-center rounded-xl text-base font-black"
+                      className="grid min-h-11 min-w-[5rem] shrink-0 place-items-center rounded-xl px-2 text-center text-base font-black leading-tight"
                       style={{ backgroundColor: `${slider.color}1a`, color: slider.color }}
                     >
-                      {preferences[slider.key]}
+                      <span>
+                        <span className="block">{preferences[slider.key]}/5</span>
+                        <span className="block text-[0.62rem] uppercase tracking-wide">
+                          {getImportanceLabel(preferences[slider.key])}
+                        </span>
+                      </span>
                     </strong>
                   </span>
                   <input

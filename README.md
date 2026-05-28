@@ -2,7 +2,7 @@
 
 District Finder is a mobile-first React prototype for a university Smart Data project. It recommends Hamburg districts based on a selected lifestyle profile, budget, and personal priorities.
 
-The app uses local dummy district data, transparent scoring logic, result cards, saved comparisons, and a Leaflet map with Hamburg district borders from GeoJSON.
+The app uses local district data, transparent scoring logic, result cards, district detail views, saved comparisons, and a Leaflet map with Hamburg district borders from GeoJSON.
 
 Styling uses Tailwind CSS v4 through the official Vite plugin. The UI is built with Tailwind utility classes in the React components rather than a custom plain CSS stylesheet.
 
@@ -62,7 +62,7 @@ npm run dev
 Open the app in your browser:
 
 ```text
-http://127.0.0.1:5173/
+http://127.0.0.1:5173/smart_data_project/
 ```
 
 Build the project for production:
@@ -80,6 +80,18 @@ npm run preview
 ## Deployment
 
 The production site is deployed automatically with GitHub Actions when changes are pushed to `main`.
+
+## Current Prototype Features
+
+- Lifestyle profile presets for tourist/short stay, family relocation, and long-term living.
+- Editable priority weights with clear importance labels such as `important` and `very important`.
+- Ranked district recommendations with 10 districts per page.
+- Clickable district image areas that open in-app district detail views.
+- District detail pages with character traits, known-for facts, score explanations, and demo apartment previews.
+- Save/favorite districts and compare saved districts side by side.
+- Comparison view with best-value highlights and a priority-shape diagram based on the current preferences.
+- Leaflet map with Hamburg district polygons, top-match highlighting, a current-location button, and toggleable orientation points for landmarks, parks, HVV/airport, and education/health anchors.
+- Local demo profile page with favorites count, searched city, saved preferences, Datenschutz/Impressum notes, local data cleanup, and placeholder sign-in/register actions.
 
 ## Editing Dummy Data
 
@@ -107,6 +119,8 @@ src/data/districts.geojson
 
 To update the prototype, edit the JSON values directly. Keep the same property names so TypeScript and the scoring function continue to work.
 Keep district names aligned with the `Stadtteil` names in `districts.geojson` so the map can match scores to borders.
+
+District detail pages also derive demo-only apartment previews, character traits, and score explanations from this local district data. These previews are not real listings and should be replaced only when a real listing provider or dataset is available.
 
 Source evidence for factual data updates is saved in:
 

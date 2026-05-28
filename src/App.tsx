@@ -2,6 +2,7 @@ import "leaflet/dist/leaflet.css";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Heart, List, Map as MapIcon, User, type LucideIcon } from "lucide-react";
 import districts from "./data/districts.json";
+import { DistrictDetail } from "./components/DistrictDetail";
 import { MapView } from "./components/MapView";
 import { PreferenceForm } from "./components/PreferenceForm";
 import { ProfilePage } from "./components/ProfilePage";
@@ -95,6 +96,9 @@ function App() {
   const [preferences, setPreferences] = useState<Preferences>(initialState.preferences ?? profileDefaults.longTerm);
   const [savedDistrictIds, setSavedDistrictIds] = useState<string[]>(initialState.savedDistrictIds ?? []);
   const [activeView, setActiveView] = useState<ActiveView>(initialState.activeView ?? "results");
+  const [selectedDistrictId, setSelectedDistrictId] = useState<string | null>(null);
+  const [criteriaEditSignal, setCriteriaEditSignal] = useState(0);
+  const criteriaPanelRef = useRef<HTMLDivElement | null>(null);
 
   const matches = useMemo(
     () => calculateDistrictMatches(districtData, preferences, selectedProfile),
@@ -102,6 +106,9 @@ function App() {
   );
   const savedMatches = matches.filter((match) => savedDistrictIds.includes(match.district.id));
   const topMatch = matches[0];
+  const selectedDetailMatch = selectedDistrictId
+    ? matches.find((match) => match.district.id === selectedDistrictId)
+    : undefined;
 
   useEffect(() => {
     if (skipNextPersist.current) {
@@ -146,6 +153,15 @@ function App() {
     setActiveView("profile");
   };
 
+  const openCriteriaEditor = () => {
+    setSelectedDistrictId(null);
+    setActiveView("results");
+    setCriteriaEditSignal((currentSignal) => currentSignal + 1);
+    window.requestAnimationFrame(() => {
+      criteriaPanelRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  };
+
   const viewOptions: ViewOption[] = [
     { view: "results", label: "Results", icon: List, count: matches.length },
     { view: "map", label: "Map", icon: MapIcon },
@@ -179,11 +195,37 @@ function App() {
           <button
             aria-label="Open profile"
             className="absolute right-4 top-4 grid h-12 w-12 place-items-center rounded-2xl bg-white/95 text-indigo-600 shadow-xl shadow-slate-950/20 backdrop-blur transition-colors hover:bg-indigo-50 md:right-6 md:top-6"
-            onClick={() => setActiveView("profile")}
+            onClick={() => {
+              setSelectedDistrictId(null);
+              setActiveView("profile");
+            }}
             type="button"
           >
             <User aria-hidden="true" className="h-6 w-6" strokeWidth={2.5} />
           </button>
+
+          <div className="absolute left-4 top-4 flex gap-2 md:left-6 md:top-6">
+            <button
+              className="min-h-10 rounded-2xl bg-white/90 px-3 text-xs font-black text-slate-800 shadow-lg shadow-slate-950/15 backdrop-blur transition-colors hover:bg-white"
+              onClick={() => {
+                setSelectedDistrictId(null);
+                setActiveView("profile");
+              }}
+              type="button"
+            >
+              Sign in
+            </button>
+            <button
+              className="min-h-10 rounded-2xl bg-indigo-600/95 px-3 text-xs font-black text-white shadow-lg shadow-indigo-950/20 backdrop-blur transition-colors hover:bg-indigo-500"
+              onClick={() => {
+                setSelectedDistrictId(null);
+                setActiveView("profile");
+              }}
+              type="button"
+            >
+              Register
+            </button>
+          </div>
 
           <div className="max-w-3xl">
             <h1 className="text-5xl font-black leading-none text-white drop-shadow md:text-7xl">District Finder</h1>
@@ -195,9 +237,9 @@ function App() {
       </section>
 
       <div className="mx-auto mt-6 w-full max-w-[1080px] px-3.5 md:px-6">
-        <div className="relative grid gap-4">
+        <div className="relative grid gap-4" ref={criteriaPanelRef}>
           <ProfileSelector onSelect={handleProfileSelect} selectedProfile={selectedProfile} />
-          <PreferenceForm onChange={setPreferences} preferences={preferences} />
+          <PreferenceForm expandSignal={criteriaEditSignal} onChange={setPreferences} preferences={preferences} />
         </div>
 
         <section className="mt-8 mb-4 px-1">
@@ -211,57 +253,93 @@ function App() {
             </div>
 
             {topMatch && (
-              <div className="rounded-[1.25rem] border border-emerald-100 bg-emerald-50 px-4 py-3 text-sm font-bold text-emerald-800">
-                Top match: <span className="font-black">{topMatch.district.name}</span> ({topMatch.score}%)
+              <div className="grid gap-2 sm:grid-cols-[1fr_auto]">
+                <div className="rounded-[1.25rem] border border-emerald-100 bg-emerald-50 px-4 py-3 text-sm font-bold text-emerald-800">
+                  Top match: <span className="font-black">{topMatch.district.name}</span> ({topMatch.score}%)
+                </div>
+                <button
+                  className="min-h-11 rounded-2xl bg-white px-4 text-sm font-black text-indigo-600 shadow-[0_12px_30px_rgba(15,23,42,0.08)] transition-colors hover:bg-indigo-50"
+                  onClick={openCriteriaEditor}
+                  type="button"
+                >
+                  Edit criteria
+                </button>
               </div>
             )}
           </div>
         </section>
 
-        <nav
-          aria-label="Recommendation views"
-          className="fixed inset-x-3 bottom-3 z-[1200] mx-auto max-w-[640px] rounded-[1.4rem] border border-white/80 bg-white/95 p-2 shadow-[0_18px_50px_rgba(15,23,42,0.2)] backdrop-blur-xl md:sticky md:inset-x-auto md:top-3 md:bottom-auto md:mb-4 md:max-w-none md:rounded-2xl"
-        >
-          <div className="grid grid-cols-3 gap-2">
-            {viewOptions.map((option) => {
-              const Icon = option.icon;
-              const isActive = activeView === option.view;
+        {!selectedDetailMatch && (
+          <nav
+            aria-label="Recommendation views"
+            className="fixed inset-x-3 bottom-3 z-[1200] mx-auto max-w-[640px] rounded-[1.4rem] border border-white/80 bg-white/95 p-2 shadow-[0_18px_50px_rgba(15,23,42,0.2)] backdrop-blur-xl md:sticky md:inset-x-auto md:top-3 md:bottom-auto md:mb-4 md:max-w-none md:rounded-2xl"
+          >
+            <div className="grid grid-cols-3 gap-2">
+              {viewOptions.map((option) => {
+                const Icon = option.icon;
+                const isActive = activeView === option.view;
 
-              return (
-                <button
-                  aria-pressed={isActive}
-                  className={[
-                    "relative flex min-h-16 flex-col items-center justify-center gap-1 rounded-2xl px-2 text-xs font-black transition-colors sm:min-h-14 sm:flex-row sm:gap-2 sm:px-3 sm:text-sm",
-                    "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600",
-                    isActive ? "bg-indigo-600 text-white shadow-lg shadow-indigo-600/20" : "text-slate-600 hover:bg-slate-100",
-                  ].join(" ")}
-                  key={option.view}
-                  onClick={() => setActiveView(option.view)}
-                  type="button"
-                >
-                  <Icon aria-hidden="true" className="h-5 w-5" />
-                  <span className="max-w-full truncate">{option.label}</span>
-                  {typeof option.count === "number" && (
-                    <span
-                      className={[
-                        "absolute right-2 top-2 grid h-5 min-w-6 place-items-center rounded-full px-1.5 text-[0.62rem] font-black leading-none sm:static sm:h-auto sm:min-w-6 sm:px-1.5 sm:py-0.5 sm:text-xs",
-                        isActive ? "bg-white/20 text-white" : "bg-slate-100 text-slate-700",
-                      ].join(" ")}
-                    >
-                      {option.count}
-                    </span>
-                  )}
-                </button>
-              );
-            })}
-          </div>
-        </nav>
-
-        {activeView === "results" && (
-          <ResultsList matches={matches} onToggleSave={toggleSave} savedDistrictIds={savedDistrictIds} />
+                return (
+                  <button
+                    aria-pressed={isActive}
+                    className={[
+                      "relative flex min-h-16 flex-col items-center justify-center gap-1 rounded-2xl px-2 text-xs font-black transition-colors sm:min-h-14 sm:flex-row sm:gap-2 sm:px-3 sm:text-sm",
+                      "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600",
+                      isActive ? "bg-indigo-600 text-white shadow-lg shadow-indigo-600/20" : "text-slate-600 hover:bg-slate-100",
+                    ].join(" ")}
+                    key={option.view}
+                    onClick={() => {
+                      setSelectedDistrictId(null);
+                      setActiveView(option.view);
+                    }}
+                    type="button"
+                  >
+                    <Icon aria-hidden="true" className="h-5 w-5" />
+                    <span className="max-w-full truncate">{option.label}</span>
+                    {typeof option.count === "number" && (
+                      <span
+                        className={[
+                          "absolute right-2 top-2 grid h-5 min-w-6 place-items-center rounded-full px-1.5 text-[0.62rem] font-black leading-none sm:static sm:h-auto sm:min-w-6 sm:px-1.5 sm:py-0.5 sm:text-xs",
+                          isActive ? "bg-white/20 text-white" : "bg-slate-100 text-slate-700",
+                        ].join(" ")}
+                      >
+                        {option.count}
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </nav>
         )}
-        {activeView === "saved" && <SavedComparison savedMatches={savedMatches} />}
-        {activeView === "map" && <MapView matches={matches} />}
+
+        {selectedDetailMatch && (
+          <DistrictDetail
+            isSaved={savedDistrictIds.includes(selectedDetailMatch.district.id)}
+            match={selectedDetailMatch}
+            onBack={() => setSelectedDistrictId(null)}
+            onEditCriteria={openCriteriaEditor}
+            onToggleSave={toggleSave}
+            preferences={preferences}
+          />
+        )}
+        {!selectedDetailMatch && activeView === "results" && (
+          <ResultsList
+            matches={matches}
+            onOpenDetails={setSelectedDistrictId}
+            onToggleSave={toggleSave}
+            savedDistrictIds={savedDistrictIds}
+          />
+        )}
+        {!selectedDetailMatch && activeView === "saved" && (
+          <SavedComparison
+            onEditCriteria={openCriteriaEditor}
+            onFindDistricts={() => setActiveView("results")}
+            preferences={preferences}
+            savedMatches={savedMatches}
+          />
+        )}
+        {!selectedDetailMatch && activeView === "map" && <MapView matches={matches} />}
       </div>
     </main>
   );

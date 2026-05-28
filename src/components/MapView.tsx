@@ -44,6 +44,16 @@ type UserLocation = {
 
 type LocationStatus = "idle" | "locating" | "found" | "error";
 
+type PoiCategory = "landmark" | "park" | "transit" | "education";
+
+type OrientationPoi = {
+  category: PoiCategory;
+  description: string;
+  label: string;
+  latitude: number;
+  longitude: number;
+};
+
 type TopBoundaryCount = 10 | 25 | 50 | "all";
 
 const emptyDistrictBoundaries: DistrictBoundaryCollection = {
@@ -53,6 +63,79 @@ const emptyDistrictBoundaries: DistrictBoundaryCollection = {
 
 const hamburgAltstadtCenter: [number, number] = [53.55062, 9.9955];
 const topBoundaryOptions: TopBoundaryCount[] = [10, 25, 50, "all"];
+
+const poiCategories: Array<{ key: PoiCategory; label: string; color: string }> = [
+  { key: "landmark", label: "Landmarks", color: "#4f46e5" },
+  { key: "park", label: "Parks", color: "#16a34a" },
+  { key: "transit", label: "HVV / airport", color: "#0891b2" },
+  { key: "education", label: "Education / health", color: "#d97706" },
+];
+
+const orientationPois: OrientationPoi[] = [
+  {
+    category: "landmark",
+    description: "City center orientation point",
+    label: "Hamburg Rathaus",
+    latitude: 53.5503,
+    longitude: 9.992,
+  },
+  {
+    category: "landmark",
+    description: "Harbor and cultural landmark",
+    label: "Elbphilharmonie",
+    latitude: 53.5413,
+    longitude: 9.9841,
+  },
+  {
+    category: "landmark",
+    description: "Inner Alster reference point",
+    label: "Binnenalster",
+    latitude: 53.5559,
+    longitude: 9.9977,
+  },
+  {
+    category: "park",
+    description: "Large central city park",
+    label: "Planten un Blomen",
+    latitude: 53.5614,
+    longitude: 9.9799,
+  },
+  {
+    category: "park",
+    description: "Major green-space anchor in Winterhude",
+    label: "Stadtpark",
+    latitude: 53.5968,
+    longitude: 10.0199,
+  },
+  {
+    category: "transit",
+    description: "Main rail and HVV interchange",
+    label: "Hauptbahnhof",
+    latitude: 53.5528,
+    longitude: 10.0067,
+  },
+  {
+    category: "transit",
+    description: "Airport connection point",
+    label: "Hamburg Airport",
+    latitude: 53.6304,
+    longitude: 9.9882,
+  },
+  {
+    category: "education",
+    description: "University area",
+    label: "Universitaet Hamburg",
+    latitude: 53.5665,
+    longitude: 9.9841,
+  },
+  {
+    category: "education",
+    description: "Major hospital and health reference point",
+    label: "UKE",
+    latitude: 53.5908,
+    longitude: 9.9745,
+  },
+];
 
 const legendItems = [
   { label: "Top 3", color: "#16a34a" },
@@ -335,6 +418,9 @@ export function MapView({ matches }: MapViewProps) {
   const [topBoundaryCount, setTopBoundaryCount] = useState<TopBoundaryCount>(25);
   const [locationStatus, setLocationStatus] = useState<LocationStatus>("idle");
   const [locationMessage, setLocationMessage] = useState("");
+  const [visiblePoiCategories, setVisiblePoiCategories] = useState<Set<PoiCategory>>(
+    () => new Set(["landmark", "park", "transit"]),
+  );
   const [userLocation, setUserLocation] = useState<UserLocation | null>(null);
   const { boundaries: rawDistrictBoundaries, hasError: boundaryLoadError } = useDistrictBoundaries();
   const highlightedRankLimit = topBoundaryCount === "all" ? Number.POSITIVE_INFINITY : topBoundaryCount;
@@ -391,6 +477,20 @@ export function MapView({ matches }: MapViewProps) {
     );
   };
 
+  const togglePoiCategory = (category: PoiCategory) => {
+    setVisiblePoiCategories((currentCategories) => {
+      const nextCategories = new Set(currentCategories);
+
+      if (nextCategories.has(category)) {
+        nextCategories.delete(category);
+      } else {
+        nextCategories.add(category);
+      }
+
+      return nextCategories;
+    });
+  };
+
   return (
     <section className="overflow-hidden rounded-[1.6rem] border border-white/80 bg-white shadow-[0_18px_45px_rgba(15,23,42,0.08)]">
       <div className="grid gap-4 p-4 md:grid-cols-[1fr_auto] md:items-start md:p-5">
@@ -401,7 +501,7 @@ export function MapView({ matches }: MapViewProps) {
           <div>
             <h2 className="text-xl font-black text-slate-950">Map view</h2>
             <p className="mt-1 text-sm leading-6 text-slate-600">
-              Every Hamburg district from the GeoJSON is shown as its own border. The current top matches are highlighted.
+              Every Hamburg district from the GeoJSON is shown as its own border. Street tiles and orientation points help place the top matches.
             </p>
           </div>
         </div>
@@ -438,6 +538,29 @@ export function MapView({ matches }: MapViewProps) {
           })}
         </div>
 
+        <div className="mb-3 flex flex-wrap items-center gap-2">
+          <span className="text-xs font-black uppercase tracking-wide text-slate-500">Orientation</span>
+          {poiCategories.map((category) => {
+            const isActive = visiblePoiCategories.has(category.key);
+
+            return (
+              <button
+                aria-pressed={isActive}
+                className={[
+                  "inline-flex min-h-9 items-center gap-2 rounded-2xl px-3 text-xs font-black transition-colors",
+                  isActive ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200",
+                ].join(" ")}
+                key={category.key}
+                onClick={() => togglePoiCategory(category.key)}
+                type="button"
+              >
+                <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: category.color }} />
+                {category.label}
+              </button>
+            );
+          })}
+        </div>
+
         <div className="relative overflow-hidden rounded-[1.35rem]">
           <MapContainer
             center={hamburgAltstadtCenter}
@@ -455,6 +578,33 @@ export function MapView({ matches }: MapViewProps) {
               onEachFeature={(feature, layer) => attachBoundaryInteractions(feature as DistrictBoundaryFeature, layer)}
               style={(feature) => getBoundaryStyle(feature as DistrictBoundaryFeature)}
             />
+            {orientationPois
+              .filter((poi) => visiblePoiCategories.has(poi.category))
+              .map((poi) => {
+                const category = poiCategories.find((item) => item.key === poi.category);
+                const color = category?.color ?? "#4f46e5";
+
+                return (
+                  <CircleMarker
+                    center={[poi.latitude, poi.longitude]}
+                    key={poi.label}
+                    pathOptions={{
+                      color: "#ffffff",
+                      fillColor: color,
+                      fillOpacity: 0.95,
+                      opacity: 1,
+                      weight: 2,
+                    }}
+                    radius={7}
+                  >
+                    <Popup>
+                      <strong>{poi.label}</strong>
+                      <br />
+                      {poi.description}
+                    </Popup>
+                  </CircleMarker>
+                );
+              })}
             {userLocation && (
               <>
                 {typeof userLocation.accuracy === "number" && (

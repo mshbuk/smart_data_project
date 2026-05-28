@@ -6,12 +6,13 @@ import { DistrictCard } from "./DistrictCard";
 type ResultsListProps = {
   matches: DistrictMatch[];
   savedDistrictIds: string[];
+  onOpenDetails: (districtId: string) => void;
   onToggleSave: (districtId: string) => void;
 };
 
 const matchesPerPage = 10;
 
-export function ResultsList({ matches, savedDistrictIds, onToggleSave }: ResultsListProps) {
+export function ResultsList({ matches, savedDistrictIds, onOpenDetails, onToggleSave }: ResultsListProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const totalPages = Math.max(1, Math.ceil(matches.length / matchesPerPage));
   const firstMatchIndex = (currentPage - 1) * matchesPerPage;
@@ -40,6 +41,7 @@ export function ResultsList({ matches, savedDistrictIds, onToggleSave }: Results
           isSaved={savedDistrictIds.includes(match.district.id)}
           key={match.district.id}
           match={match}
+          onOpenDetails={onOpenDetails}
           onToggleSave={onToggleSave}
           rank={firstMatchIndex + index + 1}
         />

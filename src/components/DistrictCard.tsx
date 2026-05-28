@@ -8,6 +8,7 @@ import {
   Euro,
   GraduationCap,
   Heart,
+  Info,
   Siren,
   Shield,
   Train,
@@ -17,11 +18,13 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import type { District, DistrictMatch } from "../types/District";
+import { formatScore } from "../utils/districtInsights";
 
 type DistrictCardProps = {
   match: DistrictMatch;
   isSaved: boolean;
   onToggleSave: (districtId: string) => void;
+  onOpenDetails?: (districtId: string) => void;
   rank: number;
 };
 
@@ -188,23 +191,28 @@ function EvidencePanel({ district }: { district: District }) {
   );
 }
 
-export function DistrictCard({ match, isSaved, onToggleSave, rank }: DistrictCardProps) {
+export function DistrictCard({ match, isSaved, onToggleSave, onOpenDetails, rank }: DistrictCardProps) {
   const { district } = match;
   const tone = getScoreTone(match.score);
 
   const stats: StatItem[] = [
     { label: "Rent", value: `EUR ${district.rentPerSqm}/sqm`, icon: Euro, color: "#059669" },
-    { label: "Safety", value: `${district.safetyScore}/10`, icon: Shield, color: "#2563eb" },
-    { label: "Transport", value: `${district.publicTransportScore}/10`, icon: Train, color: "#0891b2" },
-    { label: "Green", value: `${district.greenScore}/10`, icon: TreePine, color: "#16a34a" },
-    { label: "Schools", value: `${district.schoolScore}/10`, icon: GraduationCap, color: "#d97706" },
-    { label: "Quiet", value: `${district.quietnessScore}/10`, icon: Volume2, color: "#7c3aed" },
+    { label: "Safety", value: `${formatScore(district.safetyScore)}/10`, icon: Shield, color: "#2563eb" },
+    { label: "Transport", value: `${formatScore(district.publicTransportScore)}/10`, icon: Train, color: "#0891b2" },
+    { label: "Green", value: `${formatScore(district.greenScore)}/10`, icon: TreePine, color: "#16a34a" },
+    { label: "Schools", value: `${formatScore(district.schoolScore)}/10`, icon: GraduationCap, color: "#d97706" },
+    { label: "Quiet", value: `${formatScore(district.quietnessScore)}/10`, icon: Volume2, color: "#7c3aed" },
   ];
 
   return (
     <article className="overflow-hidden rounded-[1.6rem] border border-white/80 bg-white shadow-[0_22px_55px_rgba(15,23,42,0.1)] transition-transform duration-200 hover:-translate-y-0.5">
       <div className="grid md:grid-cols-[240px_1fr]">
-        <div className="relative min-h-[210px] overflow-hidden bg-slate-200 md:min-h-full">
+        <button
+          aria-label={`Open ${district.name} details`}
+          className="group relative min-h-[210px] overflow-hidden bg-slate-200 text-left md:min-h-full"
+          onClick={() => onOpenDetails?.(district.id)}
+          type="button"
+        >
           {district.imageUrl ? (
             <img
               alt=""
@@ -223,7 +231,11 @@ export function DistrictCard({ match, isSaved, onToggleSave, rank }: DistrictCar
             <span className="block text-2xl leading-none">{match.score}%</span>
             <span className="mt-1 block text-[0.68rem] uppercase tracking-wide">{tone.label}</span>
           </div>
-        </div>
+          <span className="absolute bottom-4 right-4 inline-flex items-center gap-2 rounded-2xl bg-white/90 px-3 py-2 text-xs font-black text-slate-800 opacity-100 shadow-lg backdrop-blur transition-colors group-hover:bg-indigo-600 group-hover:text-white">
+            <Info aria-hidden="true" className="h-4 w-4" />
+            Details
+          </span>
+        </button>
 
         <div className="p-4 md:p-5">
           <div className="flex items-start justify-between gap-3">
