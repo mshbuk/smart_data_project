@@ -13,12 +13,16 @@ import {
   Volume2,
   type LucideIcon,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { Preferences } from "../types/District";
+import { getImportanceLabel } from "../utils/districtInsights";
+import { useI18n } from "../i18n";
 
 type PreferenceFormProps = {
   preferences: Preferences;
   onChange: (preferences: Preferences) => void;
+  defaultExpanded?: boolean;
+  expandSignal?: number;
 };
 
 type SliderKey = Exclude<keyof Preferences, "maxRentPerSqm">;
@@ -33,6 +37,23 @@ const sliders: Array<{ key: SliderKey; label: string; helper: string; icon: Luci
   { key: "nightlife", label: "Nightlife", helper: "Food, bars, events", icon: Music, color: "#4f46e5" },
 ];
 
+const labelTranslations: Record<string, string> = {
+  Safety: "Sicherheit",
+  Quietness: "Ruhe",
+  "Green areas": "Gruenflaechen",
+  "Public transport": "OePNV",
+  Schools: "Schulen",
+  Kindergartens: "Kitas",
+  Nightlife: "Nachtleben",
+  "Everyday security": "Sicherheit im Alltag",
+  "Calmer streets": "Ruhigere Strassen",
+  "Parks and open space": "Parks und Freiraum",
+  "U-Bahn, S-Bahn, bus": "U-Bahn, S-Bahn, Bus",
+  "School access": "Schulzugang",
+  "Early-childhood options": "Kita-Angebote",
+  "Food, bars, events": "Essen, Bars, Events",
+};
+
 function getPrioritySummary(preferences: Preferences) {
   return sliders
     .filter((slider) => preferences[slider.key] > 0)
@@ -40,9 +61,18 @@ function getPrioritySummary(preferences: Preferences) {
     .slice(0, 4);
 }
 
-export function PreferenceForm({ preferences, onChange }: PreferenceFormProps) {
-  const [isExpanded, setIsExpanded] = useState(false);
+export function PreferenceForm({ preferences, onChange, defaultExpanded = false, expandSignal = 0 }: PreferenceFormProps) {
+  const { language, tx } = useI18n();
+  const [isExpanded, setIsExpanded] = useState(defaultExpanded);
   const prioritySummary = getPrioritySummary(preferences);
+
+  useEffect(() => {
+    if (defaultExpanded) setIsExpanded(true);
+  }, [defaultExpanded]);
+
+  useEffect(() => {
+    if (expandSignal > 0) setIsExpanded(true);
+  }, [expandSignal]);
 
   const updatePreference = (key: keyof Preferences, value: number) => {
     onChange({ ...preferences, [key]: value });
@@ -54,10 +84,13 @@ export function PreferenceForm({ preferences, onChange }: PreferenceFormProps) {
         <div className="min-w-0">
           <div className="flex items-center gap-2">
             <SlidersHorizontal aria-hidden="true" className="h-5 w-5 text-indigo-600" />
-            <h2 className="m-0 text-xl font-black text-[#101828]">Fine-tune priorities</h2>
+            <h2 className="m-0 text-xl font-black text-[#101828]">{tx("Fine-tune priorities", "Prioritaeten feinjustieren")}</h2>
           </div>
           <p className="mt-1 text-sm leading-6 text-slate-600">
-            Keep the preset, or open the controls to customize the weights.
+            {tx(
+              "Keep the preset, or open the controls to customize the weights.",
+              "Behalte die Vorgaben oder oeffne die Regler, um die Gewichtung anzupassen.",
+            )}
           </p>
         </div>
 
@@ -70,12 +103,12 @@ export function PreferenceForm({ preferences, onChange }: PreferenceFormProps) {
           {isExpanded ? (
             <>
               <ChevronUp aria-hidden="true" className="h-4 w-4" />
-              Hide controls
+              {tx("Hide controls", "Regler ausblenden")}
             </>
           ) : (
             <>
               <ChevronDown aria-hidden="true" className="h-4 w-4" />
-              Edit weights
+              {tx("Edit weights", "Gewichtung bearbeiten")}
             </>
           )}
         </button>
@@ -84,7 +117,7 @@ export function PreferenceForm({ preferences, onChange }: PreferenceFormProps) {
       <div className="mt-4 flex flex-wrap gap-2">
         <span className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-black text-emerald-700">
           <Euro aria-hidden="true" className="h-3.5 w-3.5" />
-          Max EUR {preferences.maxRentPerSqm}/sqm
+          {tx("Max", "Max.")} EUR {preferences.maxRentPerSqm}/{tx("sqm", "qm")}
         </span>
         {prioritySummary.map((slider) => {
           const Icon = slider.icon;
@@ -96,7 +129,8 @@ export function PreferenceForm({ preferences, onChange }: PreferenceFormProps) {
               style={{ backgroundColor: `${slider.color}14`, color: slider.color }}
             >
               <Icon aria-hidden="true" className="h-3.5 w-3.5" />
-              {slider.label} {preferences[slider.key]}/5
+              {tx(slider.label, labelTranslations[slider.label] ?? slider.label)} {preferences[slider.key]}/5 ·{" "}
+              {getImportanceLabel(preferences[slider.key], language)}
             </span>
           );
         })}
@@ -110,8 +144,8 @@ export function PreferenceForm({ preferences, onChange }: PreferenceFormProps) {
                 <Euro aria-hidden="true" className="h-4 w-4" />
               </span>
               <span>
-                <span className="block font-black text-slate-950">Maximum rent</span>
-                <span className="block text-xs font-bold text-slate-500">Euros per square meter</span>
+                <span className="block font-black text-slate-950">{tx("Maximum rent", "Maximale Miete")}</span>
+                <span className="block text-xs font-bold text-slate-500">{tx("Euros per square meter", "Euro pro Quadratmeter")}</span>
               </span>
             </span>
             <span className="flex min-h-11 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 focus-within:border-indigo-300 focus-within:ring-4 focus-within:ring-indigo-100">
@@ -125,7 +159,7 @@ export function PreferenceForm({ preferences, onChange }: PreferenceFormProps) {
                 type="number"
                 value={preferences.maxRentPerSqm}
               />
-              <span className="text-xs font-black text-slate-500">/sqm</span>
+              <span className="text-xs font-black text-slate-500">/{tx("sqm", "qm")}</span>
             </span>
           </label>
 
@@ -145,15 +179,24 @@ export function PreferenceForm({ preferences, onChange }: PreferenceFormProps) {
                         <Icon aria-hidden="true" className="h-[18px] w-[18px]" strokeWidth={2.4} />
                       </span>
                       <span className="min-w-0">
-                        <span className="block truncate text-sm font-black leading-5 text-slate-950">{slider.label}</span>
-                        <span className="block truncate text-xs font-bold leading-5 text-slate-500">{slider.helper}</span>
+                        <span className="block truncate text-sm font-black leading-5 text-slate-950">
+                          {tx(slider.label, labelTranslations[slider.label] ?? slider.label)}
+                        </span>
+                        <span className="block truncate text-xs font-bold leading-5 text-slate-500">
+                          {tx(slider.helper, labelTranslations[slider.helper] ?? slider.helper)}
+                        </span>
                       </span>
                     </span>
                     <strong
-                      className="grid h-9 w-9 shrink-0 place-items-center rounded-xl text-base font-black"
+                      className="grid min-h-11 min-w-[5rem] shrink-0 place-items-center rounded-xl px-2 text-center text-base font-black leading-tight"
                       style={{ backgroundColor: `${slider.color}1a`, color: slider.color }}
                     >
-                      {preferences[slider.key]}
+                      <span>
+                        <span className="block">{preferences[slider.key]}/5</span>
+                        <span className="block text-[0.62rem] uppercase tracking-wide">
+                          {getImportanceLabel(preferences[slider.key], language)}
+                        </span>
+                      </span>
                     </strong>
                   </span>
                   <input
