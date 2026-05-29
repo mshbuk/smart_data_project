@@ -21,7 +21,7 @@ export interface District {
   longitude: number;
 }
 
-export type UserProfile = "tourist" | "family" | "longTerm";
+export type UserProfile = "tourist" | "family" | "longTerm" | "custom";
 
 export interface Preferences {
   maxRentPerSqm: number;

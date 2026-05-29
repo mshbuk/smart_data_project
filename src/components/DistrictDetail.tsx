@@ -19,6 +19,7 @@ import {
   getImportanceLabel,
   getKnownFor,
 } from "../utils/districtInsights";
+import { useI18n } from "../i18n";
 
 type DistrictDetailProps = {
   isSaved: boolean;
@@ -37,13 +38,14 @@ export function DistrictDetail({
   onEditCriteria,
   onToggleSave,
 }: DistrictDetailProps) {
+  const { language, tx } = useI18n();
   const { district } = match;
-  const traits = getDistrictTraits(district);
-  const facts = getKnownFor(district);
-  const insights = getCriterionInsights(district, preferences)
+  const traits = getDistrictTraits(district, language);
+  const facts = getKnownFor(district, language);
+  const insights = getCriterionInsights(district, preferences, language)
     .filter((insight) => insight.weight > 0)
     .sort((a, b) => b.weight - a.weight || b.score - a.score);
-  const listings = getDemoListings(district);
+  const listings = getDemoListings(district, language);
 
   return (
     <section className="grid gap-4">
@@ -54,7 +56,7 @@ export function DistrictDetail({
           type="button"
         >
           <ArrowLeft aria-hidden="true" className="h-4 w-4" />
-          Back to matches
+          {tx("Back to matches", "Zurueck zu den Treffern")}
         </button>
 
         <button
@@ -63,7 +65,7 @@ export function DistrictDetail({
           type="button"
         >
           <SlidersHorizontal aria-hidden="true" className="h-4 w-4" />
-          Edit criteria
+          {tx("Edit criteria", "Kriterien bearbeiten")}
         </button>
       </div>
 
@@ -78,7 +80,7 @@ export function DistrictDetail({
           <div className="absolute inset-x-0 bottom-0 p-4 text-white md:p-6">
             <div className="flex flex-wrap items-end justify-between gap-4">
               <div>
-                <p className="text-xs font-black uppercase tracking-wide text-white/80">District detail</p>
+                <p className="text-xs font-black uppercase tracking-wide text-white/80">{tx("District detail", "Stadtteil-Details")}</p>
                 <h2 className="mt-1 text-4xl font-black leading-tight md:text-5xl">{district.name}</h2>
                 <div className="mt-3 flex flex-wrap gap-2">
                   {traits.map((trait) => (
@@ -90,7 +92,7 @@ export function DistrictDetail({
               </div>
               <div className="rounded-2xl bg-white px-4 py-3 text-slate-950 shadow-xl">
                 <span className="block text-3xl font-black leading-none text-indigo-600">{match.score}%</span>
-                <span className="mt-1 block text-xs font-black uppercase tracking-wide text-slate-500">profile fit</span>
+                <span className="mt-1 block text-xs font-black uppercase tracking-wide text-slate-500">{tx("profile fit", "Profilpassung")}</span>
               </div>
             </div>
           </div>
@@ -101,7 +103,7 @@ export function DistrictDetail({
             <div className="rounded-[1.35rem] bg-slate-50 p-4">
               <div className="flex items-center gap-2">
                 <Sparkles aria-hidden="true" className="h-5 w-5 text-indigo-600" />
-                <h3 className="text-xl font-black text-slate-950">Why it matches</h3>
+                <h3 className="text-xl font-black text-slate-950">{tx("Why it matches", "Warum es passt")}</h3>
               </div>
               <p className="mt-3 text-sm leading-6 text-slate-700">{match.explanation}</p>
               <div className="mt-3 flex flex-wrap gap-2">
@@ -121,7 +123,7 @@ export function DistrictDetail({
             <div className="rounded-[1.35rem] border border-slate-100 bg-white p-4">
               <div className="flex items-center gap-2">
                 <Info aria-hidden="true" className="h-5 w-5 text-indigo-600" />
-                <h3 className="text-xl font-black text-slate-950">Score explanations</h3>
+                <h3 className="text-xl font-black text-slate-950">{tx("Score explanations", "Erklaerung der Bewertungen")}</h3>
               </div>
               <div className="mt-4 grid gap-3">
                 {insights.slice(0, 6).map((insight) => (
@@ -130,7 +132,7 @@ export function DistrictDetail({
                       <span>
                         <span className="block text-sm font-black text-slate-950">{insight.label}</span>
                         <span className="block text-xs font-bold text-slate-500">
-                          {insight.weight}/5 · {getImportanceLabel(insight.weight)}
+                          {insight.weight}/5 · {getImportanceLabel(insight.weight, language)}
                         </span>
                       </span>
                       <span className="rounded-xl bg-white px-3 py-1.5 text-sm font-black text-slate-900">
@@ -151,7 +153,7 @@ export function DistrictDetail({
             <section className="rounded-[1.35rem] border border-slate-100 bg-slate-50 p-4">
               <div className="flex items-center gap-2">
                 <BadgeCheck aria-hidden="true" className="h-5 w-5 text-emerald-600" />
-                <h3 className="text-xl font-black text-slate-950">Known for</h3>
+                <h3 className="text-xl font-black text-slate-950">{tx("Known for", "Bekannt fuer")}</h3>
               </div>
               <div className="mt-3 grid gap-2">
                 {facts.map((fact) => (
@@ -166,10 +168,13 @@ export function DistrictDetail({
             <section className="rounded-[1.35rem] border border-indigo-100 bg-indigo-50 p-4">
               <div className="flex items-center gap-2">
                 <Home aria-hidden="true" className="h-5 w-5 text-indigo-600" />
-                <h3 className="text-xl font-black text-slate-950">Apartment previews</h3>
+                <h3 className="text-xl font-black text-slate-950">{tx("Apartment previews", "Wohnungs-Vorschau")}</h3>
               </div>
               <p className="mt-2 text-xs font-bold leading-5 text-slate-600">
-                Demo listings shown in-platform so the flow does not depend on external redirects.
+                {tx(
+                  "Demo listings shown in-platform so the flow does not depend on external redirects.",
+                  "Demo-Angebote werden direkt in der Plattform gezeigt, damit der Flow nicht von Weiterleitungen abhaengt.",
+                )}
               </p>
               <div className="mt-3 grid gap-2">
                 {listings.map((listing) => (
@@ -178,7 +183,7 @@ export function DistrictDetail({
                       <div>
                         <h4 className="text-sm font-black text-slate-950">{listing.title}</h4>
                         <p className="mt-1 text-xs font-bold text-slate-500">
-                          {listing.rooms} rooms · {listing.size} sqm
+                          {listing.rooms} {tx("rooms", "Zimmer")} · {listing.size} {tx("sqm", "qm")}
                         </p>
                       </div>
                       <span className="rounded-xl bg-emerald-50 px-2 py-1 text-xs font-black text-emerald-700">
@@ -204,19 +209,23 @@ export function DistrictDetail({
               type="button"
             >
               <Heart aria-hidden="true" className={isSaved ? "h-4 w-4 fill-current" : "h-4 w-4"} />
-              {isSaved ? "Remove from saved" : "Save for comparison"}
+              {isSaved ? tx("Remove from saved", "Aus Gespeichert entfernen") : tx("Save for comparison", "Fuer Vergleich speichern")}
             </button>
 
             <div className="grid grid-cols-2 gap-2">
               <div className="rounded-2xl bg-slate-50 px-3 py-2">
                 <Euro aria-hidden="true" className="h-4 w-4 text-emerald-600" />
-                <p className="mt-2 text-xs font-bold text-slate-500">Rent</p>
-                <p className="text-sm font-black text-slate-950">EUR {district.rentPerSqm}/sqm</p>
+                <p className="mt-2 text-xs font-bold text-slate-500">{tx("Rent", "Miete")}</p>
+                <p className="text-sm font-black text-slate-950">
+                  EUR {new Intl.NumberFormat(language === "de" ? "de-DE" : "en-US").format(district.rentPerSqm)}/{tx("sqm", "qm")}
+                </p>
               </div>
               <div className="rounded-2xl bg-slate-50 px-3 py-2">
                 <Building2 aria-hidden="true" className="h-4 w-4 text-indigo-600" />
-                <p className="mt-2 text-xs font-bold text-slate-500">Density</p>
-                <p className="text-sm font-black text-slate-950">{district.populationDensity.toLocaleString("en-US")}/km²</p>
+                <p className="mt-2 text-xs font-bold text-slate-500">{tx("Density", "Dichte")}</p>
+                <p className="text-sm font-black text-slate-950">
+                  {district.populationDensity.toLocaleString(language === "de" ? "de-DE" : "en-US")}/km²
+                </p>
               </div>
             </div>
           </aside>

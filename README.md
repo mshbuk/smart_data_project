@@ -2,7 +2,7 @@
 
 District Finder is a mobile-first React prototype for a university Smart Data project. It recommends Hamburg districts based on a selected lifestyle profile, budget, and personal priorities.
 
-The app uses local district data, transparent scoring logic, result cards, district detail views, saved comparisons, and a Leaflet map with Hamburg district borders from GeoJSON.
+The app uses local district data, transparent scoring logic, result cards, district detail views, saved comparisons, German/English UI text, and a Leaflet map with Hamburg district borders from GeoJSON.
 
 Styling uses Tailwind CSS v4 through the official Vite plugin. The UI is built with Tailwind utility classes in the React components rather than a custom plain CSS stylesheet.
 
@@ -83,14 +83,17 @@ The production site is deployed automatically with GitHub Actions when changes a
 
 ## Current Prototype Features
 
+- Page-based flow: choose a profile, review or build criteria, then view recommendations.
+- German-first interface with a top-right language toggle for English.
 - Lifestyle profile presets for tourist/short stay, family relocation, and long-term living.
+- User-defined setup with a short questionnaire that adjusts criteria from lifestyle answers.
 - Editable priority weights with clear importance labels such as `important` and `very important`.
 - Ranked district recommendations with 10 districts per page.
 - Clickable district image areas that open in-app district detail views.
 - District detail pages with character traits, known-for facts, score explanations, and demo apartment previews.
 - Save/favorite districts and compare saved districts side by side.
 - Comparison view with best-value highlights and a priority-shape diagram based on the current preferences.
-- Leaflet map with Hamburg district polygons, top-match highlighting, a current-location button, and toggleable orientation points for landmarks, parks, HVV/airport, and education/health anchors.
+- Leaflet map with Hamburg district polygons, top-match highlighting, a current-location button, PNG landmark icons for key Hamburg places, optional orientation points, and district-click local spot markers for cafes, restaurants, U-Bahn, S-Bahn, errands, health, parks, school, culture, and leisure.
 - Local demo profile page with favorites count, searched city, saved preferences, Datenschutz/Impressum notes, local data cleanup, and placeholder sign-in/register actions.
 
 ## Editing Dummy Data
