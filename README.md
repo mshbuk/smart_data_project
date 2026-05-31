@@ -93,7 +93,7 @@ The production site is deployed automatically with GitHub Actions when changes a
 - District detail pages with character traits, known-for facts, score explanations, and demo apartment previews.
 - Save/favorite districts and compare saved districts side by side.
 - Comparison view with best-value highlights and a priority-shape diagram based on the current preferences.
-- Leaflet map with Hamburg district polygons, top-match highlighting, a current-location button, PNG landmark icons for key Hamburg places, optional orientation points, and district-click local spot markers for cafes, restaurants, U-Bahn, S-Bahn, errands, health, parks, school, culture, and leisure.
+- Leaflet map with Hamburg district polygons, top-match highlighting, a current-location button, owner-supplied landmark icons for key Hamburg places, and district-click local spot markers for cafes, bars, transit stops, Kitas, schools, universities, libraries, playgrounds, and nature anchors.
 - Local demo profile page with favorites count, searched city, saved preferences, Datenschutz/Impressum notes, local data cleanup, and placeholder sign-in/register actions.
 
 ## Editing Dummy Data
@@ -124,6 +124,18 @@ To update the prototype, edit the JSON values directly. Keep the same property n
 Keep district names aligned with the `Stadtteil` names in `districts.geojson` so the map can match scores to borders.
 
 District detail pages also derive demo-only apartment previews, character traits, and score explanations from this local district data. These previews are not real listings and should be replaced only when a real listing provider or dataset is available.
+
+## Map Icons And POIs
+
+Map marker assets live in:
+
+```text
+public/map-icons/
+```
+
+The map uses owner-supplied image files only. Current marker files cover bars, bus stops, cafes, Kitas, schools, libraries, universities, Hamburg Rathaus, Hamburg Airport, Elbphilharmonie, and Hamburg Hauptbahnhof. `MapView.tsx` wraps each image in a white circular Leaflet marker so icons stay readable on the map.
+
+Permanent Hamburg landmarks include Rathaus, Elbphilharmonie, Flughafen HAM, Universität Hamburg, HAW Hamburg, TU Hamburg, and Hauptbahnhof. District-click POIs are exact for Dulsberg, Cranz, and Finkenwerder where coordinates were provided; other districts use deterministic demo spots around the district center until a real POI dataset is added.
 
 Source evidence for factual data updates is saved in:
 

@@ -154,7 +154,7 @@ const permanentLandmarks: Landmark[] = [
   },
   {
     description: { en: "Main rail and HVV interchange", de: "Zentraler Bahn- und HVV-Knoten" },
-    icon: "bus-stop.jpeg",
+    icon: "hbf.jpg",
     label: "Hauptbahnhof",
     latitude: 53.552723,
     longitude: 10.006697,
