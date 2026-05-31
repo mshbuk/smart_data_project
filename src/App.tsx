@@ -225,7 +225,7 @@ function App() {
       >
         <div className="mx-auto flex min-h-[350px] w-full max-w-[1080px] flex-col justify-end px-4 py-7 md:min-h-[430px] md:px-6 md:py-10">
           <button
-            aria-label={tx("Open profile", "Profil oeffnen")}
+            aria-label={tx("Open profile", "Profil öffnen")}
             className="absolute right-4 top-4 grid h-12 w-12 place-items-center rounded-2xl bg-white/95 text-indigo-600 shadow-xl shadow-slate-950/20 backdrop-blur transition-colors hover:bg-indigo-50 md:right-6 md:top-6"
             onClick={() => {
               setSelectedDistrictId(null);
@@ -281,7 +281,7 @@ function App() {
             <p className="mt-4 max-w-2xl text-base leading-7 text-white/90 md:text-lg">
               {tx(
                 "Find Hamburg districts that match your lifestyle, budget, and priorities with transparent scoring.",
-                "Finde Hamburger Stadtteile, die zu deinem Lebensstil, Budget und deinen Prioritaeten passen.",
+                "Finde Hamburger Stadtteile, die zu deinem Lebensstil, Budget und deinen Prioritäten passen.",
               )}
             </p>
           </div>
@@ -305,7 +305,7 @@ function App() {
         {flowStep === "criteria" && (
           <section className="grid gap-4" ref={criteriaPanelRef}>
             <div className="rounded-[1.6rem] border border-white/80 bg-white/95 p-5 shadow-[0_18px_45px_rgba(15,23,42,0.08)] md:p-6">
-              <p className="text-xs font-black uppercase tracking-wide text-indigo-600">{tx("Criteria review", "Kriterien pruefen")}</p>
+              <p className="text-xs font-black uppercase tracking-wide text-indigo-600">{tx("Criteria review", "Kriterien prüfen")}</p>
               <h2 className="mt-1 text-3xl font-black leading-tight text-slate-950">{tx("These are your criteria", "Das sind deine Kriterien")}</h2>
               <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
                 {tx(
@@ -329,12 +329,12 @@ function App() {
                 type="button"
               >
                 <ArrowLeft aria-hidden="true" className="h-4 w-4" />
-                {tx("Back", "Zurueck")}
+                {tx("Back", "Zurück")}
               </button>
               <p className="text-center text-sm font-bold text-slate-600">
                 {tx(
                   "You can come back and edit these later from the recommendations page.",
-                  "Du kannst diese Kriterien spaeter auf der Empfehlungsseite erneut bearbeiten.",
+                  "Du kannst diese Kriterien später auf der Empfehlungsseite erneut bearbeiten.",
                 )}
               </p>
               <button
@@ -363,7 +363,7 @@ function App() {
                   <p className="mt-1 text-sm leading-6 text-slate-600">
                     {tx(
                       `${matches.length} districts ranked by fit. Save favorites to compare them.`,
-                      `${matches.length} Stadtteile nach Passung sortiert. Speichere Favoriten fuer den Vergleich.`,
+                      `${matches.length} Stadtteile nach Passung sortiert. Speichere Favoriten für den Vergleich.`,
                     )}
                   </p>
                 </div>
@@ -388,7 +388,7 @@ function App() {
                       }}
                       type="button"
                     >
-                      {tx("Change profile", "Profil aendern")}
+                      {tx("Change profile", "Profil ändern")}
                     </button>
                   </div>
                 )}

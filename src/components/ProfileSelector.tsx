@@ -59,21 +59,21 @@ export function ProfileSelector({ selectedProfile, onSelect }: ProfileSelectorPr
         title: tx("Tourist / short-term stay", "Tourist / Kurzaufenthalt"),
         description: tx(
           "Central energy, nightlife, and fast transit for a flexible Hamburg visit.",
-          "Zentrale Lage, Nachtleben und schnelle Wege fuer einen flexiblen Hamburg-Aufenthalt.",
+          "Zentrale Lage, Nachtleben und schnelle Wege für einen flexiblen Hamburg-Aufenthalt.",
         ),
       },
       family: {
         title: tx("Family relocation", "Familienumzug"),
         description: tx(
           "Calm streets, schools, kindergartens, safety, and green space.",
-          "Ruhige Strassen, Schulen, Kitas, Sicherheit und Gruenflaechen.",
+          "Ruhige Straßen, Schulen, Kitas, Sicherheit und Grünflächen.",
         ),
       },
       longTerm: {
         title: tx("Long-term living", "Langfristiges Wohnen"),
         description: tx(
           "A practical balance of rent, everyday transport, safety, and lifestyle.",
-          "Ein praktischer Mix aus Miete, Mobilitaet, Sicherheit und Lebensstil.",
+          "Ein praktischer Mix aus Miete, Mobilität, Sicherheit und Lebensstil.",
         ),
       },
       custom: {
@@ -92,11 +92,11 @@ export function ProfileSelector({ selectedProfile, onSelect }: ProfileSelectorPr
     <section className="rounded-[1.6rem] border border-white/80 bg-white/90 p-4 shadow-[0_18px_45px_rgba(15,23,42,0.08)] backdrop-blur md:p-5">
       <div className="mb-4 px-1">
         <p className="text-xs font-black uppercase tracking-wide text-indigo-600">{tx("Starting point", "Startpunkt")}</p>
-        <h2 className="mt-1 text-xl font-black text-[#101828]">{tx("Choose your profile", "Profil waehlen")}</h2>
+        <h2 className="mt-1 text-xl font-black text-[#101828]">{tx("Choose your profile", "Profil wählen")}</h2>
         <p className="mt-1 text-sm leading-6 text-slate-600">
           {tx(
             "Pick a preset to review its criteria, or choose the custom setup for a short questionnaire.",
-            "Waehle ein Profil mit Voreinstellungen oder starte die eigene Auswahl mit kurzem Fragebogen.",
+            "Wähle ein Profil mit Voreinstellungen oder starte die eigene Auswahl mit kurzem Fragebogen.",
           )}
         </p>
       </div>

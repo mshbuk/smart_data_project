@@ -79,7 +79,7 @@ export function ResultsList({ matches, savedDistrictIds, onOpenDetails, onToggle
             </span>
 
             <button
-              aria-label={tx("Next district matches page", "Naechste Trefferseite")}
+              aria-label={tx("Next district matches page", "Nächste Trefferseite")}
               className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-white text-slate-600 shadow-sm shadow-slate-950/5 transition-colors hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-40"
               disabled={currentPage === totalPages}
               onClick={() => goToPage(currentPage + 1)}
@@ -122,7 +122,7 @@ export function ResultsList({ matches, savedDistrictIds, onOpenDetails, onToggle
             })}
 
             <button
-              aria-label={tx("Next district matches page", "Naechste Trefferseite")}
+              aria-label={tx("Next district matches page", "Nächste Trefferseite")}
               className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-slate-100 text-slate-600 transition-colors hover:bg-slate-200 disabled:cursor-not-allowed disabled:opacity-40"
               disabled={currentPage === totalPages}
               onClick={() => goToPage(currentPage + 1)}

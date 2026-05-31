@@ -74,7 +74,7 @@ export function SavedComparison({ preferences, savedMatches, onEditCriteria, onF
         <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-600">
           {tx(
             "Save districts from the recommendations to compare rent, transport, green areas, and fit side by side.",
-            "Speichere Stadtteile aus den Empfehlungen, um Miete, Verkehr, Gruenflaechen und Passung zu vergleichen.",
+            "Speichere Stadtteile aus den Empfehlungen, um Miete, Verkehr, Grünflächen und Passung zu vergleichen.",
           )}
         </p>
         <button
@@ -83,7 +83,7 @@ export function SavedComparison({ preferences, savedMatches, onEditCriteria, onF
           type="button"
         >
           <Plus aria-hidden="true" className="h-4 w-4" />
-          {tx("Add districts to compare", "Stadtteile zum Vergleich hinzufuegen")}
+          {tx("Add districts to compare", "Stadtteile zum Vergleich hinzufügen")}
         </button>
       </section>
     );
@@ -113,7 +113,7 @@ export function SavedComparison({ preferences, savedMatches, onEditCriteria, onF
             type="button"
           >
             <Plus aria-hidden="true" className="h-4 w-4" />
-            {tx("Add", "Hinzufuegen")}
+            {tx("Add", "Hinzufügen")}
           </button>
         </div>
 
@@ -134,7 +134,7 @@ export function SavedComparison({ preferences, savedMatches, onEditCriteria, onF
       <div className="rounded-[1.6rem] border border-white/80 bg-white/90 p-4 shadow-[0_18px_45px_rgba(15,23,42,0.08)] md:p-5">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <h3 className="text-xl font-black text-slate-950">{tx("Your priority shape", "Dein Prioritaetenprofil")}</h3>
+            <h3 className="text-xl font-black text-slate-950">{tx("Your priority shape", "Dein Prioritätenprofil")}</h3>
             <p className="mt-1 text-sm leading-6 text-slate-600">
               {tx(
                 "The comparison is weighted by these criteria, so saved districts are judged against your current goal.",
@@ -210,7 +210,7 @@ export function SavedComparison({ preferences, savedMatches, onEditCriteria, onF
                         Rent: "Miete",
                         Safety: "Sicherheit",
                         Transport: "Verkehr",
-                        Green: "Gruen",
+                        Green: "Grün",
                         Schools: "Schulen",
                         Quietness: "Ruhe",
                         Nightlife: "Nachtleben",

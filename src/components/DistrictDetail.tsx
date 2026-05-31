@@ -56,7 +56,7 @@ export function DistrictDetail({
           type="button"
         >
           <ArrowLeft aria-hidden="true" className="h-4 w-4" />
-          {tx("Back to matches", "Zurueck zu den Treffern")}
+          {tx("Back to matches", "Zurück zu den Treffern")}
         </button>
 
         <button
@@ -123,7 +123,7 @@ export function DistrictDetail({
             <div className="rounded-[1.35rem] border border-slate-100 bg-white p-4">
               <div className="flex items-center gap-2">
                 <Info aria-hidden="true" className="h-5 w-5 text-indigo-600" />
-                <h3 className="text-xl font-black text-slate-950">{tx("Score explanations", "Erklaerung der Bewertungen")}</h3>
+                <h3 className="text-xl font-black text-slate-950">{tx("Score explanations", "Erklärung der Bewertungen")}</h3>
               </div>
               <div className="mt-4 grid gap-3">
                 {insights.slice(0, 6).map((insight) => (
@@ -153,7 +153,7 @@ export function DistrictDetail({
             <section className="rounded-[1.35rem] border border-slate-100 bg-slate-50 p-4">
               <div className="flex items-center gap-2">
                 <BadgeCheck aria-hidden="true" className="h-5 w-5 text-emerald-600" />
-                <h3 className="text-xl font-black text-slate-950">{tx("Known for", "Bekannt fuer")}</h3>
+                <h3 className="text-xl font-black text-slate-950">{tx("Known for", "Bekannt für")}</h3>
               </div>
               <div className="mt-3 grid gap-2">
                 {facts.map((fact) => (
@@ -173,7 +173,7 @@ export function DistrictDetail({
               <p className="mt-2 text-xs font-bold leading-5 text-slate-600">
                 {tx(
                   "Demo listings shown in-platform so the flow does not depend on external redirects.",
-                  "Demo-Angebote werden direkt in der Plattform gezeigt, damit der Flow nicht von Weiterleitungen abhaengt.",
+                  "Demo-Angebote werden direkt in der Plattform gezeigt, damit der Flow nicht von Weiterleitungen abhängt.",
                 )}
               </p>
               <div className="mt-3 grid gap-2">
@@ -209,7 +209,7 @@ export function DistrictDetail({
               type="button"
             >
               <Heart aria-hidden="true" className={isSaved ? "h-4 w-4 fill-current" : "h-4 w-4"} />
-              {isSaved ? tx("Remove from saved", "Aus Gespeichert entfernen") : tx("Save for comparison", "Fuer Vergleich speichern")}
+              {isSaved ? tx("Remove from saved", "Aus Gespeichert entfernen") : tx("Save for comparison", "Für Vergleich speichern")}
             </button>
 
             <div className="grid grid-cols-2 gap-2">

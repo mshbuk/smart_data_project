@@ -62,7 +62,7 @@ function getScoreTone(score: number, tx: (english: string, german: string) => st
   }
 
   return {
-    label: tx("Potential fit", "Moegliche Passung"),
+    label: tx("Potential fit", "Mögliche Passung"),
     badge: "bg-orange-500 text-white shadow-orange-500/25",
     accent: "border-orange-200 bg-orange-50 text-orange-700",
   };
@@ -143,7 +143,7 @@ function getEvidenceMetrics(
 
   if (typeof district.crimeCases2024 === "number") {
     metrics.push({
-      label: tx("PKS cases", "PKS-Faelle"),
+      label: tx("PKS cases", "PKS-Fälle"),
       value: formatNumber(district.crimeCases2024, language),
       detail: tx("Police 2024", "Polizei 2024"),
       icon: Siren,
@@ -217,7 +217,7 @@ export function DistrictCard({ match, isSaved, onToggleSave, onOpenDetails, rank
     },
     { label: tx("Safety", "Sicherheit"), value: `${formatScore(district.safetyScore)}/10`, icon: Shield, color: "#2563eb" },
     { label: tx("Transport", "Verkehr"), value: `${formatScore(district.publicTransportScore)}/10`, icon: Train, color: "#0891b2" },
-    { label: tx("Green", "Gruen"), value: `${formatScore(district.greenScore)}/10`, icon: TreePine, color: "#16a34a" },
+    { label: tx("Green", "Grün"), value: `${formatScore(district.greenScore)}/10`, icon: TreePine, color: "#16a34a" },
     { label: tx("Schools", "Schulen"), value: `${formatScore(district.schoolScore)}/10`, icon: GraduationCap, color: "#d97706" },
     { label: tx("Quiet", "Ruhe"), value: `${formatScore(district.quietnessScore)}/10`, icon: Volume2, color: "#7c3aed" },
   ];
@@ -226,7 +226,7 @@ export function DistrictCard({ match, isSaved, onToggleSave, onOpenDetails, rank
     <article className="overflow-hidden rounded-[1.6rem] border border-white/80 bg-white shadow-[0_22px_55px_rgba(15,23,42,0.1)] transition-transform duration-200 hover:-translate-y-0.5">
       <div className="grid md:grid-cols-[240px_1fr]">
         <button
-          aria-label={tx(`Open ${district.name} details`, `${district.name} Details oeffnen`)}
+          aria-label={tx(`Open ${district.name} details`, `${district.name} Details öffnen`)}
           className="group relative min-h-[210px] overflow-hidden bg-slate-200 text-left md:min-h-full"
           onClick={() => onOpenDetails?.(district.id)}
           type="button"
@@ -261,7 +261,7 @@ export function DistrictCard({ match, isSaved, onToggleSave, onOpenDetails, rank
               <h3 className="mt-1 text-2xl font-black leading-tight text-slate-950">{district.name}</h3>
               {district.dataQuality === "placeholder" && (
                 <p className="mt-2 text-sm leading-6 text-slate-600">
-                  {tx(district.shortDescription, "Demo-Profil mit Platzhalterdaten fuer diesen Stadtteil.")}
+                  {tx(district.shortDescription, "Demo-Profil mit Platzhalterdaten für diesen Stadtteil.")}
                 </p>
               )}
             </div>

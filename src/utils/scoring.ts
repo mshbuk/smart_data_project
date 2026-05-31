@@ -79,8 +79,8 @@ const metricLabels: Record<Language, Record<string, string>> = {
   de: {
     safety: "Sicherheit",
     quietness: "Ruhe",
-    green: "Gruenflaechen",
-    publicTransport: "OePNV",
+    green: "Grünflächen",
+    publicTransport: "ÖPNV",
     schools: "Schulen",
     kindergartens: "Kitas",
     nightlife: "Nachtleben",
@@ -135,10 +135,10 @@ function explainMatch(
     const rentText =
       district.rentPerSqm <= preferences.maxRentPerSqm
         ? `Die Miete liegt innerhalb deines Budgets von EUR ${preferences.maxRentPerSqm}/qm.`
-        : `Die Miete liegt ueber deinem Budget von EUR ${preferences.maxRentPerSqm}/qm, daher wird die Bewertung reduziert.`;
+        : `Die Miete liegt über deinem Budget von EUR ${preferences.maxRentPerSqm}/qm, daher wird die Bewertung reduziert.`;
     const highlightsText = positiveHighlights.length
       ? `Starke Passung bei ${positiveHighlights.join(" und ")}.`
-      : "Ausgewogene Passung ueber deine ausgewaehlten Prioritaeten.";
+      : "Ausgewogene Passung über deine ausgewählten Prioritäten.";
 
     return `${highlightsText} ${rentText} Abgestimmt auf ${profileLabels.de[profile]}.`;
   }
@@ -169,7 +169,7 @@ function getStrengths(district: District, preferences: Preferences, metrics: Wei
       : [];
   const strengths = [...rentStrength, ...metricStrengths].slice(0, 4);
 
-  return strengths.length ? strengths : [language === "de" ? "Ausgewogen ueber Prioritaeten" : "Balanced across priorities"];
+  return strengths.length ? strengths : [language === "de" ? "Ausgewogen über Prioritäten" : "Balanced across priorities"];
 }
 
 function getTradeoffs(district: District, preferences: Preferences, metrics: WeightedMetric[], language: Language) {
@@ -184,7 +184,7 @@ function getTradeoffs(district: District, preferences: Preferences, metrics: Wei
     district.rentPerSqm > preferences.maxRentPerSqm
       ? [
           language === "de"
-            ? `EUR ${(district.rentPerSqm - preferences.maxRentPerSqm).toFixed(1)}/qm ueber Budget`
+            ? `EUR ${(district.rentPerSqm - preferences.maxRentPerSqm).toFixed(1)}/qm über Budget`
             : `EUR ${(district.rentPerSqm - preferences.maxRentPerSqm).toFixed(1)}/sqm over budget`,
         ]
       : [];

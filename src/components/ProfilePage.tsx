@@ -60,7 +60,7 @@ export function ProfilePage({
           type="button"
         >
           <ArrowLeft aria-hidden="true" className="h-4 w-4" />
-          {tx("Back to finder", "Zurueck zum Finder")}
+          {tx("Back to finder", "Zurück zum Finder")}
         </button>
 
         <div className="grid grid-cols-2 rounded-2xl bg-white/95 p-1 text-xs font-black shadow-[0_12px_30px_rgba(15,23,42,0.08)]">
@@ -125,7 +125,7 @@ export function ProfilePage({
             <p className="mt-2 text-sm leading-6 text-slate-600">
               {tx(
                 "Demo account actions are shown here for the tested flow. A real release would connect these buttons to authentication and saved cross-device profiles.",
-                "Demo-Account-Aktionen werden hier fuer den getesteten Flow gezeigt. Eine echte Version wuerde Authentifizierung und geraeteuebergreifende Profile anbinden.",
+                "Demo-Account-Aktionen werden hier für den getesteten Flow gezeigt. Eine echte Version würde Authentifizierung und geräteübergreifende Profile anbinden.",
               )}
             </p>
             <div className="mt-4 grid gap-2 sm:grid-cols-2">
@@ -149,7 +149,7 @@ export function ProfilePage({
           <section className="rounded-[1.35rem] border border-slate-200 bg-white p-4">
             <div className="flex items-center gap-2">
               <SlidersHorizontal aria-hidden="true" className="h-5 w-5 text-indigo-600" />
-              <h2 className="text-xl font-black text-slate-950">{tx("Saved preferences", "Gespeicherte Praeferenzen")}</h2>
+              <h2 className="text-xl font-black text-slate-950">{tx("Saved preferences", "Gespeicherte Präferenzen")}</h2>
             </div>
             <div className="mt-4 grid gap-2">
               {preferenceRows.map((row) => (
@@ -159,8 +159,8 @@ export function ProfilePage({
                       "Maximum rent": "Maximale Miete",
                       Safety: "Sicherheit",
                       Quietness: "Ruhe",
-                      "Green areas": "Gruenflaechen",
-                      "Public transport": "OePNV",
+                      "Green areas": "Grünflächen",
+                      "Public transport": "ÖPNV",
                       Schools: "Schulen",
                       Kindergartens: "Kitas",
                       Nightlife: "Nachtleben",
@@ -184,7 +184,7 @@ export function ProfilePage({
               <strong className="text-slate-950">{tx("Privacy note", "Datenschutzhinweis")}:</strong>{" "}
               {tx(
                 "No personal data is sent to a server. Everything shown here is stored locally in your browser for the demo.",
-                "Es werden keine personenbezogenen Daten an einen Server gesendet. Alles hier wird fuer die Demo lokal im Browser gespeichert.",
+                "Es werden keine personenbezogenen Daten an einen Server gesendet. Alles hier wird für die Demo lokal im Browser gespeichert.",
               )}
             </div>
             <button
@@ -193,7 +193,7 @@ export function ProfilePage({
               type="button"
             >
               <Eraser aria-hidden="true" className="h-4 w-4" />
-              {tx("Clear local data", "Lokale Daten loeschen")}
+              {tx("Clear local data", "Lokale Daten löschen")}
             </button>
           </section>
         </div>
@@ -220,7 +220,7 @@ export function ProfilePage({
             <p className="mt-3 text-sm leading-6 text-slate-600">
               {tx(
                 "University Smart Data prototype for exploring Hamburg district recommendations. Add project owner and contact details here before a public release.",
-                "Universitaerer Smart-Data-Prototyp fuer Hamburger Stadtteilempfehlungen. Vor einer Veroeffentlichung muessen Projektverantwortliche und Kontakt ergaenzt werden.",
+                "Universitärer Smart-Data-Prototyp für Hamburger Stadtteilempfehlungen. Vor einer Veröffentlichung müssen Projektverantwortliche und Kontakt ergänzt werden.",
               )}
             </p>
           </section>

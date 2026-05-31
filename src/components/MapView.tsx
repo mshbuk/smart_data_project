@@ -84,6 +84,14 @@ type LocalSpot = {
   longitude: number;
 };
 
+type LocalSpotTemplate = {
+  description: LocalizedText;
+  icon: string;
+  label: string;
+  latitude: number;
+  longitude: number;
+};
+
 type TopBoundaryCount = 10 | 25 | 50 | "all";
 
 const emptyDistrictBoundaries: DistrictBoundaryCollection = {
@@ -103,60 +111,67 @@ const poiCategories: Array<{ key: PoiCategory; label: LocalizedText; color: stri
 
 const permanentLandmarks: Landmark[] = [
   {
-    description: { en: "City center orientation point", de: "Orientierungspunkt in der Innenstadt" },
+    description: { en: "Hamburg city hall at Rathausmarkt", de: "Hamburger Rathaus am Rathausmarkt" },
     icon: "rathaus.png",
     label: "Hamburg Rathaus",
-    latitude: 53.5503,
-    longitude: 9.992,
+    latitude: 53.55009,
+    longitude: 9.991636,
   },
   {
     description: { en: "Harbor and cultural landmark", de: "Hafen- und Kulturmarke" },
     icon: "elbphilharmonie.png",
     label: "Elbphilharmonie",
-    latitude: 53.5413,
-    longitude: 9.9841,
+    latitude: 53.541328,
+    longitude: 9.984355,
   },
   {
-    description: { en: "Harbor market orientation point", de: "Orientierungspunkt am Hafenmarkt" },
-    icon: "fischmarkt.png",
-    label: "Fischmarkt",
-    latitude: 53.5468,
-    longitude: 9.9505,
+    description: { en: "Hamburg Airport HAM", de: "Flughafen Hamburg HAM" },
+    icon: "flughafen.png",
+    label: "Flughafen HAM",
+    latitude: 53.630402,
+    longitude: 9.98823,
   },
   {
-    description: { en: "Inner Alster reference point", de: "Referenzpunkt an der Binnenalster" },
-    icon: "alster.png",
-    label: "Binnenalster",
-    latitude: 53.5559,
-    longitude: 9.9977,
+    description: { en: "University of Hamburg main campus", de: "Hauptcampus der Universität Hamburg" },
+    icon: "university.png",
+    label: "Universität Hamburg",
+    latitude: 53.5668,
+    longitude: 9.9837,
+  },
+  {
+    description: { en: "HAW Hamburg central Berliner Tor campus", de: "Zentraler Campus Berliner Tor der HAW Hamburg" },
+    icon: "university.png",
+    label: "HAW Hamburg",
+    latitude: 53.556278,
+    longitude: 10.021972,
+  },
+  {
+    description: { en: "TU Hamburg campus in Harburg", de: "TU Hamburg Campus in Harburg" },
+    icon: "university.png",
+    label: "TU Hamburg",
+    latitude: 53.46097,
+    longitude: 9.96993,
   },
   {
     description: { en: "Main rail and HVV interchange", de: "Zentraler Bahn- und HVV-Knoten" },
-    icon: "hauptbahnhof.png",
+    icon: "bus-stop.jpeg",
     label: "Hauptbahnhof",
-    latitude: 53.5528,
-    longitude: 10.0067,
-  },
-  {
-    description: { en: "Airport connection point", de: "Flughafen-Anbindung" },
-    icon: "flughafen.png",
-    label: "Flughafen",
-    latitude: 53.6304,
-    longitude: 9.9882,
+    latitude: 53.552723,
+    longitude: 10.006697,
   },
 ];
 
 const orientationPois: OrientationPoi[] = [
   {
     category: "park",
-    description: { en: "Large central city park", de: "Grosser zentraler Stadtpark" },
+    description: { en: "Large central city park", de: "Großer zentraler Stadtpark" },
     label: "Planten un Blomen",
     latitude: 53.5614,
     longitude: 9.9799,
   },
   {
     category: "park",
-    description: { en: "Major green-space anchor in Winterhude", de: "Wichtiger Gruenraum in Winterhude" },
+    description: { en: "Major green-space anchor in Winterhude", de: "Wichtiger Grünraum in Winterhude" },
     label: "Stadtpark",
     latitude: 53.5968,
     longitude: 10.0199,
@@ -177,8 +192,8 @@ const orientationPois: OrientationPoi[] = [
   },
   {
     category: "education",
-    description: { en: "University area", de: "Universitaetsbereich" },
-    label: "Universitaet Hamburg",
+    description: { en: "University area", de: "Universitätsbereich" },
+    label: "Universität Hamburg",
     latitude: 53.5665,
     longitude: 9.9841,
   },
@@ -196,7 +211,7 @@ const legendItems: Array<{ label: LocalizedText; color: string }> = [
   { label: { en: "Shown 80+", de: "Angezeigt 80+" }, color: "#0ea5e9" },
   { label: { en: "Shown 70+", de: "Angezeigt 70+" }, color: "#7c3aed" },
   { label: { en: "Shown lower", de: "Angezeigt niedriger" }, color: "#f97316" },
-  { label: { en: "Outside top", de: "Ausserhalb der Top-Auswahl" }, color: "#cbd5e1" },
+  { label: { en: "Outside top", de: "Außerhalb der Top-Auswahl" }, color: "#cbd5e1" },
 ];
 
 function localize(text: LocalizedText, language: Language) {
@@ -312,7 +327,7 @@ function createBoundaryPopup(feature: DistrictBoundaryFeature, language: Languag
       ? "In der aktuellen Top-Auswahl sichtbar"
       : "Shown in current top set"
     : language === "de"
-      ? "Bewertet, ausserhalb der aktuellen Top-Auswahl"
+      ? "Bewertet, außerhalb der aktuellen Top-Auswahl"
       : "Scored, outside the current top set";
   const statusColor = properties.isHighlighted ? "#16a34a" : "#64748b";
   const quality = getPopupQualityLabel(properties.dataQuality, language);
@@ -349,7 +364,7 @@ function createBoundaryPopup(feature: DistrictBoundaryFeature, language: Languag
       ? createPopupMetric(
           "PKS",
           formatNumber(properties.crimeCases2024, language),
-          language === "de" ? "Faelle 2024" : "cases 2024",
+          language === "de" ? "Fälle 2024" : "cases 2024",
         )
       : null,
   ].filter(Boolean).join("");
@@ -372,36 +387,253 @@ function createBoundaryPopup(feature: DistrictBoundaryFeature, language: Languag
   `;
 }
 
-function createPngMapIcon(icon: string, size = 34) {
-  const height = Math.round(size * 1.2);
+function createImageMapIcon(icon: string, size = 34) {
+  const imageSize = Math.round(size * 0.7);
 
-  return L.icon({
-    className: "district-finder-png-map-icon",
-    iconAnchor: [size / 2, height - 4],
-    iconSize: [size, height],
-    iconUrl: `${mapIconBaseUrl}${icon}`,
-    popupAnchor: [0, -height + 12],
+  return L.divIcon({
+    className: "district-finder-map-image-icon",
+    html: `
+      <span style="
+        align-items:center;
+        background:#fff;
+        border:1px solid rgba(15,23,42,.12);
+        border-radius:999px;
+        box-shadow:0 8px 20px rgba(15,23,42,.22);
+        display:flex;
+        height:${size}px;
+        justify-content:center;
+        overflow:hidden;
+        width:${size}px;
+      ">
+        <img
+          alt=""
+          src="${mapIconBaseUrl}${icon}"
+          style="display:block;height:${imageSize}px;max-width:${imageSize}px;object-fit:contain;width:${imageSize}px;"
+        />
+      </span>
+    `,
+    iconAnchor: [size / 2, size / 2],
+    iconSize: [size, size],
+    popupAnchor: [0, -size / 2],
   });
+}
+
+function buildSpot(
+  label: string,
+  icon: string,
+  latitude: number,
+  longitude: number,
+  description: LocalizedText,
+): LocalSpotTemplate {
+  return { description, icon, label, latitude, longitude };
+}
+
+const exactLocalSpotTemplatesByDistrict: Record<string, LocalSpotTemplate[]> = {
+  dulsberg: [
+    buildSpot("U Straßburger Straße", "bus-stop.jpeg", 53.58275, 10.06769, {
+      en: "U-Bahn station in Dulsberg.",
+      de: "U-Bahn-Station in Dulsberg.",
+    }),
+    buildSpot("U Alter Teichweg", "bus-stop.jpeg", 53.58684, 10.06436, {
+      en: "U-Bahn station in Dulsberg.",
+      de: "U-Bahn-Station in Dulsberg.",
+    }),
+    buildSpot("S Friedrichsberg", "bus-stop.jpeg", 53.57617, 10.0578, {
+      en: "S-Bahn station near Dulsberg.",
+      de: "S-Bahn-Station bei Dulsberg.",
+    }),
+    buildSpot("Straßburger Platz", "bus-stop.jpeg", 53.5811, 10.06184, {
+      en: "HVV stop in Dulsberg.",
+      de: "HVV-Haltestelle in Dulsberg.",
+    }),
+    buildSpot("U Straßburger Straße", "bus-stop.jpeg", 53.58177, 10.06777, {
+      en: "HVV stop in Dulsberg.",
+      de: "HVV-Haltestelle in Dulsberg.",
+    }),
+    buildSpot("U Alter Teichweg", "bus-stop.jpeg", 53.58724, 10.0641, {
+      en: "HVV stop in Dulsberg.",
+      de: "HVV-Haltestelle in Dulsberg.",
+    }),
+    buildSpot("Krausestraße", "bus-stop.jpeg", 53.58, 10.05767, {
+      en: "HVV stop in Dulsberg.",
+      de: "HVV-Haltestelle in Dulsberg.",
+    }),
+    buildSpot("Tilsiter Straße", "bus-stop.jpeg", 53.58872, 10.07848, {
+      en: "HVV stop in Dulsberg.",
+      de: "HVV-Haltestelle in Dulsberg.",
+    }),
+    buildSpot("Wachtelstraße", "bus-stop.jpeg", 53.58848, 10.05297, {
+      en: "HVV stop in Dulsberg.",
+      de: "HVV-Haltestelle in Dulsberg.",
+    }),
+    buildSpot("Lämmersieth (Mitte)", "bus-stop.jpeg", 53.58421, 10.05385, {
+      en: "HVV stop in Dulsberg.",
+      de: "HVV-Haltestelle in Dulsberg.",
+    }),
+    buildSpot("Friedrichsberg", "bus-stop.jpeg", 53.57601, 10.05777, {
+      en: "HVV stop in Dulsberg.",
+      de: "HVV-Haltestelle in Dulsberg.",
+    }),
+    buildSpot("Olivaer Straße", "bus-stop.jpeg", 53.58303, 10.05621, {
+      en: "HVV stop in Dulsberg.",
+      de: "HVV-Haltestelle in Dulsberg.",
+    }),
+    buildSpot("Café Kofje", "cafe.png", 53.57919, 10.06658, {
+      en: "Cafe spot in Dulsberg.",
+      de: "Café-Spot in Dulsberg.",
+    }),
+    buildSpot("Cafe MAY", "cafe.png", 53.57776, 10.06274, {
+      en: "Cafe spot in Dulsberg.",
+      de: "Café-Spot in Dulsberg.",
+    }),
+    buildSpot("Familiencafé Krümel", "cafe.png", 53.5811, 10.06126, {
+      en: "Family cafe in Dulsberg.",
+      de: "Familiencafé in Dulsberg.",
+    }),
+    buildSpot("Dulsbar", "bar.png", 53.58223, 10.06398, {
+      en: "Bar in Dulsberg.",
+      de: "Bar in Dulsberg.",
+    }),
+    buildSpot("Cheers", "bar.png", 53.58175, 10.06533, {
+      en: "Bar in Dulsberg.",
+      de: "Bar in Dulsberg.",
+    }),
+  ],
+  cranz: [
+    buildSpot("Kita Este GmbH", "kita.png", 53.52899, 9.77462, {
+      en: "Daycare in Cranz.",
+      de: "Kita in Cranz.",
+    }),
+    buildSpot("Grundschule Cranz", "school.png", 53.52969, 9.77385, {
+      en: "Primary school in Cranz.",
+      de: "Grundschule in Cranz.",
+    }),
+    buildSpot("Aussichtspunkt Estemündung", "park.png", 53.53648, 9.79061, {
+      en: "Nature viewpoint near the Este estuary.",
+      de: "Natur-Aussichtspunkt an der Estemündung.",
+    }),
+    buildSpot("Altes Estesperrwerk", "park.png", 53.53297, 9.77657, {
+      en: "Waterside nature and local landmark.",
+      de: "Wasserlage und lokaler Naturanker.",
+    }),
+    buildSpot("Uferweg Cranzer Elbdeich", "park.png", 53.53817, 9.77909, {
+      en: "Waterside walking route in Cranz.",
+      de: "Uferweg am Cranzer Elbdeich.",
+    }),
+    buildSpot("Spielplatz Cranzer Elbdeich", "park.png", 53.53817, 9.77909, {
+      en: "Playground at Cranzer Elbdeich.",
+      de: "Spielplatz am Cranzer Elbdeich.",
+    }),
+  ],
+  finkenwerder: [
+    buildSpot("DRK-Kita Elbhalle", "kita.png", 53.53376, 9.8656, {
+      en: "Daycare in Finkenwerder.",
+      de: "Kita in Finkenwerder.",
+    }),
+    buildSpot("Ev. KiTa Finkenwerder", "kita.png", 53.52718, 9.86654, {
+      en: "Daycare in Finkenwerder.",
+      de: "Kita in Finkenwerder.",
+    }),
+    buildSpot("Kita Uhlenhoffweg", "kita.png", 53.52939, 9.87768, {
+      en: "Daycare in Finkenwerder.",
+      de: "Kita in Finkenwerder.",
+    }),
+    buildSpot("Elbkinder-Kita Jeverländer Weg", "kita.png", 53.5295, 9.88144, {
+      en: "Daycare in Finkenwerder.",
+      de: "Kita in Finkenwerder.",
+    }),
+    buildSpot("Airbus-Kita Beluga", "kita.png", 53.5334, 9.84601, {
+      en: "Daycare in Finkenwerder.",
+      de: "Kita in Finkenwerder.",
+    }),
+    buildSpot("Kinderstube-Hamburg", "kita.png", 53.53573, 9.87622, {
+      en: "Daycare in Finkenwerder.",
+      de: "Kita in Finkenwerder.",
+    }),
+    buildSpot("Westerschule Finkenwerder", "school.png", 53.52779, 9.86288, {
+      en: "Primary school in Finkenwerder.",
+      de: "Grundschule in Finkenwerder.",
+    }),
+    buildSpot("Aueschule Finkenwerder", "school.png", 53.5277, 9.88485, {
+      en: "Primary school in Finkenwerder.",
+      de: "Grundschule in Finkenwerder.",
+    }),
+    buildSpot("Stadtteilschule Finkenwerder", "school.png", 53.53216, 9.87586, {
+      en: "District school in Finkenwerder.",
+      de: "Stadtteilschule in Finkenwerder.",
+    }),
+    buildSpot("Gymnasium Finkenwerder", "school.png", 53.53239, 9.87373, {
+      en: "Secondary school in Finkenwerder.",
+      de: "Gymnasium in Finkenwerder.",
+    }),
+    buildSpot("Rüschpark", "park.png", 53.54124, 9.86326, {
+      en: "Green space in Finkenwerder.",
+      de: "Grünfläche in Finkenwerder.",
+    }),
+    buildSpot("Gorch-Fock-Park", "park.png", 53.54069, 9.86793, {
+      en: "Green space in Finkenwerder.",
+      de: "Grünfläche in Finkenwerder.",
+    }),
+    buildSpot("Naturschutzgebiet Finkenwerder Süderelbe", "park.png", 53.51821, 9.83547, {
+      en: "Nature reserve in Finkenwerder.",
+      de: "Naturschutzgebiet in Finkenwerder.",
+    }),
+    buildSpot("Naturschutzgebiet Westerweiden", "park.png", 53.52352, 9.83739, {
+      en: "Nature reserve in Finkenwerder.",
+      de: "Naturschutzgebiet in Finkenwerder.",
+    }),
+    buildSpot("Spielplatz im Rüschpark", "park.png", 53.53599, 9.86029, {
+      en: "Playground in Finkenwerder.",
+      de: "Spielplatz in Finkenwerder.",
+    }),
+    buildSpot("Spielplatz Focksweg", "park.png", 53.53566, 9.87727, {
+      en: "Playground in Finkenwerder.",
+      de: "Spielplatz in Finkenwerder.",
+    }),
+    buildSpot("Spielplatz Tweeflunken", "park.png", 53.53477, 9.86313, {
+      en: "Playground in Finkenwerder.",
+      de: "Spielplatz in Finkenwerder.",
+    }),
+    buildSpot("Spielplatz Landscheideweg", "park.png", 53.52707, 9.87868, {
+      en: "Playground in Finkenwerder.",
+      de: "Spielplatz in Finkenwerder.",
+    }),
+  ],
+};
+
+function localizeSpot(template: LocalSpotTemplate, language: Language): LocalSpot {
+  return {
+    description: localize(template.description, language),
+    icon: template.icon,
+    label: template.label,
+    latitude: template.latitude,
+    longitude: template.longitude,
+  };
 }
 
 function buildLocalSpots(district: SelectedMapDistrict, language: Language): LocalSpot[] {
   const districtSuffix = language === "de" ? `in ${district.name}` : `in ${district.name}`;
+  const exactSpots = exactLocalSpotTemplatesByDistrict[normalizeDistrictName(district.name)];
+
+  if (exactSpots) {
+    return exactSpots.map((spot) => localizeSpot(spot, language));
+  }
 
   return [
     {
       description:
         language === "de"
-          ? "Illustrativer Cafe-Spot fuer den Alltag im gewaehlten Stadtteil."
+          ? "Illustrativer Café-Spot für den Alltag im gewählten Stadtteil."
           : "Illustrative cafe spot for daily life in the selected district.",
       icon: "cafe.png",
-      label: language === "de" ? `Kiez-Cafe ${districtSuffix}` : `Neighborhood cafe ${districtSuffix}`,
+      label: language === "de" ? `Kiez-Café ${districtSuffix}` : `Neighborhood cafe ${districtSuffix}`,
       latitude: district.latitude + 0.0042,
       longitude: district.longitude - 0.0048,
     },
     {
       description:
         language === "de"
-          ? "Zweiter Cafe-Anker, damit das Viertel nicht wie ein einzelner Punkt wirkt."
+          ? "Zweiter Café-Anker, damit das Viertel nicht wie ein einzelner Punkt wirkt."
           : "Second cafe anchor so the district reads less like a single point.",
       icon: "cafe.png",
       label: language === "de" ? `Coffee Corner ${districtSuffix}` : `Coffee corner ${districtSuffix}`,
@@ -411,117 +643,87 @@ function buildLocalSpots(district: SelectedMapDistrict, language: Language): Loc
     {
       description:
         language === "de"
-          ? "Essens- und Abendspot als Orientierung fuer lokale Gastronomie."
-          : "Food and evening spot for a sense of local restaurants.",
-      icon: "restaurant.png",
-      label: language === "de" ? `Restaurantmeile ${districtSuffix}` : `Restaurant row ${districtSuffix}`,
+          ? "Bar oder Abendtreff für lebendigere Viertel."
+          : "Bar or evening hangout for livelier districts.",
+      icon: "bar.png",
+      label: language === "de" ? `Abendtreff ${districtSuffix}` : `Evening spot ${districtSuffix}`,
       latitude: district.latitude + 0.0013,
       longitude: district.longitude + 0.0072,
     },
     {
       description:
         language === "de"
-          ? "Kleiner Mittagstisch-Spot fuer den Alltag unter der Woche."
-          : "Small lunch spot for weekday daily life.",
-      icon: "restaurant.png",
-      label: language === "de" ? `Mittagstisch ${districtSuffix}` : `Lunch spot ${districtSuffix}`,
+          ? "Bibliotheks- oder Lernort als ruhiger Alltagsanker."
+          : "Library or study point as a quieter daily-life anchor.",
+      icon: "library.png",
+      label: language === "de" ? `Bibliothek ${districtSuffix}` : `Library ${districtSuffix}`,
       latitude: district.latitude - 0.0062,
       longitude: district.longitude - 0.0011,
     },
     {
       description:
         language === "de"
-          ? "U-Bahn-nahe Orientierung fuer Wege ohne Auto."
-          : "U-Bahn-oriented marker for car-free movement.",
-      icon: "ubahn.png",
-      label: language === "de" ? `U-Bahn-Zugang ${districtSuffix}` : `U-Bahn access ${districtSuffix}`,
+          ? "ÖPNV-Haltestelle als Orientierung für Wege ohne Auto."
+          : "Transit stop marker for car-free movement.",
+      icon: "bus-stop.jpeg",
+      label: language === "de" ? `ÖPNV-Halt ${districtSuffix}` : `Transit stop ${districtSuffix}`,
       latitude: district.latitude - 0.0045,
       longitude: district.longitude - 0.0038,
     },
     {
       description:
         language === "de"
-          ? "Zweiter Schnellbahn-Anker fuer bessere Orientierung im Stadtteil."
-          : "Second rapid-transit anchor for better district orientation.",
-      icon: "ubahn.png",
-      label: language === "de" ? `U-Bahn-Knoten ${districtSuffix}` : `U-Bahn node ${districtSuffix}`,
+          ? "Zweiter Mobilitätsanker für bessere Orientierung im Stadtteil."
+          : "Second mobility anchor for better district orientation.",
+      icon: "bus-stop.jpeg",
+      label: language === "de" ? `Bus-Halt ${districtSuffix}` : `Bus stop ${districtSuffix}`,
       latitude: district.latitude + 0.0068,
       longitude: district.longitude + 0.0016,
     },
     {
       description:
         language === "de"
-          ? "S-Bahn-Anschluss fuer schnelle Wege in andere Teile Hamburgs."
-          : "S-Bahn connection for faster movement across Hamburg.",
-      icon: "sbahn.png",
-      label: language === "de" ? `S-Bahn-Station ${districtSuffix}` : `S-Bahn station ${districtSuffix}`,
+          ? "Kita-Spot für Familienorientierung."
+          : "Daycare marker for family-oriented scanning.",
+      icon: "kita.png",
+      label: language === "de" ? `Kita ${districtSuffix}` : `Daycare ${districtSuffix}`,
       latitude: district.latitude - 0.0024,
       longitude: district.longitude + 0.0048,
     },
     {
       description:
         language === "de"
-          ? "Zusaetzlicher S-Bahn-/Regionalbahn-Anker fuer realistischere Mobilitaet."
-          : "Additional rail anchor for a more realistic mobility layer.",
-      icon: "sbahn.png",
-      label: language === "de" ? `Bahn-Anschluss ${districtSuffix}` : `Rail connection ${districtSuffix}`,
+          ? "Schul-Spot für Familienorientierung."
+          : "School marker for family-oriented scanning.",
+      icon: "school.png",
+      label: language === "de" ? `Schule ${districtSuffix}` : `School ${districtSuffix}`,
       latitude: district.latitude + 0.003,
       longitude: district.longitude - 0.0084,
     },
     {
       description:
         language === "de"
-          ? "Supermarkt-Spot fuer taegliche Erledigungen."
-          : "Grocery marker for everyday errands.",
-      icon: "grocery.png",
-      label: language === "de" ? `Supermarkt ${districtSuffix}` : `Grocery ${districtSuffix}`,
+          ? "Uni- oder Hochschulanker als Bildungsorientierung."
+          : "University marker as an education anchor.",
+      icon: "university.png",
+      label: language === "de" ? `Hochschule ${districtSuffix}` : `University ${districtSuffix}`,
       latitude: district.latitude + 0.0054,
       longitude: district.longitude + 0.0052,
     },
     {
       description:
         language === "de"
-          ? "Kleiner Nahversorger als zweiter Alltagsanker."
-          : "Small local shop as a second daily-services anchor.",
-      icon: "grocery.png",
-      label: language === "de" ? `Nahversorger ${districtSuffix}` : `Local grocery ${districtSuffix}`,
-      latitude: district.latitude - 0.0053,
-      longitude: district.longitude + 0.0032,
-    },
-    {
-      description:
-        language === "de"
-          ? "Apotheken-Spot fuer Gesundheits- und Alltagsversorgung."
-          : "Pharmacy spot for health and everyday needs.",
-      icon: "pharmacy.png",
-      label: language === "de" ? `Apotheke ${districtSuffix}` : `Pharmacy ${districtSuffix}`,
-      latitude: district.latitude + 0.001,
-      longitude: district.longitude - 0.0067,
-    },
-    {
-      description:
-        language === "de"
-          ? "Arztpraxis-Spot fuer eine greifbarere Gesundheitsinfrastruktur."
-          : "Doctor marker for a more tangible health-infrastructure view.",
-      icon: "doctor.png",
-      label: language === "de" ? `Arztpraxis ${districtSuffix}` : `Doctor office ${districtSuffix}`,
-      latitude: district.latitude - 0.0071,
-      longitude: district.longitude - 0.0049,
-    },
-    {
-      description:
-        language === "de"
-          ? "Gruenflaeche oder kleiner Park als Aufenthaltsort."
+          ? "Grünfläche oder kleiner Park als Aufenthaltsort."
           : "Green area or small park as a local outdoor anchor.",
       icon: "park.png",
-      label: language === "de" ? `Gruenflaeche ${districtSuffix}` : `Green space ${districtSuffix}`,
+      label: language === "de" ? `Grünfläche ${districtSuffix}` : `Green space ${districtSuffix}`,
       latitude: district.latitude + 0.0085,
       longitude: district.longitude - 0.0031,
     },
     {
       description:
         language === "de"
-          ? "Spielplatz oder ruhiger Aufenthaltsort fuer Familien."
+          ? "Spielplatz oder ruhiger Aufenthaltsort für Familien."
           : "Playground or calm outdoor point for families.",
       icon: "park.png",
       label: language === "de" ? `Spielplatz ${districtSuffix}` : `Playground ${districtSuffix}`,
@@ -531,37 +733,7 @@ function buildLocalSpots(district: SelectedMapDistrict, language: Language): Loc
     {
       description:
         language === "de"
-          ? "Schul- oder Kita-Spot fuer Familienorientierung."
-          : "School or daycare marker for family-oriented scanning.",
-      icon: "school.png",
-      label: language === "de" ? `Schule / Kita ${districtSuffix}` : `School / daycare ${districtSuffix}`,
-      latitude: district.latitude + 0.006,
-      longitude: district.longitude + 0.009,
-    },
-    {
-      description:
-        language === "de"
-          ? "Sport- und Fitnessangebot als Freizeitanker."
-          : "Sports and fitness option as a leisure anchor.",
-      icon: "fitness.png",
-      label: language === "de" ? `Fitness ${districtSuffix}` : `Fitness ${districtSuffix}`,
-      latitude: district.latitude - 0.0018,
-      longitude: district.longitude - 0.0102,
-    },
-    {
-      description:
-        language === "de"
-          ? "Kultur- oder Veranstaltungsort fuer den Stadtteilcharakter."
-          : "Culture or event marker for the district character.",
-      icon: "culture.png",
-      label: language === "de" ? `Kulturspot ${districtSuffix}` : `Culture spot ${districtSuffix}`,
-      latitude: district.latitude + 0.0096,
-      longitude: district.longitude + 0.0068,
-    },
-    {
-      description:
-        language === "de"
-          ? "Bar oder Abendtreff fuer lebendige Viertel."
+          ? "Bar oder Abendtreff für lebendige Viertel."
           : "Bar or evening hangout for livelier districts.",
       icon: "bar.png",
       label: language === "de" ? `Abendtreff ${districtSuffix}` : `Evening spot ${districtSuffix}`,
@@ -788,7 +960,7 @@ export function MapView({ matches }: MapViewProps) {
   const findCurrentLocation = () => {
     if (!navigator.geolocation) {
       setLocationStatus("error");
-      setLocationMessage(tx("Current location is not available in this browser.", "Dein Standort ist in diesem Browser nicht verfuegbar."));
+      setLocationMessage(tx("Current location is not available in this browser.", "Dein Standort ist in diesem Browser nicht verfügbar."));
       return;
     }
 
@@ -848,7 +1020,7 @@ export function MapView({ matches }: MapViewProps) {
             <p className="mt-1 text-sm leading-6 text-slate-600">
               {tx(
                 "Every Hamburg district from the GeoJSON is shown as its own border. Permanent landmarks stay visible, and clicking a district reveals useful local spots.",
-                "Jeder Hamburger Stadtteil aus dem GeoJSON wird als eigene Flaeche gezeigt. Wichtige Orte bleiben sichtbar, und ein Klick auf einen Stadtteil zeigt nuetzliche Spots.",
+                "Jeder Hamburger Stadtteil aus dem GeoJSON wird als eigene Fläche gezeigt. Wichtige Orte bleiben sichtbar, und ein Klick auf einen Stadtteil zeigt nützliche Spots.",
               )}
             </p>
           </div>
@@ -934,7 +1106,7 @@ export function MapView({ matches }: MapViewProps) {
             />
             {permanentLandmarks.map((landmark) => (
               <Marker
-                icon={createPngMapIcon(landmark.icon, 38)}
+                icon={createImageMapIcon(landmark.icon, 38)}
                 key={landmark.label}
                 position={[landmark.latitude, landmark.longitude]}
                 title={landmark.label}
@@ -948,7 +1120,7 @@ export function MapView({ matches }: MapViewProps) {
             ))}
             {localSpots.map((spot) => (
               <Marker
-                icon={createPngMapIcon(spot.icon, 29)}
+                icon={createImageMapIcon(spot.icon, 29)}
                 key={`${selectedMapDistrict?.name}-${spot.label}`}
                 position={[spot.latitude, spot.longitude]}
                 title={spot.label}
@@ -1044,8 +1216,8 @@ export function MapView({ matches }: MapViewProps) {
               <div className="mt-1 font-black text-slate-950">{selectedMapDistrict.name}</div>
               <div className="mt-1 leading-5 text-slate-600">
                 {tx(
-                  "Illustrative cafes, restaurants, U-Bahn, S-Bahn, daily services, parks, health, and leisure spots are shown for the selected district.",
-                  "Illustrative Cafes, Restaurants, U-Bahn, S-Bahn, Nahversorgung, Parks, Gesundheit und Freizeitorte werden fuer den gewaehlten Stadtteil gezeigt.",
+                  "Cafes, bars, transit, daycare, schools, universities, libraries, and green spots are shown for the selected district where data is available.",
+                  "Cafés, Bars, ÖPNV, Kitas, Schulen, Hochschulen, Bibliotheken und Grünpunkte werden für den gewählten Stadtteil gezeigt, soweit Daten vorhanden sind.",
                 )}
               </div>
               <button
@@ -1092,7 +1264,7 @@ export function MapView({ matches }: MapViewProps) {
               </span>
             ))}
             <span className="inline-flex items-center gap-1.5 rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-black text-indigo-700">
-              <img alt="" className="h-6 w-5 object-contain" src={`${mapIconBaseUrl}hauptbahnhof.png`} />
+              <img alt="" className="h-6 w-5 object-contain" src={`${mapIconBaseUrl}rathaus.png`} />
               {tx("Permanent Hamburg landmarks", "Feste Hamburg-Orte")}
             </span>
             <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-black text-slate-600">
@@ -1104,7 +1276,7 @@ export function MapView({ matches }: MapViewProps) {
 
         {!isLoadingBoundaries && !boundaryLoadError && missingDistricts.length > 0 && (
           <div className="mt-3 rounded-2xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-bold text-amber-800">
-            {tx("Missing GeoJSON borders for", "Fehlende GeoJSON-Grenzen fuer")}{" "}
+            {tx("Missing GeoJSON borders for", "Fehlende GeoJSON-Grenzen für")}{" "}
             {missingDistricts.map((match) => match.district.name).join(", ")}.
           </div>
         )}

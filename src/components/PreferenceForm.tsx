@@ -40,13 +40,13 @@ const sliders: Array<{ key: SliderKey; label: string; helper: string; icon: Luci
 const labelTranslations: Record<string, string> = {
   Safety: "Sicherheit",
   Quietness: "Ruhe",
-  "Green areas": "Gruenflaechen",
-  "Public transport": "OePNV",
+  "Green areas": "Grünflächen",
+  "Public transport": "ÖPNV",
   Schools: "Schulen",
   Kindergartens: "Kitas",
   Nightlife: "Nachtleben",
   "Everyday security": "Sicherheit im Alltag",
-  "Calmer streets": "Ruhigere Strassen",
+  "Calmer streets": "Ruhigere Straßen",
   "Parks and open space": "Parks und Freiraum",
   "U-Bahn, S-Bahn, bus": "U-Bahn, S-Bahn, Bus",
   "School access": "Schulzugang",
@@ -84,12 +84,12 @@ export function PreferenceForm({ preferences, onChange, defaultExpanded = false,
         <div className="min-w-0">
           <div className="flex items-center gap-2">
             <SlidersHorizontal aria-hidden="true" className="h-5 w-5 text-indigo-600" />
-            <h2 className="m-0 text-xl font-black text-[#101828]">{tx("Fine-tune priorities", "Prioritaeten feinjustieren")}</h2>
+            <h2 className="m-0 text-xl font-black text-[#101828]">{tx("Fine-tune priorities", "Prioritäten feinjustieren")}</h2>
           </div>
           <p className="mt-1 text-sm leading-6 text-slate-600">
             {tx(
               "Keep the preset, or open the controls to customize the weights.",
-              "Behalte die Vorgaben oder oeffne die Regler, um die Gewichtung anzupassen.",
+              "Behalte die Vorgaben oder öffne die Regler, um die Gewichtung anzupassen.",
             )}
           </p>
         </div>

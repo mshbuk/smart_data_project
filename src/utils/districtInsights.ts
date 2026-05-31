@@ -40,8 +40,8 @@ const criterionLabelsByLanguage: Record<Language, Record<CriterionKey, string>> 
   de: {
     safety: "Sicherheit",
     quietness: "Ruhe",
-    green: "Gruenflaechen",
-    publicTransport: "OePNV",
+    green: "Grünflächen",
+    publicTransport: "ÖPNV",
     schools: "Schulen",
     kindergartens: "Kitas",
     nightlife: "Nachtleben",
@@ -76,8 +76,8 @@ export function getImportanceLabel(value: number, language: Language = "en") {
   if (language === "de") {
     if (value >= 5) return "sehr wichtig";
     if (value >= 4) return "wichtig";
-    if (value >= 2) return "nice to have";
-    if (value >= 1) return "geringe Prioritaet";
+    if (value >= 2) return "eher wichtig";
+    if (value >= 1) return "geringe Priorität";
     return "nicht relevant";
   }
 
@@ -123,7 +123,7 @@ export function getCriterionScore(district: District, key: CriterionKey) {
 export function getDistrictTraits(district: District, language: Language = "en") {
   const traits = [
     district.publicTransportScore >= 7.5 ? (language === "de" ? "gut angebunden" : "well connected") : null,
-    district.greenScore >= 7.5 ? (language === "de" ? "gruen" : "green") : null,
+    district.greenScore >= 7.5 ? (language === "de" ? "grün" : "green") : null,
     district.quietnessScore >= 7.5 ? (language === "de" ? "ruhig" : "calm") : null,
     district.nightlifeScore >= 7 ? (language === "de" ? "lebendig" : "lively") : null,
     district.schoolScore >= 7 || district.kindergartenScore >= 7
@@ -132,7 +132,7 @@ export function getDistrictTraits(district: District, language: Language = "en")
         : "family friendly"
       : null,
     district.populationDensity >= 8000 ? (language === "de" ? "urban dicht" : "urban dense") : null,
-    district.populationDensity <= 2500 ? (language === "de" ? "weitlaeufig" : "spacious") : null,
+    district.populationDensity <= 2500 ? (language === "de" ? "weitläufig" : "spacious") : null,
   ].filter((trait): trait is string => Boolean(trait));
 
   return traits.slice(0, 4);
@@ -140,8 +140,8 @@ export function getDistrictTraits(district: District, language: Language = "en")
 
 export function getKnownFor(district: District, language: Language = "en") {
   const facts = [
-    district.greenScore >= 7 ? (language === "de" ? "guter Zugang zu Gruenflaechen" : "strong green-space access") : null,
-    district.publicTransportScore >= 7 ? (language === "de" ? "Alltagsmobilitaet mit HVV" : "everyday mobility by HVV") : null,
+    district.greenScore >= 7 ? (language === "de" ? "guter Zugang zu Grünflächen" : "strong green-space access") : null,
+    district.publicTransportScore >= 7 ? (language === "de" ? "Alltagsmobilität mit HVV" : "everyday mobility by HVV") : null,
     district.nightlifeScore >= 7
       ? language === "de"
         ? "Restaurants, Bars und Abendleben"
@@ -178,7 +178,7 @@ export function getCriterionInsights(district: District, preferences: Preference
       safety:
         typeof district.crimeCases2024 === "number"
           ? language === "de"
-            ? `${scoreLabel}, weil die PKS-Faelle 2024 in den Sicherheits-Proxy einfliessen.`
+            ? `${scoreLabel}, weil die PKS-Fälle 2024 in den Sicherheits-Proxy einfließen.`
             : `${scoreLabel} because the local PKS 2024 cases are folded into the safety proxy.`
           : language === "de"
             ? `${scoreLabel} im aktuellen Demo-Sicherheitsproxy.`
@@ -189,23 +189,23 @@ export function getCriterionInsights(district: District, preferences: Preference
           : `${scoreLabel} based on the district calmness proxy and urban-density signal.`,
       green:
         language === "de"
-          ? `${scoreLabel}, weil der Gruenflaechen-Proxy diesen Stadtteil mit ${formatScore(score)}/10 bewertet.`
+          ? `${scoreLabel}, weil der Grünflächen-Proxy diesen Stadtteil mit ${formatScore(score)}/10 bewertet.`
           : `${scoreLabel} because the green-space proxy ranks this district at ${formatScore(score)}/10.`,
       publicTransport:
         language === "de"
-          ? `${scoreLabel} fuer alltaegliche HVV-Erreichbarkeit im aktuellen Verkehrsproxy.`
+          ? `${scoreLabel} für alltägliche HVV-Erreichbarkeit im aktuellen Verkehrsproxy.`
           : `${scoreLabel} for everyday HVV access in the current transport proxy.`,
       schools:
         language === "de"
-          ? `${scoreLabel} fuer Schulzugang im Vergleich zu anderen Hamburger Stadtteilen.`
+          ? `${scoreLabel} für Schulzugang im Vergleich zu anderen Hamburger Stadtteilen.`
           : `${scoreLabel} for school access compared with other Hamburg districts.`,
       kindergartens:
         language === "de"
-          ? `${scoreLabel} fuer Kita-Infrastruktur im Vergleich zu anderen Stadtteilen.`
+          ? `${scoreLabel} für Kita-Infrastruktur im Vergleich zu anderen Stadtteilen.`
           : `${scoreLabel} for early-childhood infrastructure compared with other districts.`,
       nightlife:
         language === "de"
-          ? `${scoreLabel} fuer Restaurants, Bars und Abendaktivitaet im Lifestyle-Proxy.`
+          ? `${scoreLabel} für Restaurants, Bars und Abendaktivität im Lifestyle-Proxy.`
           : `${scoreLabel} for restaurants, bars, and evening activity in the lifestyle proxy.`,
     };
 
@@ -240,17 +240,17 @@ export function getDemoListings(district: District, language: Language = "en"): 
       rooms: 3,
       size: 78,
       rent: familyRent,
-      tag: district.schoolScore >= 7 ? (language === "de" ? "familientauglich" : "family fit") : language === "de" ? "groesserer Schnitt" : "larger layout",
+      tag: district.schoolScore >= 7 ? (language === "de" ? "familientauglich" : "family fit") : language === "de" ? "größerer Schnitt" : "larger layout",
     },
     {
       id: `${district.id}-shared`,
-      title: language === "de" ? "Starter-Zimmer fuer einen flexiblen Umzug" : "Starter room for a flexible move",
+      title: language === "de" ? "Starter-Zimmer für einen flexiblen Umzug" : "Starter room for a flexible move",
       rooms: 1,
       size: 27,
       rent: sharedRent,
       tag: district.publicTransportScore >= 7
         ? language === "de"
-          ? "OePNV-nah"
+          ? "ÖPNV-nah"
           : "transit friendly"
         : language === "de"
           ? "Budget-Vorschau"
