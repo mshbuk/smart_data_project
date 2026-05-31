@@ -508,19 +508,19 @@ const exactLocalSpotTemplatesByDistrict: Record<string, LocalSpotTemplate[]> = {
       en: "Primary school in Cranz.",
       de: "Grundschule in Cranz.",
     }),
-    buildSpot("Aussichtspunkt Estemündung", "park.png", 53.53648, 9.79061, {
+    buildSpot("Aussichtspunkt Estemündung", "library.png", 53.53648, 9.79061, {
       en: "Nature viewpoint near the Este estuary.",
       de: "Natur-Aussichtspunkt an der Estemündung.",
     }),
-    buildSpot("Altes Estesperrwerk", "park.png", 53.53297, 9.77657, {
+    buildSpot("Altes Estesperrwerk", "library.png", 53.53297, 9.77657, {
       en: "Waterside nature and local landmark.",
       de: "Wasserlage und lokaler Naturanker.",
     }),
-    buildSpot("Uferweg Cranzer Elbdeich", "park.png", 53.53817, 9.77909, {
+    buildSpot("Uferweg Cranzer Elbdeich", "library.png", 53.53817, 9.77909, {
       en: "Waterside walking route in Cranz.",
       de: "Uferweg am Cranzer Elbdeich.",
     }),
-    buildSpot("Spielplatz Cranzer Elbdeich", "park.png", 53.53817, 9.77909, {
+    buildSpot("Spielplatz Cranzer Elbdeich", "kita.png", 53.53817, 9.77909, {
       en: "Playground at Cranzer Elbdeich.",
       de: "Spielplatz am Cranzer Elbdeich.",
     }),
@@ -566,35 +566,35 @@ const exactLocalSpotTemplatesByDistrict: Record<string, LocalSpotTemplate[]> = {
       en: "Secondary school in Finkenwerder.",
       de: "Gymnasium in Finkenwerder.",
     }),
-    buildSpot("Rüschpark", "park.png", 53.54124, 9.86326, {
+    buildSpot("Rüschpark", "library.png", 53.54124, 9.86326, {
       en: "Green space in Finkenwerder.",
       de: "Grünfläche in Finkenwerder.",
     }),
-    buildSpot("Gorch-Fock-Park", "park.png", 53.54069, 9.86793, {
+    buildSpot("Gorch-Fock-Park", "library.png", 53.54069, 9.86793, {
       en: "Green space in Finkenwerder.",
       de: "Grünfläche in Finkenwerder.",
     }),
-    buildSpot("Naturschutzgebiet Finkenwerder Süderelbe", "park.png", 53.51821, 9.83547, {
+    buildSpot("Naturschutzgebiet Finkenwerder Süderelbe", "library.png", 53.51821, 9.83547, {
       en: "Nature reserve in Finkenwerder.",
       de: "Naturschutzgebiet in Finkenwerder.",
     }),
-    buildSpot("Naturschutzgebiet Westerweiden", "park.png", 53.52352, 9.83739, {
+    buildSpot("Naturschutzgebiet Westerweiden", "library.png", 53.52352, 9.83739, {
       en: "Nature reserve in Finkenwerder.",
       de: "Naturschutzgebiet in Finkenwerder.",
     }),
-    buildSpot("Spielplatz im Rüschpark", "park.png", 53.53599, 9.86029, {
+    buildSpot("Spielplatz im Rüschpark", "kita.png", 53.53599, 9.86029, {
       en: "Playground in Finkenwerder.",
       de: "Spielplatz in Finkenwerder.",
     }),
-    buildSpot("Spielplatz Focksweg", "park.png", 53.53566, 9.87727, {
+    buildSpot("Spielplatz Focksweg", "kita.png", 53.53566, 9.87727, {
       en: "Playground in Finkenwerder.",
       de: "Spielplatz in Finkenwerder.",
     }),
-    buildSpot("Spielplatz Tweeflunken", "park.png", 53.53477, 9.86313, {
+    buildSpot("Spielplatz Tweeflunken", "kita.png", 53.53477, 9.86313, {
       en: "Playground in Finkenwerder.",
       de: "Spielplatz in Finkenwerder.",
     }),
-    buildSpot("Spielplatz Landscheideweg", "park.png", 53.52707, 9.87868, {
+    buildSpot("Spielplatz Landscheideweg", "kita.png", 53.52707, 9.87868, {
       en: "Playground in Finkenwerder.",
       de: "Spielplatz in Finkenwerder.",
     }),
@@ -715,7 +715,7 @@ function buildLocalSpots(district: SelectedMapDistrict, language: Language): Loc
         language === "de"
           ? "Grünfläche oder kleiner Park als Aufenthaltsort."
           : "Green area or small park as a local outdoor anchor.",
-      icon: "park.png",
+      icon: "library.png",
       label: language === "de" ? `Grünfläche ${districtSuffix}` : `Green space ${districtSuffix}`,
       latitude: district.latitude + 0.0085,
       longitude: district.longitude - 0.0031,
@@ -725,7 +725,7 @@ function buildLocalSpots(district: SelectedMapDistrict, language: Language): Loc
         language === "de"
           ? "Spielplatz oder ruhiger Aufenthaltsort für Familien."
           : "Playground or calm outdoor point for families.",
-      icon: "park.png",
+      icon: "kita.png",
       label: language === "de" ? `Spielplatz ${districtSuffix}` : `Playground ${districtSuffix}`,
       latitude: district.latitude - 0.008,
       longitude: district.longitude + 0.0071,
@@ -1264,11 +1264,15 @@ export function MapView({ matches }: MapViewProps) {
               </span>
             ))}
             <span className="inline-flex items-center gap-1.5 rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-black text-indigo-700">
-              <img alt="" className="h-6 w-5 object-contain" src={`${mapIconBaseUrl}rathaus.png`} />
+              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white shadow-sm ring-1 ring-indigo-100">
+                <img alt="" className="h-4 w-4 object-contain" src={`${mapIconBaseUrl}rathaus.png`} />
+              </span>
               {tx("Permanent Hamburg landmarks", "Feste Hamburg-Orte")}
             </span>
             <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-black text-slate-600">
-              <img alt="" className="h-6 w-5 object-contain" src={`${mapIconBaseUrl}cafe.png`} />
+              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white shadow-sm ring-1 ring-slate-200">
+                <img alt="" className="h-4 w-4 object-contain" src={`${mapIconBaseUrl}cafe.png`} />
+              </span>
               {tx("District click spots", "Spots nach Stadtteil-Klick")}
             </span>
           </div>
