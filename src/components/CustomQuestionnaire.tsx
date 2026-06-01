@@ -17,7 +17,7 @@ import {
   Volume2,
   type LucideIcon,
 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import type { Preferences } from "../types/District";
 import { useI18n } from "../i18n";
 import { profileDefaults } from "../utils/scoring";
@@ -36,6 +36,7 @@ type FamilyNeed = "kindergartens" | "schools" | "both";
 type LeisureAnswer = "parks" | "city" | "sport" | "home";
 type CityDetail = "cafes" | "bars" | "events";
 type SafetyAnswer = "very" | "important" | "neutral" | "low";
+type StepId = "rent" | "mobility" | "transit" | "household" | "familyNeed" | "leisure" | "cityDetails" | "safety";
 
 type Answers = {
   rentBudget: number;
@@ -382,18 +383,96 @@ function getAnswerPreferences(answers: Answers): Preferences {
   return nextPreferences;
 }
 
-function getCompletedSections(answers: Answers) {
-  const rentDone = answers.rentBudget > 0;
-  const mobilityDone = Boolean(answers.mobility) && (answers.mobility !== "public" || Boolean(answers.transit));
-  const householdDone =
-    Boolean(answers.household) &&
-    (answers.household === "solo" || Boolean(answers.familyNeed));
-  const leisureDone =
-    answers.leisure.length > 0 &&
-    (!answers.leisure.includes("city") || answers.cityDetails.length > 0);
-  const safetyDone = Boolean(answers.safety);
+function getQuestionnaireSteps(answers: Answers): StepId[] {
+  const steps: StepId[] = ["rent", "mobility"];
 
-  return [rentDone, mobilityDone, householdDone, leisureDone, safetyDone].filter(Boolean).length;
+  if (answers.mobility === "public") steps.push("transit");
+
+  steps.push("household");
+
+  if (answers.household === "partner" || answers.household === "family") steps.push("familyNeed");
+
+  steps.push("leisure");
+
+  if (answers.leisure.includes("city")) steps.push("cityDetails");
+
+  steps.push("safety");
+
+  return steps;
+}
+
+function isStepComplete(stepId: StepId, answers: Answers) {
+  if (stepId === "rent") return answers.rentBudget > 0;
+  if (stepId === "mobility") return Boolean(answers.mobility);
+  if (stepId === "transit") return Boolean(answers.transit);
+  if (stepId === "household") return Boolean(answers.household);
+  if (stepId === "familyNeed") return Boolean(answers.familyNeed);
+  if (stepId === "leisure") return answers.leisure.length > 0;
+  if (stepId === "cityDetails") return answers.cityDetails.length > 0;
+  return Boolean(answers.safety);
+}
+
+function getStepMeta(stepId: StepId): { eyebrow: string; eyebrowDe: string; icon: LucideIcon; title: string; titleDe: string } {
+  const meta: Record<StepId, { eyebrow: string; eyebrowDe: string; icon: LucideIcon; title: string; titleDe: string }> = {
+    rent: {
+      eyebrow: "Rent",
+      eyebrowDe: "Miete",
+      icon: Euro,
+      title: "How much do you want to spend at most on your apartment?",
+      titleDe: "Wie viel möchtest du maximal für deine Wohnung ausgeben?",
+    },
+    mobility: {
+      eyebrow: "Mobility",
+      eyebrowDe: "Mobilität",
+      icon: Train,
+      title: "How do you prefer to get to work or university?",
+      titleDe: "Wie kommst du am liebsten zur Arbeit oder Uni?",
+    },
+    transit: {
+      eyebrow: "Public transport",
+      eyebrowDe: "ÖPNV",
+      icon: Train,
+      title: "Which public transport connection matters most?",
+      titleDe: "Welche ÖPNV-Anbindung ist dir am wichtigsten?",
+    },
+    household: {
+      eyebrow: "Household",
+      eyebrowDe: "Familie",
+      icon: Users,
+      title: "What does your household look like?",
+      titleDe: "Wie sieht dein Haushalt aus?",
+    },
+    familyNeed: {
+      eyebrow: "Family needs",
+      eyebrowDe: "Familienbedarf",
+      icon: Baby,
+      title: "Are schools or daycare important for you?",
+      titleDe: "Sind Schulen oder Kitas für euch wichtig?",
+    },
+    leisure: {
+      eyebrow: "Free time",
+      eyebrowDe: "Freizeit",
+      icon: TreePine,
+      title: "How and where do you like to spend your free time?",
+      titleDe: "Wie und wo verbringst du gerne deine Freizeit?",
+    },
+    cityDetails: {
+      eyebrow: "City life",
+      eyebrowDe: "Stadtleben",
+      icon: Coffee,
+      title: "Which city-life options should matter?",
+      titleDe: "Was davon ist dir wichtig?",
+    },
+    safety: {
+      eyebrow: "Safety",
+      eyebrowDe: "Sicherheit",
+      icon: ShieldCheck,
+      title: "How important is safety?",
+      titleDe: "Wie wichtig ist die Sicherheit?",
+    },
+  };
+
+  return meta[stepId];
 }
 
 function OptionButton<T extends string>({
@@ -435,14 +514,25 @@ function OptionButton<T extends string>({
 
 export function CustomQuestionnaire({ preferences, onBack, onChange, onNext }: CustomQuestionnaireProps) {
   const { tx } = useI18n();
+  const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [answers, setAnswers] = useState<Answers>({
     rentBudget: preferences.maxRentPerSqm,
     leisure: [],
     cityDetails: [],
   });
-  const completedSections = getCompletedSections(answers);
-  const isComplete = completedSections === 5;
+  const steps = useMemo(() => getQuestionnaireSteps(answers), [answers]);
+  const currentStepId = steps[Math.min(currentStepIndex, steps.length - 1)];
+  const currentStepMeta = getStepMeta(currentStepId);
+  const completedSteps = steps.filter((stepId) => isStepComplete(stepId, answers)).length;
+  const isCurrentStepComplete = isStepComplete(currentStepId, answers);
+  const isLastStep = currentStepIndex >= steps.length - 1;
+  const isComplete = completedSteps === steps.length;
+  const progressPercent = ((currentStepIndex + 1) / steps.length) * 100;
   const derivedPreferences = useMemo(() => getAnswerPreferences(answers), [answers]);
+
+  useEffect(() => {
+    setCurrentStepIndex((index) => Math.min(index, steps.length - 1));
+  }, [steps.length]);
 
   const updateAnswers = (updater: (currentAnswers: Answers) => Answers) => {
     setAnswers((currentAnswers) => {
@@ -456,76 +546,61 @@ export function CustomQuestionnaire({ preferences, onBack, onChange, onNext }: C
     updateAnswers((currentAnswers) => ({ ...currentAnswers, [key]: value }));
   };
 
-  return (
-    <section className="grid gap-4">
-      <div className="rounded-[1.6rem] border border-white/80 bg-white/95 p-5 shadow-[0_18px_45px_rgba(15,23,42,0.08)] md:p-6">
-        <p className="text-xs font-black uppercase tracking-wide text-indigo-600">{tx("Custom setup", "Eigene Auswahl")}</p>
-        <h2 className="mt-1 text-3xl font-black leading-tight text-slate-950">{tx("Tell us how you live", "Erzähl uns, wie du lebst")}</h2>
-        <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
-          {tx(
-            "Your answers update the criteria automatically. You will review the final weights before seeing recommendations.",
-            "Deine Antworten aktualisieren die Kriterien automatisch. Danach prüfst du die Gewichtung vor den Empfehlungen.",
-          )}
-        </p>
-        <div className="mt-4 h-2 overflow-hidden rounded-full bg-slate-100">
-          <div className="h-full rounded-full bg-indigo-600" style={{ width: `${(completedSections / 5) * 100}%` }} />
-        </div>
-        <p className="mt-2 text-xs font-black text-slate-500">
-          {tx(`${completedSections} of 5 sections complete`, `${completedSections} von 5 Bereichen ausgefüllt`)}
-        </p>
-      </div>
+  const goBack = () => {
+    if (currentStepIndex === 0) {
+      onBack();
+      return;
+    }
 
-      <article className="rounded-[1.45rem] border border-white/80 bg-white/90 p-4 shadow-[0_14px_34px_rgba(15,23,42,0.07)]">
-        <div className="flex items-start gap-3">
-          <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-indigo-600 text-white">
-            <Euro aria-hidden="true" className="h-5 w-5" />
-          </span>
-          <div>
-            <p className="text-xs font-black uppercase tracking-wide text-indigo-600">{tx("Rent", "Miete")}</p>
-            <h3 className="mt-1 text-xl font-black text-slate-950">
-              {tx("How much do you want to spend at most on your apartment?", "Wie viel möchtest du maximal für deine Wohnung ausgeben?")}
-            </h3>
-            <p className="mt-1 text-sm leading-6 text-slate-600">
-              {tx(
-                "Enter a monthly budget, or enter a direct EUR/sqm value if you already know it.",
-                "Gib ein monatliches Budget ein oder direkt einen EUR/qm-Wert, wenn du ihn schon kennst.",
-              )}
-            </p>
-          </div>
-        </div>
-        <label className="mt-4 flex min-h-12 max-w-md items-center gap-2 rounded-2xl border border-slate-200 bg-slate-50 px-4 focus-within:border-indigo-300 focus-within:ring-4 focus-within:ring-indigo-100">
-          <span className="text-xs font-black text-slate-500">EUR</span>
-          <input
-            className="min-w-0 flex-1 border-0 bg-transparent text-lg font-black text-slate-950 outline-none"
-            inputMode="decimal"
-            min="0"
-            onChange={(event) => updateSingleAnswer("rentBudget", Number(event.target.value))}
-            placeholder="1200"
-            type="number"
-            value={answers.rentBudget || ""}
-          />
-        </label>
-        <p className="mt-2 text-xs font-bold text-slate-500">
-          {tx(
-            `Used for scoring as EUR ${derivedPreferences.maxRentPerSqm}/sqm.`,
-            `Für das Matching genutzt als EUR ${derivedPreferences.maxRentPerSqm}/qm.`,
-          )}
-        </p>
-      </article>
+    setCurrentStepIndex((index) => Math.max(index - 1, 0));
+  };
 
-      <article className="rounded-[1.45rem] border border-white/80 bg-white/90 p-4 shadow-[0_14px_34px_rgba(15,23,42,0.07)]">
-        <div className="flex items-start gap-3">
-          <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-indigo-600 text-white">
-            <Train aria-hidden="true" className="h-5 w-5" />
-          </span>
-          <div>
-            <p className="text-xs font-black uppercase tracking-wide text-indigo-600">{tx("Mobility", "Mobilität")}</p>
-            <h3 className="mt-1 text-xl font-black text-slate-950">
-              {tx("How do you prefer to get to work or university?", "Wie kommst du am liebsten zur Arbeit oder Uni?")}
-            </h3>
-          </div>
-        </div>
-        <div className="mt-4 grid gap-2 md:grid-cols-4">
+  const goForward = () => {
+    if (!isCurrentStepComplete) return;
+
+    if (isLastStep) {
+      if (isComplete) onNext();
+      return;
+    }
+
+    setCurrentStepIndex((index) => Math.min(index + 1, steps.length - 1));
+  };
+
+  const renderStepContent = (): ReactNode => {
+    if (currentStepId === "rent") {
+      return (
+        <>
+          <p className="mt-1 text-sm leading-6 text-slate-600">
+            {tx(
+              "Enter a monthly budget, or enter a direct EUR/sqm value if you already know it.",
+              "Gib ein monatliches Budget ein oder direkt einen EUR/qm-Wert, wenn du ihn schon kennst.",
+            )}
+          </p>
+          <label className="mt-6 flex min-h-14 max-w-md items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 focus-within:border-indigo-300 focus-within:ring-4 focus-within:ring-indigo-100">
+            <span className="text-xs font-black text-slate-500">EUR</span>
+            <input
+              className="min-w-0 flex-1 border-0 bg-transparent text-xl font-black text-slate-950 outline-none"
+              inputMode="decimal"
+              min="0"
+              onChange={(event) => updateSingleAnswer("rentBudget", Number(event.target.value))}
+              placeholder="1200"
+              type="number"
+              value={answers.rentBudget || ""}
+            />
+          </label>
+          <p className="mt-3 text-xs font-bold text-slate-500">
+            {tx(
+              `Used for scoring as EUR ${derivedPreferences.maxRentPerSqm}/sqm.`,
+              `Für das Matching genutzt als EUR ${derivedPreferences.maxRentPerSqm}/qm.`,
+            )}
+          </p>
+        </>
+      );
+    }
+
+    if (currentStepId === "mobility") {
+      return (
+        <div className="mt-6 grid gap-3 md:grid-cols-2">
           {mobilityChoices.map((choice) => (
             <OptionButton
               choice={choice}
@@ -541,36 +616,32 @@ export function CustomQuestionnaire({ preferences, onBack, onChange, onNext }: C
             />
           ))}
         </div>
-        {answers.mobility === "public" && (
-          <div className="mt-4 rounded-2xl border border-indigo-100 bg-indigo-50 p-3">
-            <p className="text-sm font-black text-slate-950">
-              {tx("Which public transport connection matters most?", "Welche ÖPNV-Anbindung ist dir am wichtigsten?")}
-            </p>
-            <div className="mt-3 grid gap-2 md:grid-cols-3">
-              {transitChoices.map((choice) => (
-                <OptionButton
-                  choice={choice}
-                  isSelected={answers.transit === choice.id}
-                  key={choice.id}
-                  onClick={() => updateSingleAnswer("transit", choice.id)}
-                />
-              ))}
-            </div>
-          </div>
-        )}
-      </article>
+      );
+    }
 
-      <article className="rounded-[1.45rem] border border-white/80 bg-white/90 p-4 shadow-[0_14px_34px_rgba(15,23,42,0.07)]">
-        <div className="flex items-start gap-3">
-          <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-indigo-600 text-white">
-            <Users aria-hidden="true" className="h-5 w-5" />
-          </span>
-          <div>
-            <p className="text-xs font-black uppercase tracking-wide text-indigo-600">{tx("Household", "Familie")}</p>
-            <h3 className="mt-1 text-xl font-black text-slate-950">{tx("What does your household look like?", "Wie sieht dein Haushalt aus?")}</h3>
+    if (currentStepId === "transit") {
+      return (
+        <>
+          <p className="mt-1 text-sm leading-6 text-slate-600">
+            {tx("This follow-up appears because you selected public transport.", "Diese Nachfrage erscheint, weil du ÖPNV gewählt hast.")}
+          </p>
+          <div className="mt-6 grid gap-3 md:grid-cols-3">
+            {transitChoices.map((choice) => (
+              <OptionButton
+                choice={choice}
+                isSelected={answers.transit === choice.id}
+                key={choice.id}
+                onClick={() => updateSingleAnswer("transit", choice.id)}
+              />
+            ))}
           </div>
-        </div>
-        <div className="mt-4 grid gap-2 md:grid-cols-3">
+        </>
+      );
+    }
+
+    if (currentStepId === "household") {
+      return (
+        <div className="mt-6 grid gap-3 md:grid-cols-3">
           {householdChoices.map((choice) => (
             <OptionButton
               choice={choice}
@@ -586,129 +657,155 @@ export function CustomQuestionnaire({ preferences, onBack, onChange, onNext }: C
             />
           ))}
         </div>
-        {(answers.household === "partner" || answers.household === "family") && (
-          <div className="mt-4 rounded-2xl border border-indigo-100 bg-indigo-50 p-3">
-            <p className="text-sm font-black text-slate-950">
-              {tx("Are schools or daycare important for you?", "Sind Schulen oder Kitas für euch wichtig?")}
-            </p>
-            <div className="mt-3 grid gap-2 md:grid-cols-3">
-              {familyNeedChoices.map((choice) => (
-                <OptionButton
-                  choice={choice}
-                  isSelected={answers.familyNeed === choice.id}
-                  key={choice.id}
-                  onClick={() => updateSingleAnswer("familyNeed", choice.id)}
-                />
-              ))}
-            </div>
-          </div>
-        )}
-      </article>
+      );
+    }
 
-      <article className="rounded-[1.45rem] border border-white/80 bg-white/90 p-4 shadow-[0_14px_34px_rgba(15,23,42,0.07)]">
-        <div className="flex items-start gap-3">
-          <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-indigo-600 text-white">
-            <TreePine aria-hidden="true" className="h-5 w-5" />
-          </span>
-          <div>
-            <p className="text-xs font-black uppercase tracking-wide text-indigo-600">{tx("Free time", "Freizeit")}</p>
-            <h3 className="mt-1 text-xl font-black text-slate-950">
-              {tx("How and where do you like to spend your free time?", "Wie und wo verbringst du gerne deine Freizeit?")}
-            </h3>
-            <p className="mt-1 text-sm leading-6 text-slate-600">
-              {tx("You can select more than one.", "Du kannst mehrere Antworten auswählen.")}
-            </p>
+    if (currentStepId === "familyNeed") {
+      return (
+        <>
+          <p className="mt-1 text-sm leading-6 text-slate-600">
+            {tx("This follow-up appears because your household may need family infrastructure.", "Diese Nachfrage erscheint, weil euer Haushalt Familieninfrastruktur brauchen könnte.")}
+          </p>
+          <div className="mt-6 grid gap-3 md:grid-cols-3">
+            {familyNeedChoices.map((choice) => (
+              <OptionButton
+                choice={choice}
+                isSelected={answers.familyNeed === choice.id}
+                key={choice.id}
+                onClick={() => updateSingleAnswer("familyNeed", choice.id)}
+              />
+            ))}
           </div>
-        </div>
-        <div className="mt-4 grid gap-2 md:grid-cols-4">
-          {leisureChoices.map((choice) => (
-            <OptionButton
-              choice={choice}
-              isSelected={answers.leisure.includes(choice.id)}
-              key={choice.id}
-              onClick={() =>
-                updateAnswers((currentAnswers) => {
-                  const leisure = toggleArrayValue(currentAnswers.leisure, choice.id);
-                  return {
-                    ...currentAnswers,
-                    leisure,
-                    cityDetails: leisure.includes("city") ? currentAnswers.cityDetails : [],
-                  };
-                })
-              }
-            />
-          ))}
-        </div>
-        {answers.leisure.includes("city") && (
-          <div className="mt-4 rounded-2xl border border-indigo-100 bg-indigo-50 p-3">
-            <p className="text-sm font-black text-slate-950">
-              {tx("Which of these should matter?", "Was davon ist dir wichtig?")}
-            </p>
-            <p className="mt-1 text-xs font-bold text-slate-600">
-              {tx("Select one to three options.", "Wähle eine bis drei Optionen.")}
-            </p>
-            <div className="mt-3 grid gap-2 md:grid-cols-3">
-              {cityDetailChoices.map((choice) => (
-                <OptionButton
-                  choice={choice}
-                  isSelected={answers.cityDetails.includes(choice.id)}
-                  key={choice.id}
-                  onClick={() =>
-                    updateAnswers((currentAnswers) => ({
+        </>
+      );
+    }
+
+    if (currentStepId === "leisure") {
+      return (
+        <>
+          <p className="mt-1 text-sm leading-6 text-slate-600">
+            {tx("You can select more than one.", "Du kannst mehrere Antworten auswählen.")}
+          </p>
+          <div className="mt-6 grid gap-3 md:grid-cols-2">
+            {leisureChoices.map((choice) => (
+              <OptionButton
+                choice={choice}
+                isSelected={answers.leisure.includes(choice.id)}
+                key={choice.id}
+                onClick={() =>
+                  updateAnswers((currentAnswers) => {
+                    const leisure = toggleArrayValue(currentAnswers.leisure, choice.id);
+                    return {
                       ...currentAnswers,
-                      cityDetails: toggleArrayValue(currentAnswers.cityDetails, choice.id),
-                    }))
-                  }
-                />
-              ))}
-            </div>
+                      leisure,
+                      cityDetails: leisure.includes("city") ? currentAnswers.cityDetails : [],
+                    };
+                  })
+                }
+              />
+            ))}
           </div>
-        )}
-      </article>
+        </>
+      );
+    }
+
+    if (currentStepId === "cityDetails") {
+      return (
+        <>
+          <p className="mt-1 text-sm leading-6 text-slate-600">
+            {tx("Select one to three options.", "Wähle eine bis drei Optionen.")}
+          </p>
+          <div className="mt-6 grid gap-3 md:grid-cols-3">
+            {cityDetailChoices.map((choice) => (
+              <OptionButton
+                choice={choice}
+                isSelected={answers.cityDetails.includes(choice.id)}
+                key={choice.id}
+                onClick={() =>
+                  updateAnswers((currentAnswers) => ({
+                    ...currentAnswers,
+                    cityDetails: toggleArrayValue(currentAnswers.cityDetails, choice.id),
+                  }))
+                }
+              />
+            ))}
+          </div>
+        </>
+      );
+    }
+
+    return (
+      <div className="mt-6 grid gap-3 md:grid-cols-2">
+        {safetyChoices.map((choice) => (
+          <OptionButton
+            choice={choice}
+            isSelected={answers.safety === choice.id}
+            key={choice.id}
+            onClick={() => updateSingleAnswer("safety", choice.id)}
+          />
+        ))}
+      </div>
+    );
+  };
+
+  const CurrentStepIcon = currentStepMeta.icon;
+
+  return (
+    <section className="grid gap-4">
+      <div className="rounded-[1.6rem] border border-white/80 bg-white/95 p-5 shadow-[0_18px_45px_rgba(15,23,42,0.08)] md:p-6">
+        <p className="text-xs font-black uppercase tracking-wide text-indigo-600">{tx("Custom setup", "Eigene Auswahl")}</p>
+        <h2 className="mt-1 text-3xl font-black leading-tight text-slate-950">{tx("Tell us how you live", "Erzähl uns, wie du lebst")}</h2>
+        <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
+          {tx(
+            "Your answers update the criteria automatically. You will review the final weights before seeing recommendations.",
+            "Deine Antworten aktualisieren die Kriterien automatisch. Danach prüfst du die Gewichtung vor den Empfehlungen.",
+          )}
+        </p>
+        <div className="mt-4 h-2 overflow-hidden rounded-full bg-slate-100">
+          <div className="h-full rounded-full bg-indigo-600 transition-all" style={{ width: `${progressPercent}%` }} />
+        </div>
+        <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs font-black text-slate-500">
+          <span>{tx(`Question ${currentStepIndex + 1} of ${steps.length}`, `Frage ${currentStepIndex + 1} von ${steps.length}`)}</span>
+          <span>{tx(`${completedSteps} answered`, `${completedSteps} beantwortet`)}</span>
+        </div>
+      </div>
 
       <article className="rounded-[1.45rem] border border-white/80 bg-white/90 p-4 shadow-[0_14px_34px_rgba(15,23,42,0.07)]">
         <div className="flex items-start gap-3">
           <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-indigo-600 text-white">
-            <ShieldCheck aria-hidden="true" className="h-5 w-5" />
+            <CurrentStepIcon aria-hidden="true" className="h-5 w-5" />
           </span>
           <div>
-            <p className="text-xs font-black uppercase tracking-wide text-indigo-600">{tx("Safety", "Sicherheit")}</p>
-            <h3 className="mt-1 text-xl font-black text-slate-950">{tx("How important is safety?", "Wie wichtig ist die Sicherheit?")}</h3>
+            <p className="text-xs font-black uppercase tracking-wide text-indigo-600">
+              {tx(currentStepMeta.eyebrow, currentStepMeta.eyebrowDe)}
+            </p>
+            <h3 className="mt-1 text-xl font-black text-slate-950">{tx(currentStepMeta.title, currentStepMeta.titleDe)}</h3>
           </div>
         </div>
-        <div className="mt-4 grid gap-2 md:grid-cols-4">
-          {safetyChoices.map((choice) => (
-            <OptionButton
-              choice={choice}
-              isSelected={answers.safety === choice.id}
-              key={choice.id}
-              onClick={() => updateSingleAnswer("safety", choice.id)}
-            />
-          ))}
-        </div>
+        {renderStepContent()}
       </article>
 
       <div className="sticky bottom-4 z-20 grid gap-2 rounded-[1.35rem] border border-white/80 bg-white/95 p-3 shadow-[0_18px_50px_rgba(15,23,42,0.16)] backdrop-blur md:grid-cols-[auto_1fr_auto] md:items-center">
         <button
           className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-slate-100 px-4 text-sm font-black text-slate-700 transition-colors hover:bg-slate-200"
-          onClick={onBack}
+          onClick={goBack}
           type="button"
         >
           <ArrowLeft aria-hidden="true" className="h-4 w-4" />
-          {tx("Back", "Zurück")}
+          {currentStepIndex === 0 ? tx("Back to profiles", "Zurück zu Profilen") : tx("Previous", "Zurück")}
         </button>
         <p className="text-center text-sm font-bold text-slate-600">
-          {isComplete
-            ? tx("Ready to review your criteria.", "Bereit, deine Kriterien zu prüfen.")
-            : tx("Answer all sections to continue.", "Beantworte alle Bereiche, um fortzufahren.")}
+          {isCurrentStepComplete
+            ? tx("Answer saved. You can continue.", "Antwort gespeichert. Du kannst weitergehen.")
+            : tx("Choose an answer to continue.", "Wähle eine Antwort, um weiterzugehen.")}
         </p>
         <button
           className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-indigo-600 px-5 text-sm font-black text-white shadow-lg shadow-indigo-600/20 transition-colors hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-45"
-          disabled={!isComplete}
-          onClick={onNext}
+          disabled={!isCurrentStepComplete || (isLastStep && !isComplete)}
+          onClick={goForward}
           type="button"
         >
-          {tx("Review criteria", "Kriterien prüfen")}
+          {isLastStep ? tx("Review criteria", "Kriterien prüfen") : tx("Next question", "Nächste Frage")}
           <ArrowRight aria-hidden="true" className="h-4 w-4" />
         </button>
       </div>

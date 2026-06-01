@@ -86,7 +86,7 @@ The production site is deployed automatically with GitHub Actions when changes a
 - Page-based flow: choose a profile, review or build criteria, then view recommendations.
 - German-first interface with a top-right language toggle for English.
 - Lifestyle profile presets for tourist/short stay, family relocation, and long-term living.
-- User-defined setup with a short questionnaire that adjusts criteria from lifestyle answers.
+- User-defined setup with a one-question-at-a-time questionnaire, progress bar, previous/next navigation, and branching follow-up questions that adjust criteria from lifestyle answers.
 - Editable priority weights with clear importance labels such as `important` and `very important`.
 - Ranked district recommendations with 10 districts per page.
 - Clickable district image areas that open in-app district detail views.
