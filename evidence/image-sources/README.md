@@ -8,7 +8,9 @@ Pexels license reference:
 
 ## District Card Image Pool
 
-The 104 local district records in `src/data/districts.json` now rotate through Hamburg-oriented Pexels image URLs instead of using the same local harbor placeholder for every district. The URLs use Pexels image CDN variants at `images.pexels.com`.
+The 104 local district records in `src/data/districts.json` now use unique Hamburg-oriented Pexels image URL variants instead of repeating the same exact card image. The URLs use Pexels image CDN crop/focal variants at `images.pexels.com`, so every district record has a different `imageUrl` while still drawing from a small, presentation-safe Hamburg visual pool.
+
+These unique variants are a visual prototype technique. They should not be read as sourced proof that a specific image shows the exact district named on the card.
 
 Source photo pages used for the current pool:
 

@@ -2,6 +2,7 @@ import "leaflet/dist/leaflet.css";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowLeft, ArrowRight, Heart, List, Map as MapIcon, SlidersHorizontal, User, type LucideIcon } from "lucide-react";
 import districts from "./data/districts.json";
+import { AuthGate } from "./components/AuthGate";
 import { CustomQuestionnaire } from "./components/CustomQuestionnaire";
 import { DistrictDetail } from "./components/DistrictDetail";
 import { MapView } from "./components/MapView";
@@ -15,10 +16,13 @@ import { I18nProvider, translate, type Language } from "./i18n";
 import { calculateDistrictMatches, profileDefaults } from "./utils/scoring";
 
 type ActiveView = "results" | "map" | "saved" | "profile";
+type AuthGateMode = "guest" | "login" | "register";
 type FlowStep = "profile" | "questionnaire" | "criteria" | "recommendations";
 
 type PersistedState = {
   activeView?: ActiveView;
+  authGateCompleted?: boolean;
+  authMode?: AuthGateMode;
   flowStep?: FlowStep;
   language?: Language;
   preferences?: Preferences;
@@ -39,6 +43,7 @@ const city = "Hamburg";
 const storageKey = "district-finder-state-v2";
 const userProfiles: UserProfile[] = ["tourist", "family", "longTerm", "custom"];
 const activeViews: ActiveView[] = ["results", "map", "saved", "profile"];
+const authGateModes: AuthGateMode[] = ["guest", "login", "register"];
 const flowSteps: FlowStep[] = ["profile", "questionnaire", "criteria", "recommendations"];
 const languages: Language[] = ["de", "en"];
 const preferenceKeys: Array<keyof Preferences> = [
@@ -58,6 +63,10 @@ function isUserProfile(value: unknown): value is UserProfile {
 
 function isActiveView(value: unknown): value is ActiveView {
   return typeof value === "string" && activeViews.includes(value as ActiveView);
+}
+
+function isAuthGateMode(value: unknown): value is AuthGateMode {
+  return typeof value === "string" && authGateModes.includes(value as AuthGateMode);
 }
 
 function isFlowStep(value: unknown): value is FlowStep {
@@ -85,6 +94,8 @@ function loadPersistedState(): PersistedState {
 
     return {
       activeView: isActiveView(parsed.activeView) ? parsed.activeView : undefined,
+      authGateCompleted: typeof parsed.authGateCompleted === "boolean" ? parsed.authGateCompleted : undefined,
+      authMode: isAuthGateMode(parsed.authMode) ? parsed.authMode : undefined,
       flowStep: isFlowStep(parsed.flowStep) ? parsed.flowStep : undefined,
       language: isLanguage(parsed.language) ? parsed.language : undefined,
       preferences: isPreferences(parsed.preferences) ? parsed.preferences : undefined,
@@ -109,6 +120,8 @@ function clearPersistedState() {
 function App() {
   const [initialState] = useState(loadPersistedState);
   const skipNextPersist = useRef(false);
+  const [authGateCompleted, setAuthGateCompleted] = useState(initialState.authGateCompleted ?? false);
+  const [authMode, setAuthMode] = useState<AuthGateMode | undefined>(initialState.authMode);
   const [selectedProfile, setSelectedProfile] = useState<UserProfile>(initialState.selectedProfile ?? "longTerm");
   const [preferences, setPreferences] = useState<Preferences>(initialState.preferences ?? profileDefaults.longTerm);
   const [savedDistrictIds, setSavedDistrictIds] = useState<string[]>(initialState.savedDistrictIds ?? []);
@@ -139,6 +152,8 @@ function App() {
 
     const stateToStore: PersistedState = {
       activeView,
+      authGateCompleted,
+      authMode,
       flowStep,
       language,
       preferences,
@@ -151,7 +166,7 @@ function App() {
     } catch {
       // Browsers can block storage in private contexts; the app still works for the current session.
     }
-  }, [activeView, flowStep, language, preferences, savedDistrictIds, selectedProfile]);
+  }, [activeView, authGateCompleted, authMode, flowStep, language, preferences, savedDistrictIds, selectedProfile]);
 
   const handleProfileSelect = (profile: UserProfile) => {
     setSelectedProfile(profile);
@@ -171,10 +186,20 @@ function App() {
   const clearLocalData = () => {
     skipNextPersist.current = true;
     clearPersistedState();
+    setAuthGateCompleted(false);
+    setAuthMode(undefined);
     setSelectedProfile("longTerm");
     setPreferences(profileDefaults.longTerm);
     setSavedDistrictIds([]);
-    setActiveView("profile");
+    setActiveView("results");
+    setFlowStep("profile");
+  };
+
+  const handleAuthContinue = (mode: AuthGateMode) => {
+    setAuthMode(mode);
+    setAuthGateCompleted(true);
+    setSelectedDistrictId(null);
+    setActiveView("results");
     setFlowStep("profile");
   };
 
@@ -193,6 +218,14 @@ function App() {
     { view: "map", label: tx("Map", "Karte"), icon: MapIcon },
     { view: "saved", label: tx("Saved", "Gespeichert"), icon: Heart, count: savedDistrictIds.length },
   ];
+
+  if (!authGateCompleted) {
+    return (
+      <I18nProvider language={language} setLanguage={setLanguage}>
+        <AuthGate onContinue={handleAuthContinue} />
+      </I18nProvider>
+    );
+  }
 
   if (activeView === "profile") {
     return (

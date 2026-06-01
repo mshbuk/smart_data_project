@@ -235,18 +235,6 @@ function formatNumber(value: number, language: Language) {
   return new Intl.NumberFormat(language === "de" ? "de-DE" : "en-US").format(value);
 }
 
-function getPopupQualityLabel(dataQuality: string | undefined, language: Language) {
-  if (dataQuality === "sourced") {
-    return { label: language === "de" ? "Belegt" : "Sourced", color: "#047857", background: "#ecfdf5" };
-  }
-
-  if (dataQuality === "partially-sourced") {
-    return { label: language === "de" ? "Teilweise" : "Partial", color: "#b45309", background: "#fffbeb" };
-  }
-
-  return { label: "Demo", color: "#475569", background: "#f8fafc" };
-}
-
 function createPopupMetric(label: string, value: string, detail: string) {
   return `
     <div style="border:1px solid #e2e8f0;border-radius:14px;padding:8px;background:#f8fafc;">
@@ -283,7 +271,6 @@ function createBoundaryPopup(feature: DistrictBoundaryFeature, language: Languag
       ? "Bewertet, außerhalb der aktuellen Top-Auswahl"
       : "Scored, outside the current top set";
   const statusColor = properties.isHighlighted ? "#16a34a" : "#64748b";
-  const quality = getPopupQualityLabel(properties.dataQuality, language);
   const metrics = [
     typeof properties.rentPerSqm === "number" &&
     (properties.sourceSummary?.includes("Miet-Check") || properties.dataQuality === "placeholder")
@@ -331,7 +318,6 @@ function createBoundaryPopup(feature: DistrictBoundaryFeature, language: Languag
       <strong style="display:block;margin-top:3px;font-size:16px;color:#0f172a;">${escapeHtml(districtName)}</strong>
       <div style="margin-top:7px;display:flex;align-items:center;gap:7px;flex-wrap:wrap;">
         <span style="border-radius:999px;background:#ecfdf5;color:#16a34a;padding:5px 9px;font-size:12px;font-weight:900;">${score}% ${language === "de" ? "Passung" : "match"}</span>
-        <span style="border-radius:999px;background:${quality.background};color:${quality.color};padding:5px 9px;font-size:12px;font-weight:900;">${quality.label}</span>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:9px;">${metrics}</div>
       ${missingSources}
@@ -955,8 +941,8 @@ export function MapView({ matches }: MapViewProps) {
             <h2 className="text-xl font-black text-slate-950">{tx("Map view", "Kartenansicht")}</h2>
             <p className="mt-1 text-sm leading-6 text-slate-600">
               {tx(
-                "Every Hamburg district from the GeoJSON is shown as its own border. Permanent landmarks stay visible, and clicking a district reveals useful local spots.",
-                "Jeder Hamburger Stadtteil aus dem GeoJSON wird als eigene Fläche gezeigt. Wichtige Orte bleiben sichtbar, und ein Klick auf einen Stadtteil zeigt nützliche Spots.",
+                "Every Hamburg district from the GeoJSON is shown as its own border. Permanent landmarks stay visible, and clicking a district opens its match details.",
+                "Jeder Hamburger Stadtteil aus dem GeoJSON wird als eigene Fläche gezeigt. Wichtige Orte bleiben sichtbar, und ein Klick auf einen Stadtteil öffnet die Passungsdetails.",
               )}
             </p>
           </div>
@@ -1093,36 +1079,6 @@ export function MapView({ matches }: MapViewProps) {
             />
             {locationStatus === "locating" ? tx("Locating", "Suchen") : tx("My location", "Mein Standort")}
           </button>
-
-          {selectedMapDistrict && (
-            <div className="absolute right-3 top-3 z-[650] max-w-[280px] rounded-2xl border border-white/80 bg-white/95 p-3 pr-10 text-xs shadow-xl shadow-slate-950/15 backdrop-blur">
-              <button
-                aria-label={tx("Close local spots panel", "Lokale-Spots-Info schließen")}
-                className="absolute right-2 top-2 grid h-7 w-7 place-items-center rounded-full bg-slate-100 text-base font-black leading-none text-slate-600 transition-colors hover:bg-slate-200 hover:text-slate-950"
-                onClick={() => setSelectedMapDistrict(null)}
-                type="button"
-              >
-                ×
-              </button>
-              <div className="font-black uppercase tracking-wide text-indigo-600">
-                {tx("Local spots", "Lokale Spots")}
-              </div>
-              <div className="mt-1 font-black text-slate-950">{selectedMapDistrict.name}</div>
-              <div className="mt-1 leading-5 text-slate-600">
-                {tx(
-                  "Cafes, bars, transit, daycare, schools, universities, libraries, and green points are shown for this selected district.",
-                  "Cafés, Bars, ÖPNV, Kitas, Schulen, Hochschulen, Bibliotheken und Grünpunkte werden für diesen Stadtteil gezeigt.",
-                )}
-              </div>
-              <button
-                className="mt-2 rounded-full bg-slate-100 px-3 py-1.5 font-black text-slate-700 transition-colors hover:bg-slate-200"
-                onClick={() => setSelectedMapDistrict(null)}
-                type="button"
-              >
-                {tx("Clear", "Ausblenden")}
-              </button>
-            </div>
-          )}
 
           {(isLoadingBoundaries || boundaryLoadError) && (
             <div className="absolute inset-x-3 top-3 z-[500] rounded-2xl border border-white/80 bg-white/95 px-3 py-2 text-xs font-black text-slate-600 shadow-lg shadow-slate-950/10">
