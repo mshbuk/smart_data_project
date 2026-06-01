@@ -20,6 +20,7 @@ export type CriterionInsight = {
 
 export type DemoListing = {
   id: string;
+  imageUrl: string;
   title: string;
   rooms: number;
   size: number;
@@ -224,10 +225,16 @@ export function getDemoListings(district: District, language: Language = "en"): 
   const compactRent = Math.round(district.rentPerSqm * 42 + 280);
   const familyRent = Math.round(district.rentPerSqm * 78 + 520);
   const sharedRent = Math.round(district.rentPerSqm * 27 + 180);
+  const listingImages = [
+    "https://images.pexels.com/photos/9976124/pexels-photo-9976124.jpeg?auto=compress&cs=tinysrgb&w=900",
+    "https://images.pexels.com/photos/7147291/pexels-photo-7147291.jpeg?auto=compress&cs=tinysrgb&w=900",
+    "https://images.pexels.com/photos/7614411/pexels-photo-7614411.jpeg?auto=compress&cs=tinysrgb&w=900",
+  ];
 
   return [
     {
       id: `${district.id}-compact`,
+      imageUrl: listingImages[0],
       title: language === "de" ? `Kompakte Wohnung in ${district.name}` : `Compact flat in ${district.name}`,
       rooms: 1.5,
       size: 42,
@@ -236,6 +243,7 @@ export function getDemoListings(district: District, language: Language = "en"): 
     },
     {
       id: `${district.id}-family`,
+      imageUrl: listingImages[1],
       title: language === "de" ? "Familienwohnung nahe Alltagsangeboten" : "Family-sized apartment near daily services",
       rooms: 3,
       size: 78,
@@ -244,6 +252,7 @@ export function getDemoListings(district: District, language: Language = "en"): 
     },
     {
       id: `${district.id}-shared`,
+      imageUrl: listingImages[2],
       title: language === "de" ? "Starter-Zimmer für einen flexiblen Umzug" : "Starter room for a flexible move",
       rooms: 1,
       size: 27,

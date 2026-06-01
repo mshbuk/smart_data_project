@@ -47,16 +47,6 @@ type UserLocation = {
 
 type LocationStatus = "idle" | "locating" | "found" | "error";
 
-type PoiCategory = "park" | "transit" | "education";
-
-type OrientationPoi = {
-  category: PoiCategory;
-  description: LocalizedText;
-  label: string;
-  latitude: number;
-  longitude: number;
-};
-
 type Landmark = {
   description: LocalizedText;
   icon: string;
@@ -102,12 +92,6 @@ const emptyDistrictBoundaries: DistrictBoundaryCollection = {
 const hamburgAltstadtCenter: [number, number] = [53.55062, 9.9955];
 const mapIconBaseUrl = `${import.meta.env.BASE_URL}map-icons/`;
 const topBoundaryOptions: TopBoundaryCount[] = [10, 25, 50, "all"];
-
-const poiCategories: Array<{ key: PoiCategory; label: LocalizedText; color: string }> = [
-  { key: "park", label: { en: "Parks", de: "Parks" }, color: "#16a34a" },
-  { key: "transit", label: { en: "HVV", de: "HVV" }, color: "#0891b2" },
-  { key: "education", label: { en: "Education / health", de: "Bildung / Gesundheit" }, color: "#d97706" },
-];
 
 const permanentLandmarks: Landmark[] = [
   {
@@ -161,57 +145,26 @@ const permanentLandmarks: Landmark[] = [
   },
 ];
 
-const orientationPois: OrientationPoi[] = [
-  {
-    category: "park",
-    description: { en: "Large central city park", de: "Großer zentraler Stadtpark" },
-    label: "Planten un Blomen",
-    latitude: 53.5614,
-    longitude: 9.9799,
-  },
-  {
-    category: "park",
-    description: { en: "Major green-space anchor in Winterhude", de: "Wichtiger Grünraum in Winterhude" },
-    label: "Stadtpark",
-    latitude: 53.5968,
-    longitude: 10.0199,
-  },
-  {
-    category: "transit",
-    description: { en: "Central U-Bahn and S-Bahn interchange", de: "Zentraler U- und S-Bahn-Knoten" },
-    label: "Jungfernstieg",
-    latitude: 53.5523,
-    longitude: 9.9937,
-  },
-  {
-    category: "transit",
-    description: { en: "U-Bahn, S-Bahn, bus, and nightlife connection", de: "U-Bahn, S-Bahn, Bus und Nachtleben" },
-    label: "Sternschanze",
-    latitude: 53.5646,
-    longitude: 9.969,
-  },
-  {
-    category: "education",
-    description: { en: "University area", de: "Universitätsbereich" },
-    label: "Universität Hamburg",
-    latitude: 53.5665,
-    longitude: 9.9841,
-  },
-  {
-    category: "education",
-    description: { en: "Major hospital and health reference point", de: "Wichtiger Klinik- und Gesundheitsanker" },
-    label: "UKE",
-    latitude: 53.5908,
-    longitude: 9.9745,
-  },
+const legendItems: Array<{ label: LocalizedText; color: string }> = [
+  { label: { en: "Top 3 district matches", de: "Top-3-Stadtteile nach Passung" }, color: "#16a34a" },
+  { label: { en: "80%+ profile fit", de: "80%+ Profilpassung" }, color: "#0ea5e9" },
+  { label: { en: "70-79% profile fit", de: "70-79% Profilpassung" }, color: "#7c3aed" },
+  { label: { en: "Below 70% profile fit", de: "Unter 70% Profilpassung" }, color: "#f97316" },
+  { label: { en: "Not in selected top set", de: "Nicht in der gewählten Top-Auswahl" }, color: "#cbd5e1" },
 ];
 
-const legendItems: Array<{ label: LocalizedText; color: string }> = [
-  { label: { en: "Top 3", de: "Top 3" }, color: "#16a34a" },
-  { label: { en: "Shown 80+", de: "Angezeigt 80+" }, color: "#0ea5e9" },
-  { label: { en: "Shown 70+", de: "Angezeigt 70+" }, color: "#7c3aed" },
-  { label: { en: "Shown lower", de: "Angezeigt niedriger" }, color: "#f97316" },
-  { label: { en: "Outside top", de: "Außerhalb der Top-Auswahl" }, color: "#cbd5e1" },
+const iconLegendItems: Array<{ icon: string; label: LocalizedText }> = [
+  { icon: "rathaus.png", label: { en: "Rathaus", de: "Rathaus" } },
+  { icon: "elbphilharmonie.png", label: { en: "Elbphilharmonie", de: "Elbphilharmonie" } },
+  { icon: "flughafen.png", label: { en: "Airport", de: "Flughafen" } },
+  { icon: "hbf.jpg", label: { en: "Main station", de: "Hauptbahnhof" } },
+  { icon: "university.png", label: { en: "University", de: "Hochschule" } },
+  { icon: "bus-stop.jpeg", label: { en: "Transit stop", de: "ÖPNV-Halt" } },
+  { icon: "cafe.png", label: { en: "Cafe", de: "Café" } },
+  { icon: "bar.png", label: { en: "Bar", de: "Bar" } },
+  { icon: "kita.png", label: { en: "Daycare / playground", de: "Kita / Spielplatz" } },
+  { icon: "school.png", label: { en: "School", de: "Schule" } },
+  { icon: "library.png", label: { en: "Library / green point", de: "Bibliothek / Grünpunkt" } },
 ];
 
 function localize(text: LocalizedText, language: Language) {
@@ -924,9 +877,6 @@ export function MapView({ matches }: MapViewProps) {
   const [topBoundaryCount, setTopBoundaryCount] = useState<TopBoundaryCount>(25);
   const [locationStatus, setLocationStatus] = useState<LocationStatus>("idle");
   const [locationMessage, setLocationMessage] = useState("");
-  const [visiblePoiCategories, setVisiblePoiCategories] = useState<Set<PoiCategory>>(
-    () => new Set<PoiCategory>(["park", "transit"]),
-  );
   const [selectedMapDistrict, setSelectedMapDistrict] = useState<SelectedMapDistrict | null>(null);
   const [userLocation, setUserLocation] = useState<UserLocation | null>(null);
   const { boundaries: rawDistrictBoundaries, hasError: boundaryLoadError } = useDistrictBoundaries();
@@ -994,20 +944,6 @@ export function MapView({ matches }: MapViewProps) {
     );
   };
 
-  const togglePoiCategory = (category: PoiCategory) => {
-    setVisiblePoiCategories((currentCategories) => {
-      const nextCategories = new Set(currentCategories);
-
-      if (nextCategories.has(category)) {
-        nextCategories.delete(category);
-      } else {
-        nextCategories.add(category);
-      }
-
-      return nextCategories;
-    });
-  };
-
   return (
     <section className="overflow-hidden rounded-[1.6rem] border border-white/80 bg-white shadow-[0_18px_45px_rgba(15,23,42,0.08)]">
       <div className="grid gap-4 p-4 md:grid-cols-[1fr_auto] md:items-start md:p-5">
@@ -1061,29 +997,6 @@ export function MapView({ matches }: MapViewProps) {
           })}
         </div>
 
-        <div className="mb-3 flex flex-wrap items-center gap-2">
-          <span className="text-xs font-black uppercase tracking-wide text-slate-500">{tx("Optional orientation", "Optionale Orientierung")}</span>
-          {poiCategories.map((category) => {
-            const isActive = visiblePoiCategories.has(category.key);
-
-            return (
-              <button
-                aria-pressed={isActive}
-                className={[
-                  "inline-flex min-h-9 items-center gap-2 rounded-2xl px-3 text-xs font-black transition-colors",
-                  isActive ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200",
-                ].join(" ")}
-                key={category.key}
-                onClick={() => togglePoiCategory(category.key)}
-                type="button"
-              >
-                <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: category.color }} />
-                {localize(category.label, language)}
-              </button>
-            );
-          })}
-        </div>
-
         <div className="relative overflow-hidden rounded-[1.35rem]">
           <MapContainer
             center={hamburgAltstadtCenter}
@@ -1132,33 +1045,6 @@ export function MapView({ matches }: MapViewProps) {
                 </Popup>
               </Marker>
             ))}
-            {orientationPois
-              .filter((poi) => visiblePoiCategories.has(poi.category))
-              .map((poi) => {
-                const category = poiCategories.find((item) => item.key === poi.category);
-                const color = category?.color ?? "#4f46e5";
-
-                return (
-                  <CircleMarker
-                    center={[poi.latitude, poi.longitude]}
-                    key={poi.label}
-                    pathOptions={{
-                      color: "#ffffff",
-                      fillColor: color,
-                      fillOpacity: 0.95,
-                      opacity: 1,
-                      weight: 2,
-                    }}
-                    radius={7}
-                  >
-                    <Popup>
-                      <strong>{poi.label}</strong>
-                      <br />
-                      {localize(poi.description, language)}
-                    </Popup>
-                  </CircleMarker>
-                );
-              })}
             {userLocation && (
               <>
                 {typeof userLocation.accuracy === "number" && (
@@ -1209,15 +1095,23 @@ export function MapView({ matches }: MapViewProps) {
           </button>
 
           {selectedMapDistrict && (
-            <div className="absolute right-3 top-3 z-[650] max-w-[260px] rounded-2xl border border-white/80 bg-white/95 p-3 text-xs shadow-xl shadow-slate-950/15 backdrop-blur">
+            <div className="absolute right-3 top-3 z-[650] max-w-[280px] rounded-2xl border border-white/80 bg-white/95 p-3 pr-10 text-xs shadow-xl shadow-slate-950/15 backdrop-blur">
+              <button
+                aria-label={tx("Close local spots panel", "Lokale-Spots-Info schließen")}
+                className="absolute right-2 top-2 grid h-7 w-7 place-items-center rounded-full bg-slate-100 text-base font-black leading-none text-slate-600 transition-colors hover:bg-slate-200 hover:text-slate-950"
+                onClick={() => setSelectedMapDistrict(null)}
+                type="button"
+              >
+                ×
+              </button>
               <div className="font-black uppercase tracking-wide text-indigo-600">
                 {tx("Local spots", "Lokale Spots")}
               </div>
               <div className="mt-1 font-black text-slate-950">{selectedMapDistrict.name}</div>
               <div className="mt-1 leading-5 text-slate-600">
                 {tx(
-                  "Cafes, bars, transit, daycare, schools, universities, libraries, and green spots are shown for the selected district where data is available.",
-                  "Cafés, Bars, ÖPNV, Kitas, Schulen, Hochschulen, Bibliotheken und Grünpunkte werden für den gewählten Stadtteil gezeigt, soweit Daten vorhanden sind.",
+                  "Cafes, bars, transit, daycare, schools, universities, libraries, and green points are shown for this selected district.",
+                  "Cafés, Bars, ÖPNV, Kitas, Schulen, Hochschulen, Bibliotheken und Grünpunkte werden für diesen Stadtteil gezeigt.",
                 )}
               </div>
               <button
@@ -1252,29 +1146,40 @@ export function MapView({ matches }: MapViewProps) {
           )}
         </div>
 
-        <div className="mt-3 grid gap-3 md:grid-cols-[1fr_auto] md:items-center">
-          <div className="flex flex-wrap gap-2">
-            {legendItems.map((item) => (
-              <span
-                className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-black text-slate-600"
-                key={item.label.en}
-              >
-                <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: item.color }} />
-                {localize(item.label, language)}
-              </span>
-            ))}
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-black text-indigo-700">
-              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white shadow-sm ring-1 ring-indigo-100">
-                <img alt="" className="h-4 w-4 object-contain" src={`${mapIconBaseUrl}rathaus.png`} />
-              </span>
-              {tx("Permanent Hamburg landmarks", "Feste Hamburg-Orte")}
-            </span>
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-black text-slate-600">
-              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white shadow-sm ring-1 ring-slate-200">
-                <img alt="" className="h-4 w-4 object-contain" src={`${mapIconBaseUrl}cafe.png`} />
-              </span>
-              {tx("District click spots", "Spots nach Stadtteil-Klick")}
-            </span>
+        <div className="mt-3 grid gap-3">
+          <div>
+            <p className="mb-2 text-xs font-black uppercase tracking-wide text-slate-500">
+              {tx("District match colors", "Farben der Stadtteil-Passung")}
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {legendItems.map((item) => (
+                <span
+                  className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-black text-slate-600"
+                  key={item.label.en}
+                >
+                  <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: item.color }} />
+                  {localize(item.label, language)}
+                </span>
+              ))}
+            </div>
+          </div>
+          <div>
+            <p className="mb-2 text-xs font-black uppercase tracking-wide text-slate-500">
+              {tx("Map icons", "Karten-Icons")}
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {iconLegendItems.map((item) => (
+                <span
+                  className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-black text-slate-600"
+                  key={item.icon}
+                >
+                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white shadow-sm ring-1 ring-slate-200">
+                    <img alt="" className="h-4 w-4 object-contain" src={`${mapIconBaseUrl}${item.icon}`} />
+                  </span>
+                  {localize(item.label, language)}
+                </span>
+              ))}
+            </div>
           </div>
         </div>
 

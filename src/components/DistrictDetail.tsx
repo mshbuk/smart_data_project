@@ -178,8 +178,14 @@ export function DistrictDetail({
               </p>
               <div className="mt-3 grid gap-2">
                 {listings.map((listing) => (
-                  <article className="rounded-2xl bg-white p-3 shadow-sm shadow-slate-950/5" key={listing.id}>
-                    <div className="flex items-start justify-between gap-3">
+                  <article className="overflow-hidden rounded-2xl bg-white shadow-sm shadow-slate-950/5" key={listing.id}>
+                    <img
+                      alt=""
+                      className="h-28 w-full object-cover"
+                      loading="lazy"
+                      src={listing.imageUrl}
+                    />
+                    <div className="flex items-start justify-between gap-3 p-3 pb-0">
                       <div>
                         <h4 className="text-sm font-black text-slate-950">{listing.title}</h4>
                         <p className="mt-1 text-xs font-bold text-slate-500">
@@ -190,9 +196,11 @@ export function DistrictDetail({
                         EUR {listing.rent}
                       </span>
                     </div>
-                    <span className="mt-2 inline-flex rounded-full bg-slate-100 px-2.5 py-1 text-[0.68rem] font-black text-slate-600">
-                      {listing.tag}
-                    </span>
+                    <div className="p-3 pt-2">
+                      <span className="inline-flex rounded-full bg-slate-100 px-2.5 py-1 text-[0.68rem] font-black text-slate-600">
+                        {listing.tag}
+                      </span>
+                    </div>
                   </article>
                 ))}
               </div>

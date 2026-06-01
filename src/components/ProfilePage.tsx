@@ -21,7 +21,9 @@ type ProfilePageProps = {
   preferences: Preferences;
   selectedProfile: UserProfile;
   onBack: () => void;
+  onChangeProfile: () => void;
   onClearLocalData: () => void;
+  onEditCriteria: () => void;
 };
 
 const preferenceRows: Array<{ key: keyof Preferences; label: string; suffix?: string }> = [
@@ -41,7 +43,9 @@ export function ProfilePage({
   preferences,
   selectedProfile,
   onBack,
+  onChangeProfile,
   onClearLocalData,
+  onEditCriteria,
 }: ProfilePageProps) {
   const { language, setLanguage, tx } = useI18n();
   const localizedProfileLabels: Record<UserProfile, string> = {
@@ -147,9 +151,19 @@ export function ProfilePage({
           </section>
 
           <section className="rounded-[1.35rem] border border-slate-200 bg-white p-4">
-            <div className="flex items-center gap-2">
-              <SlidersHorizontal aria-hidden="true" className="h-5 w-5 text-indigo-600" />
-              <h2 className="text-xl font-black text-slate-950">{tx("Saved preferences", "Gespeicherte Präferenzen")}</h2>
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="flex items-center gap-2">
+                <SlidersHorizontal aria-hidden="true" className="h-5 w-5 text-indigo-600" />
+                <h2 className="text-xl font-black text-slate-950">{tx("Saved preferences", "Gespeicherte Präferenzen")}</h2>
+              </div>
+              <button
+                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 px-4 text-sm font-black text-white shadow-lg shadow-indigo-600/20 transition-transform hover:-translate-y-0.5"
+                onClick={onEditCriteria}
+                type="button"
+              >
+                <SlidersHorizontal aria-hidden="true" className="h-4 w-4" />
+                {tx("Edit criteria", "Kriterien ändern")}
+              </button>
             </div>
             <div className="mt-4 grid gap-2">
               {preferenceRows.map((row) => (
@@ -180,6 +194,14 @@ export function ProfilePage({
               <Database aria-hidden="true" className="h-5 w-5 text-indigo-600" />
               <h2 className="text-xl font-black text-slate-950">{tx("Local data", "Lokale Daten")}</h2>
             </div>
+            <button
+              className="mt-4 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-amber-400 px-4 text-sm font-black text-slate-950 shadow-lg shadow-amber-400/20 transition-colors hover:bg-amber-300"
+              onClick={onChangeProfile}
+              type="button"
+            >
+              <User aria-hidden="true" className="h-4 w-4" />
+              {tx("Change profile", "Profil ändern")}
+            </button>
             <div className="mt-4 rounded-2xl border border-blue-100 bg-blue-50 p-4 text-sm leading-6 text-slate-700">
               <strong className="text-slate-950">{tx("Privacy note", "Datenschutzhinweis")}:</strong>{" "}
               {tx(

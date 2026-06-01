@@ -90,7 +90,9 @@ The production site is deployed automatically with GitHub Actions when changes a
 - Editable priority weights with clear importance labels such as `important` and `very important`.
 - Ranked district recommendations with 10 districts per page.
 - Clickable district image areas that open in-app district detail views.
+- Varied Hamburg photo backgrounds on district result cards and detail pages instead of one repeated placeholder image.
 - District detail pages with character traits, known-for facts, score explanations, and demo apartment previews.
+- Demo apartment preview cards with realistic apartment photos, kept clearly in-platform and non-listing-based.
 - Save/favorite districts and compare saved districts side by side.
 - Comparison view with best-value highlights and a priority-shape diagram based on the current preferences.
 - Leaflet map with Hamburg district polygons, top-match highlighting, a current-location button, owner-supplied landmark icons for key Hamburg places, and district-click local spot markers for cafes, bars, transit stops, Kitas, schools, universities, libraries, playgrounds, and nature anchors.
@@ -136,6 +138,16 @@ public/map-icons/
 The map uses owner-supplied image files only. Current marker files cover bars, bus stops, cafes, Kitas, schools, libraries, universities, Hamburg Rathaus, Hamburg Airport, Elbphilharmonie, and Hamburg Hauptbahnhof. `MapView.tsx` wraps each image in a white circular Leaflet marker so icons stay readable on the map.
 
 Permanent Hamburg landmarks include Rathaus, Elbphilharmonie, Flughafen HAM, Universität Hamburg, HAW Hamburg, TU Hamburg, and Hauptbahnhof. District-click POIs are exact for Dulsberg, Cranz, and Finkenwerder where coordinates were provided; other districts use deterministic demo spots around the district center until a real POI dataset is added.
+
+The optional orientation toggle layer was removed. The map now keeps the recommendation polygons, permanent Hamburg landmarks, district-click spot icons, and a clearer two-line legend for match percentages and icon meanings.
+
+## Image Sources
+
+District card photos and demo apartment preview photos use Pexels-hosted images. These are demo visual assets, not factual proof of a specific apartment or street. The source notes live in:
+
+```text
+evidence/image-sources/
+```
 
 Source evidence for factual data updates is saved in:
 

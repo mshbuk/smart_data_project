@@ -1,6 +1,6 @@
 import "leaflet/dist/leaflet.css";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ArrowLeft, ArrowRight, Heart, List, Map as MapIcon, User, type LucideIcon } from "lucide-react";
+import { ArrowLeft, ArrowRight, Heart, List, Map as MapIcon, SlidersHorizontal, User, type LucideIcon } from "lucide-react";
 import districts from "./data/districts.json";
 import { CustomQuestionnaire } from "./components/CustomQuestionnaire";
 import { DistrictDetail } from "./components/DistrictDetail";
@@ -206,6 +206,12 @@ function App() {
               setFlowStep("recommendations");
             }}
             onClearLocalData={clearLocalData}
+            onEditCriteria={openCriteriaEditor}
+            onChangeProfile={() => {
+              setSelectedDistrictId(null);
+              setActiveView("results");
+              setFlowStep("profile");
+            }}
             preferences={preferences}
             selectedProfile={selectedProfile}
           />
@@ -374,20 +380,22 @@ function App() {
                       {tx("Top match", "Top-Treffer")}: <span className="font-black">{topMatch.district.name}</span> ({topMatch.score}%)
                     </div>
                     <button
-                      className="min-h-11 rounded-2xl bg-white px-4 text-sm font-black text-indigo-600 shadow-[0_12px_30px_rgba(15,23,42,0.08)] transition-colors hover:bg-indigo-50"
+                      className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 px-4 text-sm font-black text-white shadow-lg shadow-indigo-600/25 transition-transform hover:-translate-y-0.5"
                       onClick={openCriteriaEditor}
                       type="button"
                     >
+                      <SlidersHorizontal aria-hidden="true" className="h-4 w-4" />
                       {tx("Edit criteria", "Kriterien bearbeiten")}
                     </button>
                     <button
-                      className="min-h-11 rounded-2xl bg-slate-100 px-4 text-sm font-black text-slate-700 transition-colors hover:bg-slate-200"
+                      className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-amber-400 px-4 text-sm font-black text-slate-950 shadow-lg shadow-amber-400/25 transition-transform hover:-translate-y-0.5 hover:bg-amber-300"
                       onClick={() => {
                         setSelectedDistrictId(null);
                         setFlowStep("profile");
                       }}
                       type="button"
                     >
+                      <User aria-hidden="true" className="h-4 w-4" />
                       {tx("Change profile", "Profil ändern")}
                     </button>
                   </div>
