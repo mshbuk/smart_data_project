@@ -485,7 +485,6 @@ function App() {
                 isSaved={savedDistrictIds.includes(selectedDetailMatch.district.id)}
                 match={selectedDetailMatch}
                 onBack={() => setSelectedDistrictId(null)}
-                onEditCriteria={openCriteriaEditor}
                 onToggleSave={toggleSave}
                 preferences={preferences}
               />

@@ -144,7 +144,7 @@ The optional orientation toggle layer was removed. The map now keeps the recomme
 
 ## Image Sources
 
-District card photos and demo apartment preview photos use Pexels-hosted images. District cards use unique CDN crop variants for every local district record. These are demo visual assets, not factual proof of a specific apartment or street. The source notes live in:
+District card photos and demo apartment preview photos use Pexels-hosted images. District cards rotate through a 20-photo Hamburg-only pool; some districts can share a photo, but non-Hamburg images should not be used for district cards. These are demo visual assets, not factual proof of a specific apartment or street. The source notes live in:
 
 ```text
 evidence/image-sources/

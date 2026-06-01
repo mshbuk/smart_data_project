@@ -7,7 +7,6 @@ import {
   Heart,
   Home,
   Info,
-  SlidersHorizontal,
   Sparkles,
 } from "lucide-react";
 import type { DistrictMatch, Preferences } from "../types/District";
@@ -26,7 +25,6 @@ type DistrictDetailProps = {
   match: DistrictMatch;
   preferences: Preferences;
   onBack: () => void;
-  onEditCriteria: () => void;
   onToggleSave: (districtId: string) => void;
 };
 
@@ -35,7 +33,6 @@ export function DistrictDetail({
   match,
   preferences,
   onBack,
-  onEditCriteria,
   onToggleSave,
 }: DistrictDetailProps) {
   const { language, tx } = useI18n();
@@ -57,15 +54,6 @@ export function DistrictDetail({
         >
           <ArrowLeft aria-hidden="true" className="h-4 w-4" />
           {tx("Back to matches", "Zurück zu den Treffern")}
-        </button>
-
-        <button
-          className="inline-flex min-h-11 items-center gap-2 rounded-2xl bg-indigo-600 px-4 text-sm font-black text-white shadow-lg shadow-indigo-600/20 transition-colors hover:bg-indigo-700"
-          onClick={onEditCriteria}
-          type="button"
-        >
-          <SlidersHorizontal aria-hidden="true" className="h-4 w-4" />
-          {tx("Edit criteria", "Kriterien bearbeiten")}
         </button>
       </div>
 

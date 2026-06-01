@@ -8,23 +8,32 @@ Pexels license reference:
 
 ## District Card Image Pool
 
-The 104 local district records in `src/data/districts.json` now use unique Hamburg-oriented Pexels image URL variants instead of repeating the same exact card image. The URLs use Pexels image CDN crop/focal variants at `images.pexels.com`, so every district record has a different `imageUrl` while still drawing from a small, presentation-safe Hamburg visual pool.
+The 104 local district records in `src/data/districts.json` now rotate through a Hamburg-only Pexels image pool. The photos do not need to show the exact district named on the card, but they should show Hamburg. Some districts intentionally share photos so the pool stays easier to verify and maintain.
 
-These unique variants are a visual prototype technique. They should not be read as sourced proof that a specific image shows the exact district named on the card.
+These Hamburg images are a visual prototype technique. They should not be read as sourced proof that a specific image shows the exact district named on the card.
 
 Source photo pages used for the current pool:
 
-- https://www.pexels.com/photo/17458974/
-- https://www.pexels.com/photo/36051414/
-- https://www.pexels.com/photo/21674959/
-- https://www.pexels.com/photo/32416401/
-- https://www.pexels.com/photo/35863370/
-- https://www.pexels.com/photo/31947438/
-- https://www.pexels.com/photo/28236365/
-- https://www.pexels.com/photo/21418940/
+- https://www.pexels.com/photo/21790813/
+- https://www.pexels.com/photo/23024771/
+- https://www.pexels.com/photo/20243795/
+- https://www.pexels.com/photo/12903501/
+- https://www.pexels.com/photo/30157134/
+- https://www.pexels.com/photo/30159919/
+- https://www.pexels.com/photo/20795317/
+- https://www.pexels.com/photo/18514953/
+- https://www.pexels.com/photo/18573619/
+- https://www.pexels.com/photo/34206390/
+- https://www.pexels.com/photo/36051416/
+- https://www.pexels.com/photo/32201822/
+- https://www.pexels.com/photo/28941122/
+- https://www.pexels.com/photo/20581300/
+- https://www.pexels.com/photo/36051429/
+- https://www.pexels.com/photo/18365678/
+- https://www.pexels.com/photo/14730190/
+- https://www.pexels.com/photo/33573405/
 - https://www.pexels.com/photo/16527466/
-- https://www.pexels.com/photo/36074748/
-- https://www.pexels.com/photo/34502688/
+- https://www.pexels.com/photo/31947438/
 
 ## Demo Apartment Preview Image Pool
 

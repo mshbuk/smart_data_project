@@ -32,7 +32,7 @@ type CustomQuestionnaireProps = {
 type MobilityAnswer = "public" | "bike" | "car" | "remote";
 type TransitAnswer = "bus" | "train" | "both";
 type HouseholdAnswer = "solo" | "partner" | "family";
-type FamilyNeed = "kindergartens" | "schools" | "both";
+type FamilyNeed = "kindergartens" | "schools" | "both" | "notImportant";
 type LeisureAnswer = "parks" | "city" | "sport" | "home";
 type CityDetail = "cafes" | "bars" | "events";
 type SafetyAnswer = "very" | "important" | "neutral" | "low";
@@ -144,6 +144,12 @@ const familyNeedChoices: Choice<FamilyNeed>[] = [
     description: "Daycare and schools should both be important.",
     icon: Users,
   },
+  {
+    id: "notImportant",
+    label: "Not important for us",
+    description: "Schools and daycare should not shape the recommendation.",
+    icon: Home,
+  },
 ];
 
 const leisureChoices: Choice<LeisureAnswer>[] = [
@@ -250,6 +256,9 @@ const choiceTranslations: Record<string, string> = {
   Schools: "Schulen",
   "School access should strongly influence the result.": "Schulzugang soll das Ergebnis stark beeinflussen.",
   "Daycare and schools should both be important.": "Kitas und Schulen sollen beide wichtig sein.",
+  "Not important for us": "Nicht wichtig",
+  "Schools and daycare should not shape the recommendation.":
+    "Schulen und Kitas sollen die Empfehlung nicht beeinflussen.",
   "Parks and green areas": "Parks und Grünflächen",
   "Nature and outdoor space should be visible in the ranking.":
     "Natur und Außenraum sollen im Ranking sichtbar sein.",
@@ -351,6 +360,11 @@ function getAnswerPreferences(answers: Answers): Preferences {
     if (answers.familyNeed === "both") {
       nextPreferences.schools = 5;
       nextPreferences.kindergartens = 5;
+    }
+
+    if (answers.familyNeed === "notImportant") {
+      nextPreferences.schools = 0;
+      nextPreferences.kindergartens = 0;
     }
   }
 
@@ -666,7 +680,7 @@ export function CustomQuestionnaire({ preferences, onBack, onChange, onNext }: C
           <p className="mt-1 text-sm leading-6 text-slate-600">
             {tx("This follow-up appears because your household may need family infrastructure.", "Diese Nachfrage erscheint, weil euer Haushalt Familieninfrastruktur brauchen könnte.")}
           </p>
-          <div className="mt-6 grid gap-3 md:grid-cols-3">
+          <div className="mt-6 grid gap-3 md:grid-cols-2 lg:grid-cols-4">
             {familyNeedChoices.map((choice) => (
               <OptionButton
                 choice={choice}
