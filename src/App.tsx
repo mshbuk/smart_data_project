@@ -11,13 +11,14 @@ import { ProfilePage } from "./components/ProfilePage";
 import { ProfileSelector } from "./components/ProfileSelector";
 import { ResultsList } from "./components/ResultsList";
 import { SavedComparison } from "./components/SavedComparison";
+import { WelcomeIntro } from "./components/WelcomeIntro";
 import type { District, Preferences, UserProfile } from "./types/District";
 import { I18nProvider, translate, type Language } from "./i18n";
 import { calculateDistrictMatches, profileDefaults } from "./utils/scoring";
 
 type ActiveView = "results" | "map" | "saved" | "profile";
 type AuthGateMode = "guest" | "login" | "register";
-type FlowStep = "profile" | "questionnaire" | "criteria" | "recommendations";
+type FlowStep = "welcome" | "profile" | "questionnaire" | "criteria" | "recommendations";
 
 type PersistedState = {
   activeView?: ActiveView;
@@ -44,7 +45,7 @@ const storageKey = "district-finder-state-v2";
 const userProfiles: UserProfile[] = ["tourist", "family", "longTerm", "custom"];
 const activeViews: ActiveView[] = ["results", "map", "saved", "profile"];
 const authGateModes: AuthGateMode[] = ["guest", "login", "register"];
-const flowSteps: FlowStep[] = ["profile", "questionnaire", "criteria", "recommendations"];
+const flowSteps: FlowStep[] = ["welcome", "profile", "questionnaire", "criteria", "recommendations"];
 const languages: Language[] = ["de", "en"];
 const preferenceKeys: Array<keyof Preferences> = [
   "maxRentPerSqm",
@@ -200,6 +201,28 @@ function App() {
     setAuthGateCompleted(true);
     setSelectedDistrictId(null);
     setActiveView("results");
+    setFlowStep("welcome");
+  };
+
+  const handleLogout = () => {
+    setAuthGateCompleted(false);
+    setAuthMode(undefined);
+    setSelectedDistrictId(null);
+    setActiveView("results");
+    setFlowStep("welcome");
+  };
+
+  const handleWelcomeBack = () => {
+    setAuthGateCompleted(false);
+    setAuthMode(undefined);
+    setSelectedDistrictId(null);
+    setActiveView("results");
+    setFlowStep("welcome");
+  };
+
+  const handleWelcomeStart = () => {
+    setSelectedDistrictId(null);
+    setActiveView("results");
     setFlowStep("profile");
   };
 
@@ -245,6 +268,7 @@ function App() {
               setActiveView("results");
               setFlowStep("profile");
             }}
+            onLogout={handleLogout}
             preferences={preferences}
             selectedProfile={selectedProfile}
           />
@@ -328,6 +352,10 @@ function App() {
       </section>
 
       <div className="mx-auto mt-6 w-full max-w-[1080px] px-3.5 md:px-6">
+        {flowStep === "welcome" && (
+          <WelcomeIntro onBack={handleWelcomeBack} onStart={handleWelcomeStart} />
+        )}
+
         {flowStep === "profile" && (
           <ProfileSelector onSelect={handleProfileSelect} selectedProfile={selectedProfile} />
         )}
@@ -505,7 +533,14 @@ function App() {
                 savedMatches={savedMatches}
               />
             )}
-            {!selectedDetailMatch && activeView === "map" && <MapView matches={matches} />}
+            {!selectedDetailMatch && activeView === "map" && (
+              <MapView
+                matches={matches}
+                onOpenDetails={setSelectedDistrictId}
+                onToggleSave={toggleSave}
+                savedDistrictIds={savedDistrictIds}
+              />
+            )}
           </>
         )}
       </div>

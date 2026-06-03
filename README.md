@@ -84,20 +84,20 @@ The production site is deployed automatically with GitHub Actions when changes a
 ## Current Prototype Features
 
 - Demo-only login/register/guest landing page before the finder flow. It does not change recommendation behavior or create real accounts.
-- Page-based flow: choose a profile, review or build criteria, then view recommendations.
+- Page-based flow: login/register/guest, greeting explainer, choose a profile, review or build criteria, then view recommendations.
 - German-first interface with a top-right language toggle for English.
 - Lifestyle profile presets for tourist/short stay, family relocation, and long-term living.
 - User-defined setup with a one-question-at-a-time questionnaire, progress bar, previous/next navigation, and branching follow-up questions that adjust criteria from lifestyle answers.
 - Editable priority weights with clear importance labels such as `important` and `very important`.
 - Ranked district recommendations with 10 districts per page.
 - Clickable district image areas that open in-app district detail views.
-- Unique Hamburg photo URL variants on all 104 district result cards and detail pages instead of one repeated placeholder image.
-- District detail pages with character traits, known-for facts, score explanations, and demo apartment previews.
-- Demo apartment preview cards with realistic apartment photos, kept clearly in-platform and non-listing-based.
+- Hamburg-only district photo pool on all 104 district result cards and detail pages instead of non-Hamburg placeholders.
+- District detail pages with character traits, known-for facts, score explanations, sharing action, demo apartment previews, and external apartment-search links.
+- Demo apartment preview cards with realistic apartment photos, kept clearly in-platform and non-listing-based before optional external search.
 - Save/favorite districts and compare saved districts side by side.
-- Comparison view with best-value highlights and a priority-shape diagram based on the current preferences.
-- Leaflet map with Hamburg district polygons, top-match highlighting, a current-location button, owner-supplied landmark icons for key Hamburg places, and clean district-click match popups.
-- Local demo profile page with favorites count, searched city, saved preferences, Datenschutz/Impressum notes, local data cleanup, and placeholder sign-in/register actions.
+- Comparison view with best-value highlights, a saved-district radar diagram, and a priority-shape diagram based on the current preferences.
+- Leaflet map with Hamburg district polygons, top-match highlighting, a current-location button, owner-supplied landmark icons for key Hamburg places, and district popups with save/detail actions.
+- Local demo profile page with favorites count, searched city, saved preferences, Datenschutz/Impressum notes, local data cleanup, logout, and placeholder sign-in/register actions.
 
 ## Editing Dummy Data
 

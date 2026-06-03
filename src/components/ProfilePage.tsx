@@ -6,6 +6,7 @@ import {
   Home,
   Info,
   LogIn,
+  LogOut,
   MapPin,
   ShieldCheck,
   SlidersHorizontal,
@@ -24,6 +25,7 @@ type ProfilePageProps = {
   onChangeProfile: () => void;
   onClearLocalData: () => void;
   onEditCriteria: () => void;
+  onLogout: () => void;
 };
 
 const preferenceRows: Array<{ key: keyof Preferences; label: string; suffix?: string }> = [
@@ -46,6 +48,7 @@ export function ProfilePage({
   onChangeProfile,
   onClearLocalData,
   onEditCriteria,
+  onLogout,
 }: ProfilePageProps) {
   const { language, setLanguage, tx } = useI18n();
   const localizedProfileLabels: Record<UserProfile, string> = {
@@ -216,6 +219,14 @@ export function ProfilePage({
             >
               <Eraser aria-hidden="true" className="h-4 w-4" />
               {tx("Clear local data", "Lokale Daten löschen")}
+            </button>
+            <button
+              className="mt-3 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-slate-950 px-4 text-sm font-black text-white shadow-lg shadow-slate-950/15 transition-colors hover:bg-slate-800"
+              onClick={onLogout}
+              type="button"
+            >
+              <LogOut aria-hidden="true" className="h-4 w-4" />
+              {tx("Log out", "Abmelden")}
             </button>
           </section>
         </div>

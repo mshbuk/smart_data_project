@@ -9,6 +9,9 @@ import { useI18n, type Language } from "../i18n";
 
 type MapViewProps = {
   matches: DistrictMatch[];
+  onOpenDetails: (districtId: string) => void;
+  onToggleSave: (districtId: string) => void;
+  savedDistrictIds: string[];
 };
 
 type BoundaryProperties = {
@@ -18,6 +21,7 @@ type BoundaryProperties = {
   districtId?: string;
   districtName?: string;
   isHighlighted?: boolean;
+  isSaved?: boolean;
   isTopMatch?: boolean;
   latitude?: number;
   longitude?: number;
@@ -262,6 +266,7 @@ function createBoundaryPopup(feature: DistrictBoundaryFeature, language: Languag
   }
 
   const score = properties.matchScore ?? 0;
+  const districtId = properties.districtId;
   const rank = properties.rank ? `#${properties.rank}` : language === "de" ? "Empfohlen" : "Recommended";
   const statusText = properties.isHighlighted
     ? language === "de"
@@ -311,6 +316,26 @@ function createBoundaryPopup(feature: DistrictBoundaryFeature, language: Languag
   const missingSources = properties.missingSources?.length
     ? `<div style="margin-top:8px;border-radius:12px;background:#fffbeb;padding:7px 9px;color:#92400e;font-size:11px;font-weight:800;">${language === "de" ? "Fehlt" : "Missing"}: ${escapeHtml(properties.missingSources.join(", "))}</div>`
     : "";
+  const actions = districtId
+    ? `
+      <div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:10px;">
+        <button
+          class="district-map-save-button"
+          type="button"
+          style="align-items:center;border:0;border-radius:999px;background:${properties.isSaved ? "#fff1f2" : "#eef2ff"};color:${properties.isSaved ? "#e11d48" : "#4f46e5"};cursor:pointer;display:inline-flex;font-size:12px;font-weight:900;gap:5px;padding:7px 10px;"
+        >
+          ${properties.isSaved ? "♥" : "♡"} ${properties.isSaved ? (language === "de" ? "Gespeichert" : "Saved") : (language === "de" ? "Speichern" : "Save")}
+        </button>
+        <button
+          class="district-map-details-button"
+          type="button"
+          style="border:0;border-radius:999px;background:#4f46e5;color:#fff;cursor:pointer;font-size:12px;font-weight:900;padding:7px 10px;"
+        >
+          ${language === "de" ? "Mehr Infos" : "More info"}
+        </button>
+      </div>
+    `
+    : "";
 
   return `
     <div style="min-width:230px;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
@@ -322,6 +347,7 @@ function createBoundaryPopup(feature: DistrictBoundaryFeature, language: Languag
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:9px;">${metrics}</div>
       ${missingSources}
       <div style="margin-top:6px;color:${statusColor};font-size:12px;font-weight:800;">${statusText}</div>
+      ${actions}
     </div>
   `;
 }
@@ -687,6 +713,8 @@ function attachBoundaryInteractions(
   layer: Layer,
   language: Language,
   onSelectDistrict: (district: SelectedMapDistrict) => void,
+  onOpenDetails: (districtId: string) => void,
+  onToggleSave: (districtId: string) => void,
 ) {
   const pathLayer = layer as Path;
 
@@ -702,6 +730,24 @@ function attachBoundaryInteractions(
         latitude,
         longitude,
         name: feature.properties?.districtName ?? feature.properties?.Stadtteil ?? "Hamburg",
+      });
+    },
+    popupopen: () => {
+      const districtId = feature.properties?.districtId;
+      const popupLayer = layer as Layer & { getPopup?: () => L.Popup | undefined };
+      const popupElement = popupLayer.getPopup?.()?.getElement();
+
+      if (!districtId || !popupElement) return;
+
+      popupElement.querySelector(".district-map-save-button")?.addEventListener("click", (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        onToggleSave(districtId);
+      });
+      popupElement.querySelector(".district-map-details-button")?.addEventListener("click", (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        onOpenDetails(districtId);
       });
     },
     mouseout: () => {
@@ -725,8 +771,10 @@ function buildBoundaryCollection(
   rawDistrictBoundaries: DistrictBoundaryCollection,
   matches: DistrictMatch[],
   highlightedRankLimit: number,
+  savedDistrictIds: string[],
 ): DistrictBoundaryCollection {
   const lookup = new Map<string, BoundaryMatch>();
+  const savedDistrictIdSet = new Set(savedDistrictIds);
 
   matches.forEach((match, index) => {
     lookup.set(normalizeDistrictName(match.district.name), {
@@ -762,6 +810,7 @@ function buildBoundaryCollection(
         crimeCases2024: match.district.crimeCases2024,
         dataQuality: match.district.dataQuality,
         isHighlighted,
+        isSaved: savedDistrictIdSet.has(match.district.id),
         isTopMatch: isHighlighted && rank <= 3,
         latitude: match.district.latitude,
         longitude: match.district.longitude,
@@ -858,7 +907,7 @@ function TranslatedZoomControl({ language }: { language: Language }) {
   return null;
 }
 
-export function MapView({ matches }: MapViewProps) {
+export function MapView({ matches, onOpenDetails, onToggleSave, savedDistrictIds }: MapViewProps) {
   const { language, tx } = useI18n();
   const [topBoundaryCount, setTopBoundaryCount] = useState<TopBoundaryCount>(25);
   const [locationStatus, setLocationStatus] = useState<LocationStatus>("idle");
@@ -868,8 +917,8 @@ export function MapView({ matches }: MapViewProps) {
   const { boundaries: rawDistrictBoundaries, hasError: boundaryLoadError } = useDistrictBoundaries();
   const highlightedRankLimit = topBoundaryCount === "all" ? Number.POSITIVE_INFINITY : topBoundaryCount;
   const boundaryCollection = useMemo(
-    () => buildBoundaryCollection(rawDistrictBoundaries, matches, highlightedRankLimit),
-    [highlightedRankLimit, matches, rawDistrictBoundaries],
+    () => buildBoundaryCollection(rawDistrictBoundaries, matches, highlightedRankLimit, savedDistrictIds),
+    [highlightedRankLimit, matches, rawDistrictBoundaries, savedDistrictIds],
   );
   const isLoadingBoundaries = rawDistrictBoundaries.features.length === 0 && !boundaryLoadError;
   const matchedDistrictIds = new Set(
@@ -887,7 +936,7 @@ export function MapView({ matches }: MapViewProps) {
         `${feature.properties?.districtId}:${feature.properties?.matchScore}:${feature.properties?.isHighlighted}:${feature.properties?.Stadtteil}`,
     )
     .join("|")
-    .concat(`:${language}`);
+    .concat(`:${language}:${savedDistrictIds.join(",")}`);
   const localSpots = useMemo(
     () => (selectedMapDistrict ? buildLocalSpots(selectedMapDistrict, language) : []),
     [language, selectedMapDistrict],
@@ -999,7 +1048,14 @@ export function MapView({ matches }: MapViewProps) {
               data={boundaryCollection}
               key={boundaryLayerKey}
               onEachFeature={(feature, layer) =>
-                attachBoundaryInteractions(feature as DistrictBoundaryFeature, layer, language, setSelectedMapDistrict)
+                attachBoundaryInteractions(
+                  feature as DistrictBoundaryFeature,
+                  layer,
+                  language,
+                  setSelectedMapDistrict,
+                  onOpenDetails,
+                  onToggleSave,
+                )
               }
               style={(feature) => getBoundaryStyle(feature as DistrictBoundaryFeature)}
             />

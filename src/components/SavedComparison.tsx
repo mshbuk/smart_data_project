@@ -60,9 +60,43 @@ const rows = [
   },
 ];
 
+const radarAxes = [
+  { label: { en: "Safe", de: "Sicher" }, getValue: (match: DistrictMatch) => match.district.safetyScore },
+  { label: { en: "Transit", de: "ÖPNV" }, getValue: (match: DistrictMatch) => match.district.publicTransportScore },
+  { label: { en: "Green", de: "Grün" }, getValue: (match: DistrictMatch) => match.district.greenScore },
+  {
+    label: { en: "Family", de: "Familie" },
+    getValue: (match: DistrictMatch) => (match.district.schoolScore + match.district.kindergartenScore) / 2,
+  },
+  { label: { en: "Nightlife", de: "Nachtleben" }, getValue: (match: DistrictMatch) => match.district.nightlifeScore },
+  { label: { en: "Quiet", de: "Ruhe" }, getValue: (match: DistrictMatch) => match.district.quietnessScore },
+];
+
+const radarColors = ["#e11d48", "#0ea5e9", "#0f172a"];
+
+function radarPoint(axisIndex: number, value: number, radius: number, center: number) {
+  const angle = -Math.PI / 2 + (axisIndex / radarAxes.length) * Math.PI * 2;
+  const scaledRadius = (Math.max(0, Math.min(value, 10)) / 10) * radius;
+
+  return {
+    x: center + Math.cos(angle) * scaledRadius,
+    y: center + Math.sin(angle) * scaledRadius,
+  };
+}
+
+function radarPolygon(match: DistrictMatch, radius: number, center: number) {
+  return radarAxes
+    .map((axis, axisIndex) => {
+      const point = radarPoint(axisIndex, axis.getValue(match), radius, center);
+      return `${point.x},${point.y}`;
+    })
+    .join(" ");
+}
+
 export function SavedComparison({ preferences, savedMatches, onEditCriteria, onFindDistricts }: SavedComparisonProps) {
   const { language, tx } = useI18n();
   const labels = getCriterionLabels(language);
+  const radarMatches = savedMatches.slice(0, 3);
 
   if (savedMatches.length === 0) {
     return (
@@ -129,6 +163,89 @@ export function SavedComparison({ preferences, savedMatches, onEditCriteria, onF
             </span>
           ))}
         </div>
+      </div>
+
+      <div className="rounded-[1.6rem] border border-white/80 bg-white/90 p-4 shadow-[0_18px_45px_rgba(15,23,42,0.08)] md:p-5">
+        <div>
+          <p className="text-xs font-black uppercase tracking-wide text-slate-400">{tx("Profile comparison", "Profil-Vergleich")}</p>
+          <h3 className="mt-1 text-xl font-black text-slate-950">{tx("Direct visual comparison", "Direkter Vergleich")}</h3>
+          <p className="mt-1 text-sm leading-6 text-slate-600">
+            {tx(
+              "The diagram compares up to three saved districts across the main district qualities.",
+              "Das Diagramm vergleicht bis zu drei gespeicherte Stadtteile über die wichtigsten Stadtteilqualitäten.",
+            )}
+          </p>
+        </div>
+        <div className="mt-4 overflow-hidden rounded-[1.35rem] bg-white p-3">
+          <svg aria-hidden="true" className="mx-auto h-auto w-full max-w-[520px]" viewBox="0 0 420 380">
+            {[0.25, 0.5, 0.75, 1].map((scale) => (
+              <polygon
+                fill="none"
+                key={scale}
+                points={radarAxes
+                  .map((_, axisIndex) => {
+                    const point = radarPoint(axisIndex, scale * 10, 120, 210);
+                    return `${point.x},${point.y}`;
+                  })
+                  .join(" ")}
+                stroke="#dbe4ee"
+                strokeWidth="1.5"
+              />
+            ))}
+            {radarAxes.map((axis, axisIndex) => {
+              const axisPoint = radarPoint(axisIndex, 10, 120, 210);
+              const labelPoint = radarPoint(axisIndex, 11.5, 120, 210);
+
+              return (
+                <g key={axis.label.en}>
+                  <line stroke="#dbe4ee" strokeWidth="1.5" x1="210" x2={axisPoint.x} y1="210" y2={axisPoint.y} />
+                  <text
+                    fill="#64748b"
+                    fontSize="15"
+                    fontWeight="800"
+                    textAnchor={labelPoint.x < 190 ? "end" : labelPoint.x > 220 ? "start" : "middle"}
+                    x={labelPoint.x}
+                    y={labelPoint.y + 5}
+                  >
+                    {language === "de" ? axis.label.de : axis.label.en}
+                  </text>
+                </g>
+              );
+            })}
+            {radarMatches.map((match, index) => {
+              const color = radarColors[index % radarColors.length];
+
+              return (
+                <g key={match.district.id}>
+                  <polygon fill={color} fillOpacity="0.14" points={radarPolygon(match, 120, 210)} stroke={color} strokeWidth="4" />
+                  {radarAxes.map((axis, axisIndex) => {
+                    const point = radarPoint(axisIndex, axis.getValue(match), 120, 210);
+                    return <circle cx={point.x} cy={point.y} fill={color} key={axis.label.en} r="5" />;
+                  })}
+                </g>
+              );
+            })}
+            <g transform="translate(60 350)">
+              {radarMatches.map((match, index) => {
+                const color = radarColors[index % radarColors.length];
+
+                return (
+                  <g key={match.district.id} transform={`translate(${index * 132} 0)`}>
+                    <circle cx="0" cy="0" fill={color} r="6" />
+                    <text fill="#475569" fontSize="14" fontWeight="800" x="14" y="5">
+                      {match.district.name}
+                    </text>
+                  </g>
+                );
+              })}
+            </g>
+          </svg>
+        </div>
+        {savedMatches.length > 3 && (
+          <p className="mt-2 text-xs font-bold text-slate-500">
+            {tx("The diagram shows the first three saved districts.", "Das Diagramm zeigt die ersten drei gespeicherten Stadtteile.")}
+          </p>
+        )}
       </div>
 
       <div className="rounded-[1.6rem] border border-white/80 bg-white/90 p-4 shadow-[0_18px_45px_rgba(15,23,42,0.08)] md:p-5">

@@ -4,9 +4,11 @@ import {
   Building2,
   CheckCircle2,
   Euro,
+  ExternalLink,
   Heart,
   Home,
   Info,
+  Share2,
   Sparkles,
 } from "lucide-react";
 import type { DistrictMatch, Preferences } from "../types/District";
@@ -28,6 +30,25 @@ type DistrictDetailProps = {
   onToggleSave: (districtId: string) => void;
 };
 
+function createHousingSearchLinks(districtName: string) {
+  const query = encodeURIComponent(`Hamburg ${districtName} Wohnung mieten`);
+
+  return [
+    {
+      label: "ImmoScout24",
+      url: `https://www.immobilienscout24.de/Suche/de/hamburg/hamburg/wohnung-mieten?enteredFrom=result_list&searchQuery=${query}`,
+    },
+    {
+      label: "Immowelt",
+      url: `https://www.immowelt.de/suche/hamburg/wohnungen/mieten?query=${query}`,
+    },
+    {
+      label: "Kleinanzeigen",
+      url: `https://www.kleinanzeigen.de/s-wohnung-mieten/hamburg/${query}/k0c203l9409`,
+    },
+  ];
+}
+
 export function DistrictDetail({
   isSaved,
   match,
@@ -43,6 +64,29 @@ export function DistrictDetail({
     .filter((insight) => insight.weight > 0)
     .sort((a, b) => b.weight - a.weight || b.score - a.score);
   const listings = getDemoListings(district, language);
+  const housingSearchLinks = createHousingSearchLinks(district.name);
+  const shareDistrict = () => {
+    const message =
+      language === "de"
+        ? `${district.name} wirkt spannend im District Finder.`
+        : `${district.name} looks interesting in District Finder.`;
+
+    if (navigator.share) {
+      void navigator.share({
+        text: message,
+        title: district.name,
+        url: window.location.href,
+      });
+      return;
+    }
+
+    window.alert(
+      tx(
+        "Demo share: copy this district name and send it to a friend.",
+        "Demo-Teilen: Kopiere diesen Stadtteilnamen und sende ihn an eine Freundin oder einen Freund.",
+      ),
+    );
+  };
 
   return (
     <section className="grid gap-4">
@@ -54,6 +98,14 @@ export function DistrictDetail({
         >
           <ArrowLeft aria-hidden="true" className="h-4 w-4" />
           {tx("Back to matches", "Zurück zu den Treffern")}
+        </button>
+        <button
+          className="inline-flex min-h-11 items-center gap-2 rounded-2xl bg-white px-4 text-sm font-black text-indigo-600 shadow-[0_12px_30px_rgba(15,23,42,0.08)] transition-colors hover:bg-indigo-50"
+          onClick={shareDistrict}
+          type="button"
+        >
+          <Share2 aria-hidden="true" className="h-4 w-4" />
+          {tx("Share district", "Stadtteil teilen")}
         </button>
       </div>
 
@@ -191,6 +243,30 @@ export function DistrictDetail({
                     </div>
                   </article>
                 ))}
+              </div>
+              <div className="mt-3 rounded-2xl bg-white p-3">
+                <a
+                  className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-indigo-600 px-4 text-sm font-black text-white shadow-lg shadow-indigo-600/20 transition-colors hover:bg-indigo-700"
+                  href={housingSearchLinks[0].url}
+                  rel="noreferrer"
+                  target="_blank"
+                >
+                  <ExternalLink aria-hidden="true" className="h-4 w-4" />
+                  {tx("Explore apartments", "Wohnungen entdecken")}
+                </a>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {housingSearchLinks.slice(1).map((link) => (
+                    <a
+                      className="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-black text-slate-700 transition-colors hover:bg-slate-200"
+                      href={link.url}
+                      key={link.label}
+                      rel="noreferrer"
+                      target="_blank"
+                    >
+                      {link.label}
+                    </a>
+                  ))}
+                </div>
               </div>
             </section>
 
