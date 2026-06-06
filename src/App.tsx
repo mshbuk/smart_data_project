@@ -267,33 +267,6 @@ function App() {
     );
   }
 
-  if (activeView === "profile") {
-    return (
-      <I18nProvider language={language} setLanguage={setLanguage}>
-        <main className="min-h-screen bg-[#f4f7fb] pb-10 font-sans text-slate-950 antialiased">
-          <ProfilePage
-            city={city}
-            favoriteCount={savedDistrictIds.length}
-            onBack={() => {
-              setActiveView("results");
-              setFlowStep("recommendations");
-            }}
-            onClearLocalData={clearLocalData}
-            onEditCriteria={openCriteriaEditor}
-            onChangeProfile={() => {
-              setSelectedDistrictId(null);
-              setActiveView("results");
-              setFlowStep("profile");
-            }}
-            onLogout={handleLogout}
-            preferences={preferences}
-            selectedProfile={selectedProfile}
-          />
-        </main>
-      </I18nProvider>
-    );
-  }
-
   return (
     <I18nProvider language={language} setLanguage={setLanguage}>
     <main className="min-h-screen bg-[var(--moin-background)] pb-28 font-sans text-slate-950 antialiased">
@@ -318,6 +291,7 @@ function App() {
               onClick={() => {
                 setSelectedDistrictId(null);
                 setActiveView("profile");
+                setFlowStep("recommendations");
               }}
               type="button"
             >
@@ -446,7 +420,7 @@ function App() {
             {!selectedDetailMatch && (
               <nav
                 aria-label={tx("Recommendation views", "Empfehlungsansichten")}
-                className="fixed inset-x-3 bottom-3 z-[1200] mx-auto max-w-[640px] rounded-[1.4rem] border border-slate-200 bg-white/95 p-2 shadow-[0_18px_50px_rgba(15,23,42,0.14)] backdrop-blur-xl"
+                className="fixed inset-x-4 bottom-4 z-[1200] mx-auto max-w-[640px] rounded-[2.6rem] border border-slate-200 bg-white/95 p-3 shadow-[0_18px_50px_rgba(15,23,42,0.14)] backdrop-blur-xl"
               >
                 <div className="grid grid-cols-5 gap-1.5">
                   {viewOptions.map((option) => {
@@ -457,7 +431,7 @@ function App() {
                       <button
                         aria-pressed={isActive}
                         className={[
-                          "relative flex min-h-16 flex-col items-center justify-center gap-1 rounded-2xl px-1.5 text-[0.68rem] font-black uppercase transition-colors sm:min-h-14 sm:gap-1.5 sm:px-3 sm:text-sm",
+                          "relative flex min-h-[5.3rem] flex-col items-center justify-center gap-2 rounded-[1.8rem] px-1 text-[0.72rem] font-black uppercase transition-colors sm:min-h-20 sm:gap-2 sm:px-2 sm:text-sm",
                           "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600",
                           isActive ? "text-slate-950" : "text-slate-500 hover:bg-slate-100 hover:text-slate-800",
                         ].join(" ")}
@@ -469,7 +443,7 @@ function App() {
                         }}
                         type="button"
                       >
-                        <Icon aria-hidden="true" className="h-5 w-5" />
+                        <Icon aria-hidden="true" className="h-7 w-7" strokeWidth={2.4} />
                         <span className="max-w-full truncate">{option.label}</span>
                         {typeof option.count === "number" && (
                           <span
@@ -534,6 +508,27 @@ function App() {
                 onOpenDetails={setSelectedDistrictId}
                 onToggleSave={toggleSave}
                 savedDistrictIds={savedDistrictIds}
+              />
+            )}
+            {!selectedDetailMatch && activeView === "profile" && (
+              <ProfilePage
+                city={city}
+                favoriteCount={savedDistrictIds.length}
+                onBack={() => {
+                  setActiveView("results");
+                  setFlowStep("recommendations");
+                }}
+                onClearLocalData={clearLocalData}
+                onEditCriteria={openCriteriaEditor}
+                onChangeProfile={() => {
+                  setSelectedDistrictId(null);
+                  setActiveView("results");
+                  setFlowStep("profile");
+                }}
+                onLogout={handleLogout}
+                onOpenComparison={() => setActiveView("saved")}
+                preferences={preferences}
+                selectedProfile={selectedProfile}
               />
             )}
           </>

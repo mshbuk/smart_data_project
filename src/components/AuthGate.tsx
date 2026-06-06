@@ -22,7 +22,7 @@ export function AuthGate({ onContinue }: AuthGateProps) {
           aria-pressed={language === option}
           className={[
             "rounded-full px-4 py-2 transition-colors",
-            language === option ? "moin-gradient-primary text-white shadow-sm" : "text-slate-600 hover:bg-slate-100",
+            language === option ? "bg-slate-950 text-white shadow-sm" : "text-slate-600 hover:bg-slate-100",
           ].join(" ")}
           key={option}
           onClick={() => setLanguage(option)}
@@ -65,14 +65,14 @@ export function AuthGate({ onContinue }: AuthGateProps) {
 
             <div className="mt-10 grid gap-4">
               <button
-                className="moin-gradient-primary min-h-16 rounded-full px-6 text-lg font-black text-white shadow-2xl shadow-violet-950/30 transition-transform hover:-translate-y-0.5"
+                className="min-h-16 rounded-full bg-white px-6 text-lg font-black text-slate-950 shadow-2xl shadow-slate-950/30 transition-transform hover:-translate-y-0.5 hover:bg-slate-100"
                 onClick={() => setScreen("register")}
                 type="button"
               >
                 {tx("Register for free", "Kostenlos registrieren")}
               </button>
               <button
-                className="min-h-16 rounded-full border border-white/55 bg-white/10 px-6 text-lg font-black text-white backdrop-blur transition-colors hover:bg-white/18"
+                className="min-h-16 rounded-full border border-white/55 bg-black/25 px-6 text-lg font-black text-white backdrop-blur transition-colors hover:bg-black/35"
                 onClick={() => setScreen("login")}
                 type="button"
               >
@@ -94,8 +94,8 @@ export function AuthGate({ onContinue }: AuthGateProps) {
 
   return (
     <main className="min-h-screen bg-[var(--moin-background)] font-sans text-slate-950 antialiased">
-      <header className="border-b border-slate-200 bg-white/90 backdrop-blur">
-        <div className="mx-auto flex min-h-20 w-full max-w-[760px] items-center justify-between gap-3 px-5">
+      <header className="border-b border-slate-200 bg-[var(--moin-background)]/95 backdrop-blur">
+        <div className="mx-auto flex min-h-[7rem] w-full max-w-[760px] items-center justify-between gap-3 px-6">
           <button
             className="inline-flex items-center gap-3 text-2xl font-black text-slate-950"
             onClick={() => setScreen("landing")}
@@ -111,13 +111,13 @@ export function AuthGate({ onContinue }: AuthGateProps) {
         </div>
       </header>
 
-      <section className="mx-auto w-full max-w-[760px] px-6 py-16">
+      <section className="mx-auto w-full max-w-[760px] px-8 py-16">
         <div className="mx-auto grid max-w-[520px] gap-7">
           {isRegister && (
             <label className="grid gap-2 text-base font-bold text-slate-600">
               {tx("Name", "Name")}
               <input
-                className="min-h-16 rounded-[1.4rem] border border-slate-200 bg-white px-5 text-xl font-medium text-slate-950 outline-none transition focus:border-violet-300 focus:ring-4 focus:ring-violet-100"
+                className="min-h-16 rounded-[1.6rem] border border-slate-200 bg-white px-5 text-xl font-medium text-slate-950 outline-none transition focus:border-slate-400 focus:ring-4 focus:ring-slate-200"
                 placeholder={tx("First name", "Vorname")}
                 type="text"
               />
@@ -126,7 +126,7 @@ export function AuthGate({ onContinue }: AuthGateProps) {
           <label className="grid gap-2 text-base font-bold text-slate-600">
             E-Mail
             <input
-              className="min-h-16 rounded-[1.4rem] border border-slate-200 bg-white px-5 text-xl font-medium text-slate-950 outline-none transition focus:border-violet-300 focus:ring-4 focus:ring-violet-100"
+              className="min-h-16 rounded-[1.6rem] border border-slate-200 bg-white px-5 text-xl font-medium text-slate-950 outline-none transition focus:border-slate-400 focus:ring-4 focus:ring-slate-200"
               placeholder="name@beispiel.de"
               type="email"
             />
@@ -134,14 +134,14 @@ export function AuthGate({ onContinue }: AuthGateProps) {
           <label className="grid gap-2 text-base font-bold text-slate-600">
             {tx("Password", "Passwort")}
             <input
-              className="min-h-16 rounded-[1.4rem] border border-slate-200 bg-white px-5 text-xl font-medium text-slate-950 outline-none transition focus:border-violet-300 focus:ring-4 focus:ring-violet-100"
+              className="min-h-16 rounded-[1.6rem] border border-slate-200 bg-white px-5 text-xl font-medium text-slate-950 outline-none transition focus:border-slate-400 focus:ring-4 focus:ring-slate-200"
               placeholder="••••••••"
               type="password"
             />
           </label>
 
           <button
-            className="moin-gradient-primary mt-2 min-h-16 rounded-full px-6 text-lg font-black text-white shadow-xl shadow-violet-600/20 transition-transform hover:-translate-y-0.5"
+            className="mt-2 min-h-16 rounded-full bg-slate-950 px-6 text-lg font-black text-white shadow-xl shadow-slate-950/15 transition-transform hover:-translate-y-0.5 hover:bg-slate-800"
             onClick={() => onContinue(isRegister ? "register" : "login")}
             type="button"
           >
@@ -151,7 +151,7 @@ export function AuthGate({ onContinue }: AuthGateProps) {
           <p className="text-center text-lg font-medium text-slate-500">
             {isRegister ? tx("Already have an account?", "Schon ein Konto?") : tx("No account yet?", "Noch kein Konto?")}{" "}
             <button
-              className="font-black text-violet-600"
+              className="font-black text-slate-950 underline decoration-rose-400 decoration-2 underline-offset-4"
               onClick={() => setScreen(isRegister ? "login" : "register")}
               type="button"
             >

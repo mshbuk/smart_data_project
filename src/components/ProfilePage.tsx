@@ -1,17 +1,14 @@
 import {
-  ArrowLeft,
+  ChevronRight,
   Database,
   Eraser,
   Heart,
-  Home,
-  Info,
-  LogIn,
   LogOut,
+  Mail,
   MapPin,
+  RefreshCw,
   ShieldCheck,
-  SlidersHorizontal,
-  User,
-  UserPlus,
+  Sparkles,
 } from "lucide-react";
 import type { Preferences, UserProfile } from "../types/District";
 import { useI18n } from "../i18n";
@@ -26,6 +23,7 @@ type ProfilePageProps = {
   onClearLocalData: () => void;
   onEditCriteria: () => void;
   onLogout: () => void;
+  onOpenComparison: () => void;
 };
 
 const preferenceRows: Array<{ key: keyof Preferences; label: string; suffix?: string }> = [
@@ -49,216 +47,195 @@ export function ProfilePage({
   onClearLocalData,
   onEditCriteria,
   onLogout,
+  onOpenComparison,
 }: ProfilePageProps) {
-  const { language, setLanguage, tx } = useI18n();
+  const { tx } = useI18n();
   const localizedProfileLabels: Record<UserProfile, string> = {
     tourist: tx("Tourist / short-term stay", "Tourist / Kurzaufenthalt"),
     family: tx("Family relocation", "Familienumzug"),
     longTerm: tx("Long-term living", "Langfristiges Wohnen"),
     custom: tx("User-defined setup", "Eigene Auswahl"),
   };
+  const labelByEnglish: Record<string, string> = {
+    "Maximum rent": "Maximale Miete",
+    Safety: "Sicherheit",
+    Quietness: "Ruhe",
+    "Green areas": "Grünflächen",
+    "Public transport": "ÖPNV",
+    Schools: "Schulen",
+    Kindergartens: "Kitas",
+    Nightlife: "Nachtleben",
+  };
+  const strongestPreferences = preferenceRows
+    .filter((row) => row.key !== "maxRentPerSqm")
+    .sort((a, b) => Number(preferences[b.key]) - Number(preferences[a.key]))
+    .slice(0, 3);
 
   return (
-    <section className="mx-auto min-h-screen w-full max-w-[1080px] px-3.5 py-5 md:px-6 md:py-8">
-      <div className="mb-5 flex items-center justify-between gap-3">
+    <section className="mx-auto grid max-w-[760px] gap-9 px-2 pb-8 pt-8">
+      <div className="grid grid-cols-[8rem_1fr] items-center gap-8">
+        <span className="grid h-32 w-32 place-items-center rounded-full bg-slate-950 text-5xl font-black text-white">
+          G
+        </span>
+        <div>
+          <h1 className="text-[2.65rem] font-black leading-none tracking-[-0.05em] text-slate-950">
+            {tx("Guest", "Gast")}
+          </h1>
+          <p className="mt-4 text-[1.7rem] font-medium leading-tight tracking-[-0.03em] text-slate-500">
+            {tx("Save your progress", "Speichere deinen Fortschritt")}
+          </p>
+        </div>
+      </div>
+
+      <div className="grid gap-4">
         <button
-          className="inline-flex min-h-11 items-center gap-2 rounded-2xl bg-white px-4 text-sm font-black text-slate-700 shadow-[0_12px_30px_rgba(15,23,42,0.08)] transition-colors hover:bg-slate-50"
+          className="inline-flex min-h-[6.25rem] items-center justify-between rounded-[2rem] bg-slate-950 px-8 text-[1.7rem] font-black tracking-[-0.04em] text-white shadow-[0_18px_34px_rgba(15,23,42,0.16)] transition-colors hover:bg-slate-800"
+          type="button"
+        >
+          <span className="inline-flex items-center gap-5">
+            <Mail aria-hidden="true" className="h-7 w-7" />
+            {tx("Sign in with email", "Per E-Mail anmelden")}
+          </span>
+          <ChevronRight aria-hidden="true" className="h-8 w-8" />
+        </button>
+
+        <button
+          className="inline-flex min-h-[6.25rem] items-center justify-between rounded-[2rem] border border-slate-200 bg-white px-8 text-[1.7rem] font-black tracking-[-0.04em] text-slate-950 shadow-sm transition-colors hover:bg-slate-50"
+          type="button"
+        >
+          <span className="inline-flex items-center gap-5">
+            <Sparkles aria-hidden="true" className="h-8 w-8 text-rose-500" />
+            {tx("Get magic link", "Magic Link erhalten")}
+          </span>
+          <ChevronRight aria-hidden="true" className="h-8 w-8" />
+        </button>
+      </div>
+
+      <section className="grid gap-5">
+        <div className="flex items-center justify-between gap-4">
+          <h2 className="text-2xl font-black uppercase tracking-[0.18em] text-slate-400">
+            {tx("Your preferences", "Deine Präferenzen")}
+          </h2>
+          <button
+            className="inline-flex items-center gap-2 text-xl font-black text-sky-500"
+            onClick={onEditCriteria}
+            type="button"
+          >
+            <RefreshCw aria-hidden="true" className="h-5 w-5" />
+            {tx("Edit", "Bearbeiten")}
+          </button>
+        </div>
+
+        <div className="rounded-[2.1rem] border-2 border-dashed border-slate-300 bg-white/55 p-8 text-center">
+          <p className="text-[1.55rem] font-medium leading-tight text-slate-500">
+            {tx("Current setup", "Aktuelle Auswahl")}:{" "}
+            <span className="font-black text-slate-950">{localizedProfileLabels[selectedProfile]}</span>
+          </p>
+          <div className="mt-6 flex flex-wrap justify-center gap-2">
+            {strongestPreferences.map((row) => (
+              <span className="rounded-full bg-slate-100 px-4 py-2 text-sm font-black text-slate-600" key={row.key}>
+                {tx(row.label, labelByEnglish[row.label] ?? row.label)} {preferences[row.key]}/5
+              </span>
+            ))}
+          </div>
+          <button
+            className="mt-8 inline-flex min-h-16 items-center justify-center gap-3 rounded-full bg-slate-950 px-9 text-xl font-black text-white transition-colors hover:bg-slate-800"
+            onClick={onEditCriteria}
+            type="button"
+          >
+            {tx("Start quiz", "Quiz starten")}
+            <ChevronRight aria-hidden="true" className="h-6 w-6" />
+          </button>
+          <button
+            className="mt-4 text-base font-black text-sky-500"
+            onClick={onChangeProfile}
+            type="button"
+          >
+            {tx("Change profile", "Profil ändern")}
+          </button>
+        </div>
+      </section>
+
+      <div className="grid grid-cols-2 gap-4">
+        <button
+          className="rounded-[1.8rem] border border-slate-200 bg-white p-7 text-left shadow-sm transition-colors hover:bg-slate-50"
           onClick={onBack}
           type="button"
         >
-          <ArrowLeft aria-hidden="true" className="h-4 w-4" />
-          {tx("Back to finder", "Zurück zum Finder")}
+          <p className="text-xl font-black uppercase tracking-[0.14em] text-slate-400">Matches</p>
+          <p className="mt-4 text-[1.55rem] font-black leading-tight text-slate-950">
+            {tx("View results", "Ergebnisse ansehen")}
+          </p>
         </button>
-
-        <div className="grid grid-cols-2 rounded-2xl bg-white/95 p-1 text-xs font-black shadow-[0_12px_30px_rgba(15,23,42,0.08)]">
-          {(["de", "en"] as const).map((option) => (
-            <button
-              aria-pressed={language === option}
-              className={[
-                "rounded-xl px-2.5 py-2 transition-colors",
-                language === option ? "bg-indigo-600 text-white" : "text-slate-700 hover:bg-slate-50",
-              ].join(" ")}
-              key={option}
-              onClick={() => setLanguage(option)}
-              type="button"
-            >
-              {option.toUpperCase()}
-            </button>
-          ))}
-        </div>
+        <button
+          className="rounded-[1.8rem] border border-slate-200 bg-white p-7 text-left shadow-sm transition-colors hover:bg-slate-50"
+          onClick={onOpenComparison}
+          type="button"
+        >
+          <p className="text-xl font-black uppercase tracking-[0.14em] text-slate-400">{tx("Compare", "Vergleich")}</p>
+          <p className="mt-4 text-[1.55rem] font-black leading-tight text-slate-950">
+            {tx("Change profile", "Profil ändern")}
+          </p>
+        </button>
       </div>
 
-      <div className="rounded-[1.8rem] border border-white/80 bg-white/95 p-5 shadow-[0_24px_80px_rgba(15,23,42,0.12)] md:p-8">
-        <header className="grid gap-5 md:grid-cols-[auto_1fr] md:items-center">
-          <span className="grid h-20 w-20 place-items-center rounded-[1.6rem] bg-gradient-to-br from-indigo-500 to-violet-600 text-white shadow-xl shadow-indigo-600/20 md:h-24 md:w-24">
-            <User aria-hidden="true" className="h-10 w-10 md:h-12 md:w-12" />
-          </span>
-          <div>
-            <p className="text-xs font-black uppercase tracking-wide text-indigo-600">{tx("Local profile", "Lokales Profil")}</p>
-            <h1 className="mt-1 text-4xl font-black leading-tight text-slate-950 md:text-5xl">{tx("Guest", "Gast")}</h1>
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
-              {tx(
-                "This demo stores only your profile preset, preference weights, saved favorites, and open view in this browser.",
-                "Diese Demo speichert nur Profil, Gewichtungen, Favoriten und offene Ansicht lokal in diesem Browser.",
-              )}
-            </p>
+      <section className="grid gap-3 rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
+        <div className="grid grid-cols-2 gap-3">
+          <div className="rounded-[1.4rem] bg-slate-50 p-4">
+            <Heart aria-hidden="true" className="h-5 w-5 text-slate-500" />
+            <p className="mt-3 text-sm font-black uppercase text-slate-400">{tx("Favorites", "Favoriten")}</p>
+            <p className="text-2xl font-black text-slate-950">{favoriteCount}</p>
           </div>
-        </header>
-
-        <div className="mt-7 grid gap-3 md:grid-cols-3">
-          <article className="rounded-[1.35rem] border border-blue-100 bg-blue-50 p-4">
-            <Heart aria-hidden="true" className="h-5 w-5 text-blue-600" />
-            <p className="mt-3 text-sm font-bold text-slate-600">{tx("Favorites", "Favoriten")}</p>
-            <p className="mt-1 text-3xl font-black text-slate-950">{favoriteCount}</p>
-          </article>
-          <article className="rounded-[1.35rem] border border-violet-100 bg-violet-50 p-4">
-            <MapPin aria-hidden="true" className="h-5 w-5 text-violet-600" />
-            <p className="mt-3 text-sm font-bold text-slate-600">{tx("Searched city", "Gesuchte Stadt")}</p>
-            <p className="mt-1 text-3xl font-black text-slate-950">{city}</p>
-          </article>
-          <article className="rounded-[1.35rem] border border-emerald-100 bg-emerald-50 p-4">
-            <Home aria-hidden="true" className="h-5 w-5 text-emerald-600" />
-            <p className="mt-3 text-sm font-bold text-slate-600">{tx("Profile preset", "Profil")}</p>
-            <p className="mt-1 text-xl font-black text-slate-950">{localizedProfileLabels[selectedProfile]}</p>
-          </article>
+          <div className="rounded-[1.4rem] bg-slate-50 p-4">
+            <MapPin aria-hidden="true" className="h-5 w-5 text-slate-500" />
+            <p className="mt-3 text-sm font-black uppercase text-slate-400">{tx("City", "Stadt")}</p>
+            <p className="text-2xl font-black text-slate-950">{city}</p>
+          </div>
         </div>
-
-        <div className="mt-7 grid gap-4 lg:grid-cols-[1fr_1fr]">
-          <section className="rounded-[1.35rem] border border-indigo-100 bg-indigo-50 p-4 lg:col-span-2">
-            <div className="flex items-center gap-2">
-              <LogIn aria-hidden="true" className="h-5 w-5 text-indigo-600" />
-              <h2 className="text-xl font-black text-slate-950">{tx("Sign in or register", "Anmelden oder registrieren")}</h2>
-            </div>
-            <p className="mt-2 text-sm leading-6 text-slate-600">
-              {tx(
-                "Demo account actions are shown here for the tested flow. A real release would connect these buttons to authentication and saved cross-device profiles.",
-                "Demo-Account-Aktionen werden hier für den getesteten Flow gezeigt. Eine echte Version würde Authentifizierung und geräteübergreifende Profile anbinden.",
-              )}
-            </p>
-            <div className="mt-4 grid gap-2 sm:grid-cols-2">
-              <button
-                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-white px-4 text-sm font-black text-indigo-600 shadow-sm shadow-slate-950/5 transition-colors hover:bg-indigo-50"
-                type="button"
-              >
-                <LogIn aria-hidden="true" className="h-4 w-4" />
-                {tx("Sign in", "Anmelden")}
-              </button>
-              <button
-                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-indigo-600 px-4 text-sm font-black text-white shadow-lg shadow-indigo-600/20 transition-colors hover:bg-indigo-700"
-                type="button"
-              >
-                <UserPlus aria-hidden="true" className="h-4 w-4" />
-                {tx("Register", "Registrieren")}
-              </button>
-            </div>
-          </section>
-
-          <section className="rounded-[1.35rem] border border-slate-200 bg-white p-4">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <div className="flex items-center gap-2">
-                <SlidersHorizontal aria-hidden="true" className="h-5 w-5 text-indigo-600" />
-                <h2 className="text-xl font-black text-slate-950">{tx("Saved preferences", "Gespeicherte Präferenzen")}</h2>
-              </div>
-              <button
-                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 px-4 text-sm font-black text-white shadow-lg shadow-indigo-600/20 transition-transform hover:-translate-y-0.5"
-                onClick={onEditCriteria}
-                type="button"
-              >
-                <SlidersHorizontal aria-hidden="true" className="h-4 w-4" />
-                {tx("Edit criteria", "Kriterien ändern")}
-              </button>
-            </div>
-            <div className="mt-4 grid gap-2">
-              {preferenceRows.map((row) => (
-                <div className="flex items-center justify-between gap-3 rounded-2xl bg-slate-50 px-3 py-2.5" key={row.key}>
-                  <span className="text-sm font-bold text-slate-600">
-                    {tx(row.label, {
-                      "Maximum rent": "Maximale Miete",
-                      Safety: "Sicherheit",
-                      Quietness: "Ruhe",
-                      "Green areas": "Grünflächen",
-                      "Public transport": "ÖPNV",
-                      Schools: "Schulen",
-                      Kindergartens: "Kitas",
-                      Nightlife: "Nachtleben",
-                    }[row.label] ?? row.label)}
-                  </span>
-                  <span className="text-sm font-black text-slate-950">
-                    {preferences[row.key]}
-                    {row.suffix ? ` EUR/${tx("sqm", "qm")}` : "/5"}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          <section className="rounded-[1.35rem] border border-slate-200 bg-white p-4">
-            <div className="flex items-center gap-2">
-              <Database aria-hidden="true" className="h-5 w-5 text-indigo-600" />
-              <h2 className="text-xl font-black text-slate-950">{tx("Local data", "Lokale Daten")}</h2>
-            </div>
-            <button
-              className="mt-4 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-amber-400 px-4 text-sm font-black text-slate-950 shadow-lg shadow-amber-400/20 transition-colors hover:bg-amber-300"
-              onClick={onChangeProfile}
-              type="button"
-            >
-              <User aria-hidden="true" className="h-4 w-4" />
-              {tx("Change profile", "Profil ändern")}
-            </button>
-            <div className="mt-4 rounded-2xl border border-blue-100 bg-blue-50 p-4 text-sm leading-6 text-slate-700">
-              <strong className="text-slate-950">{tx("Privacy note", "Datenschutzhinweis")}:</strong>{" "}
-              {tx(
-                "No personal data is sent to a server. Everything shown here is stored locally in your browser for the demo.",
-                "Es werden keine personenbezogenen Daten an einen Server gesendet. Alles hier wird für die Demo lokal im Browser gespeichert.",
-              )}
-            </div>
-            <button
-              className="mt-4 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl border border-rose-200 bg-rose-50 px-4 text-sm font-black text-rose-700 transition-colors hover:bg-rose-100"
-              onClick={onClearLocalData}
-              type="button"
-            >
-              <Eraser aria-hidden="true" className="h-4 w-4" />
-              {tx("Clear local data", "Lokale Daten löschen")}
-            </button>
-            <button
-              className="mt-3 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-slate-950 px-4 text-sm font-black text-white shadow-lg shadow-slate-950/15 transition-colors hover:bg-slate-800"
-              onClick={onLogout}
-              type="button"
-            >
-              <LogOut aria-hidden="true" className="h-4 w-4" />
-              {tx("Log out", "Abmelden")}
-            </button>
-          </section>
+        <div className="rounded-[1.4rem] bg-slate-50 p-4 text-sm leading-6 text-slate-600">
+          <ShieldCheck aria-hidden="true" className="mb-3 h-5 w-5 text-slate-500" />
+          {tx(
+            "This demo stores preferences and saved districts locally in this browser.",
+            "Diese Demo speichert Präferenzen und gespeicherte Stadtteile lokal in diesem Browser.",
+          )}
         </div>
-
-        <div className="mt-7 grid gap-4 lg:grid-cols-2">
-          <section className="rounded-[1.35rem] border border-slate-200 bg-slate-50 p-4">
-            <div className="flex items-center gap-2">
-              <ShieldCheck aria-hidden="true" className="h-5 w-5 text-indigo-600" />
-              <h2 className="text-xl font-black text-slate-950">Datenschutz</h2>
-            </div>
-            <p className="mt-3 text-sm leading-6 text-slate-600">
-              {tx(
-                "Moin uses local dummy district data and local browser storage only. Sensitive attributes are intentionally excluded from the scoring model.",
-                "Moin nutzt lokale Stadtteildaten und lokalen Browser-Speicher. Sensible Merkmale sind bewusst nicht im Bewertungsmodell enthalten.",
-              )}
-            </p>
-          </section>
-
-          <section className="rounded-[1.35rem] border border-slate-200 bg-slate-50 p-4">
-            <div className="flex items-center gap-2">
-              <Info aria-hidden="true" className="h-5 w-5 text-indigo-600" />
-              <h2 className="text-xl font-black text-slate-950">Impressum</h2>
-            </div>
-            <p className="mt-3 text-sm leading-6 text-slate-600">
-              {tx(
-                "University Smart Data prototype for exploring Hamburg district recommendations. Add project owner and contact details here before a public release.",
-                "Universitärer Smart-Data-Prototyp für Hamburger Stadtteilempfehlungen. Vor einer Veröffentlichung müssen Projektverantwortliche und Kontakt ergänzt werden.",
-              )}
-            </p>
-          </section>
+        <div className="grid gap-3">
+          <button
+            className="inline-flex min-h-13 items-center justify-center gap-3 rounded-full border border-slate-200 bg-white px-5 text-base font-black text-slate-800 transition-colors hover:bg-slate-50"
+            onClick={onClearLocalData}
+            type="button"
+          >
+            <Eraser aria-hidden="true" className="h-5 w-5" />
+            {tx("Clear local data", "Lokale Daten löschen")}
+          </button>
+          <button
+            className="inline-flex min-h-13 items-center justify-center gap-3 rounded-full bg-slate-950 px-5 text-base font-black text-white transition-colors hover:bg-slate-800"
+            onClick={onLogout}
+            type="button"
+          >
+            <LogOut aria-hidden="true" className="h-5 w-5" />
+            {tx("Log out", "Abmelden")}
+          </button>
         </div>
-      </div>
+      </section>
+
+      <section className="grid gap-3 rounded-[2rem] border border-slate-200 bg-white p-6 text-sm leading-6 text-slate-600 shadow-sm">
+        <p>
+          <Database aria-hidden="true" className="mb-2 h-5 w-5 text-slate-500" />
+          <strong className="text-slate-950">Datenschutz:</strong>{" "}
+          {tx(
+            "No personal data is sent to a server in this prototype.",
+            "In diesem Prototyp werden keine personenbezogenen Daten an einen Server gesendet.",
+          )}
+        </p>
+        <p>
+          <strong className="text-slate-950">Impressum:</strong>{" "}
+          {tx(
+            "University Smart Data prototype for Hamburg district recommendations.",
+            "Universitärer Smart-Data-Prototyp für Hamburger Stadtteilempfehlungen.",
+          )}
+        </p>
+      </section>
     </section>
   );
 }
