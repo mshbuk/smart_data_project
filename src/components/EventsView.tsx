@@ -1,12 +1,14 @@
 import { useMemo, useState } from "react";
 import {
   ArrowLeft,
+  Bookmark,
   CalendarDays,
   ExternalLink,
   Heart,
   MapPin,
   MessageCircle,
   Navigation,
+  Search,
   Send,
   Share2,
   X,
@@ -43,6 +45,16 @@ function getFirstDateLabel(event: CityEvent, language: "de" | "en") {
   const first = formatEventDate(event.dates[0], language);
   if (event.dates.length === 1) return first;
   return `${first} +${event.dates.length - 1}`;
+}
+
+function getDateBadgeParts(date: string, language: "de" | "en") {
+  const parsed = parseEventDate(date);
+
+  return {
+    day: new Intl.DateTimeFormat(language === "de" ? "de-DE" : "en-US", { day: "numeric" }).format(parsed),
+    month: new Intl.DateTimeFormat(language === "de" ? "de-DE" : "en-US", { month: "short" }).format(parsed),
+    weekday: new Intl.DateTimeFormat(language === "de" ? "de-DE" : "en-US", { weekday: "short" }).format(parsed),
+  };
 }
 
 function eventMatchesDateFilter(event: CityEvent, filter: DateFilter) {
@@ -361,24 +373,22 @@ export function EventsView() {
   }
 
   return (
-    <section className="mx-auto grid max-w-[820px] gap-4">
-      <div className="rounded-[1.8rem] border border-slate-200 bg-white p-4 shadow-[0_18px_48px_rgba(15,23,42,0.08)]">
-        <div className="grid grid-cols-2 rounded-full bg-slate-100 p-1 text-sm font-black text-slate-500">
-          <button className="rounded-full bg-white px-4 py-3 text-slate-950 shadow-sm" type="button">
-            {tx("Discover", "Entdecken")}
-          </button>
-          <button className="rounded-full px-4 py-3" type="button">
-            {tx("Saved", "Gespeichert")}
-          </button>
-        </div>
-
-        <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
+    <section className="mx-auto grid max-w-[820px] gap-6 px-1">
+      <div className="grid gap-5">
+        <div className="flex items-start justify-between gap-4">
           <div>
-            <p className="text-xs font-black uppercase tracking-wide text-violet-600">Moin Events</p>
-            <h2 className="mt-1 text-3xl font-black text-slate-950">Events</h2>
+            <h1 className="text-[3.4rem] font-black leading-none tracking-[-0.06em] text-slate-950">Events</h1>
+            <div className="mt-7 flex gap-9 text-2xl font-black">
+              <button className="border-b-4 border-slate-950 pb-4 text-slate-950" type="button">
+                {tx("Discover", "Entdecken")}
+              </button>
+              <button className="pb-4 text-slate-500" type="button">
+                {tx("Saved", "Gespeichert")}
+              </button>
+            </div>
           </div>
           <select
-            className="min-h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm font-black text-slate-800 outline-none focus:border-violet-300 focus:ring-4 focus:ring-violet-100"
+            className="min-h-14 max-w-[15rem] rounded-full border-0 bg-slate-100 px-5 text-lg font-black text-slate-950 outline-none focus:ring-4 focus:ring-violet-100"
             onChange={(event) => setDistrictFilter(event.target.value)}
             value={districtFilter}
           >
@@ -391,12 +401,12 @@ export function EventsView() {
           </select>
         </div>
 
-        <div className="mt-4 flex gap-2 overflow-x-auto pb-1">
+        <div className="flex gap-4 overflow-x-auto border-y border-slate-200 py-4">
           {dateFilters.map((filter) => (
             <button
               aria-pressed={dateFilter === filter}
               className={[
-                "shrink-0 rounded-full border px-4 py-2 text-sm font-black transition-colors",
+                "min-h-14 shrink-0 rounded-full border px-7 text-xl font-black transition-colors",
                 dateFilter === filter
                   ? "border-violet-600 bg-violet-600 text-white"
                   : "border-slate-200 bg-white text-slate-500 hover:bg-slate-50",
@@ -409,43 +419,66 @@ export function EventsView() {
             </button>
           ))}
         </div>
-        <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
+        <div className="flex gap-5 overflow-x-auto pb-1">
           {categoryFilters.map((filter) => (
             <button
               aria-pressed={category === filter}
               className={[
-                "shrink-0 rounded-full border px-4 py-2 text-sm font-black transition-colors",
-                category === filter
-                  ? "border-violet-600 bg-violet-600 text-white"
-                  : "border-slate-200 bg-white text-slate-500 hover:bg-slate-50",
+                "grid shrink-0 justify-items-center gap-2 text-sm font-black uppercase transition-colors",
+                category === filter ? "text-slate-950" : "text-slate-500",
               ].join(" ")}
               key={filter}
               onClick={() => setCategory(filter)}
               type="button"
             >
-              {filter !== "all" ? `${categoryEmoji[filter]} ` : ""}
+              <span
+                className={[
+                  "grid h-20 w-20 place-items-center rounded-full border text-2xl",
+                  category === filter
+                    ? "border-slate-950 bg-slate-950 text-white"
+                    : "border-slate-200 bg-white text-slate-500",
+                ].join(" ")}
+              >
+                {filter === "all" ? "✦" : categoryEmoji[filter]}
+              </span>
               {getCategoryLabel(filter, tx)}
             </button>
           ))}
         </div>
+        <label className="flex min-h-20 items-center gap-4 rounded-[1.7rem] bg-slate-100 px-6 text-2xl font-medium text-slate-400">
+          <Search aria-hidden="true" className="h-7 w-7 shrink-0 text-slate-500" />
+          <input
+            className="min-w-0 flex-1 bg-transparent outline-none placeholder:text-slate-400"
+            placeholder={tx("Search event or location...", "Event oder Location suchen...")}
+            type="search"
+          />
+        </label>
       </div>
 
       <div className="grid gap-3">
         {filteredEvents.length ? (
-          filteredEvents.map((event) => (
+          filteredEvents.map((event) => {
+            const badge = getDateBadgeParts(event.dates[0], language);
+
+            return (
             <button
-              className="grid grid-cols-[96px_1fr] gap-4 rounded-[1.6rem] border border-slate-200 bg-white p-3 text-left shadow-[0_12px_34px_rgba(15,23,42,0.06)] transition-transform hover:-translate-y-0.5 hover:shadow-[0_18px_44px_rgba(15,23,42,0.1)]"
+              className="grid grid-cols-[8.75rem_1fr_auto] gap-5 rounded-[2rem] border border-slate-200 bg-white p-4 text-left shadow-sm transition-transform hover:-translate-y-0.5 hover:shadow-[0_18px_44px_rgba(15,23,42,0.1)]"
               key={event.id}
               onClick={() => setSelectedEventId(event.id)}
               type="button"
             >
-              <img alt="" className="h-24 w-24 rounded-[1.25rem] object-cover" loading="lazy" src={event.imageUrl} />
-              <span className="min-w-0 py-1">
-                <span className="block text-sm font-black text-violet-600">
-                  {getFirstDateLabel(event, language)} · {event.time}
+              <span className="relative h-32 w-32 overflow-hidden rounded-[1.5rem] bg-slate-200">
+                <img alt="" className="h-full w-full object-cover" loading="lazy" src={event.imageUrl} />
+                <span className="absolute left-2 top-2 grid min-w-12 rounded-2xl bg-white px-2 py-1 text-center shadow-sm">
+                  <span className="text-xs font-black uppercase text-rose-500">{badge.weekday}</span>
+                  <span className="text-2xl font-black leading-none text-slate-950">{badge.day}</span>
+                  <span className="text-xs font-bold uppercase text-slate-500">{badge.month}</span>
                 </span>
-                <span className="mt-1 block text-lg font-black leading-tight text-slate-950">{event.title}</span>
-                <span className="mt-1 flex items-center gap-1 text-sm font-bold text-slate-500">
+              </span>
+              <span className="min-w-0 py-2">
+                <span className="block truncate text-2xl font-black leading-tight text-slate-950">{event.title}</span>
+                <span className="mt-3 block text-xl font-medium text-slate-500">{event.time}</span>
+                <span className="mt-1 flex items-center gap-1 text-xl font-medium text-slate-500">
                   <MapPin aria-hidden="true" className="h-4 w-4 shrink-0" />
                   <span className="truncate">
                     {event.venue}, {event.district}
@@ -462,8 +495,10 @@ export function EventsView() {
                   {event.price}
                 </span>
               </span>
+              <Bookmark aria-hidden="true" className="mt-5 h-7 w-7 text-slate-500" />
             </button>
-          ))
+          );
+          })
         ) : (
           <div className="rounded-[1.6rem] border border-slate-200 bg-white p-8 text-center shadow-sm">
             <p className="text-lg font-black text-slate-950">{tx("No events match these filters", "Keine Events passen zu diesen Filtern")}</p>

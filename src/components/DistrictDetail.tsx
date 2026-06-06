@@ -3,20 +3,14 @@ import {
   BadgeCheck,
   Building2,
   CheckCircle2,
-  Euro,
   ExternalLink,
   Heart,
   Info,
   Share2,
-  Sparkles,
 } from "lucide-react";
 import type { DistrictMatch, Preferences } from "../types/District";
 import {
-  formatScore,
   getCriterionInsights,
-  getDistrictTraits,
-  getImportanceLabel,
-  getKnownFor,
 } from "../utils/districtInsights";
 import { useI18n } from "../i18n";
 
@@ -60,8 +54,6 @@ export function DistrictDetail({
 }: DistrictDetailProps) {
   const { language, tx } = useI18n();
   const { district } = match;
-  const traits = getDistrictTraits(district, language);
-  const facts = getKnownFor(district, language);
   const insights = getCriterionInsights(district, preferences, language)
     .filter((insight) => insight.weight > 0)
     .sort((a, b) => b.weight - a.weight || b.score - a.score);
@@ -90,181 +82,196 @@ export function DistrictDetail({
   };
 
   return (
-    <section className="grid gap-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <button
-          className="inline-flex min-h-11 items-center gap-2 rounded-2xl bg-white px-4 text-sm font-black text-slate-700 shadow-[0_12px_30px_rgba(15,23,42,0.08)] transition-colors hover:bg-slate-50"
-          onClick={onBack}
-          type="button"
-        >
-          <ArrowLeft aria-hidden="true" className="h-4 w-4" />
-          {tx("Back to matches", "Zurück zu den Treffern")}
-        </button>
-        <button
-          className="inline-flex min-h-11 items-center gap-2 rounded-2xl bg-white px-4 text-sm font-black text-indigo-600 shadow-[0_12px_30px_rgba(15,23,42,0.08)] transition-colors hover:bg-indigo-50"
-          onClick={shareDistrict}
-          type="button"
-        >
-          <Share2 aria-hidden="true" className="h-4 w-4" />
-          {tx("Share district", "Stadtteil teilen")}
-        </button>
-      </div>
-
-      <article className="overflow-hidden rounded-[1.8rem] border border-white/80 bg-white shadow-[0_22px_55px_rgba(15,23,42,0.1)]">
-        <div className="relative min-h-[300px] bg-slate-200">
-          {district.imageUrl ? (
-            <img alt="" className="absolute inset-0 h-full w-full object-cover" src={district.imageUrl} />
-          ) : (
-            <div className="absolute inset-0 bg-gradient-to-br from-sky-100 via-slate-200 to-indigo-200" />
-          )}
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent" />
-          <div className="absolute inset-x-0 bottom-0 p-4 text-white md:p-6">
-            <div className="flex flex-wrap items-end justify-between gap-4">
-              <div>
-                <p className="text-xs font-black uppercase tracking-wide text-white/80">{tx("District detail", "Stadtteil-Details")}</p>
-                <h2 className="mt-1 text-4xl font-black leading-tight md:text-5xl">{district.name}</h2>
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {traits.map((trait) => (
-                    <span className="rounded-full bg-white/15 px-3 py-1.5 text-xs font-black backdrop-blur" key={trait}>
-                      {trait}
-                    </span>
-                  ))}
-                </div>
-              </div>
-              <div className="rounded-2xl bg-white px-4 py-3 text-slate-950 shadow-xl">
-                <span className="block text-3xl font-black leading-none text-indigo-600">{match.score}%</span>
-                <span className="mt-1 block text-xs font-black uppercase tracking-wide text-slate-500">{tx("profile fit", "Profilpassung")}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="grid gap-4 p-4 md:p-5 lg:grid-cols-[1.2fr_0.8fr]">
-          <section className="grid gap-4">
-            <div className="rounded-[1.35rem] bg-slate-50 p-4">
-              <div className="flex items-center gap-2">
-                <Sparkles aria-hidden="true" className="h-5 w-5 text-indigo-600" />
-                <h3 className="text-xl font-black text-slate-950">{tx("Why it matches", "Warum es passt")}</h3>
-              </div>
-              <p className="mt-3 text-sm leading-6 text-slate-700">{match.explanation}</p>
-              <div className="mt-3 flex flex-wrap gap-2">
-                {match.strengths.map((strength) => (
-                  <span className="rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-700" key={strength}>
-                    {strength}
-                  </span>
-                ))}
-                {match.tradeoffs.map((tradeoff) => (
-                  <span className="rounded-full bg-rose-50 px-3 py-1.5 text-xs font-bold text-rose-700" key={tradeoff}>
-                    {tradeoff}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            <div className="rounded-[1.35rem] border border-slate-100 bg-white p-4">
-              <div className="flex items-center gap-2">
-                <Info aria-hidden="true" className="h-5 w-5 text-indigo-600" />
-                <h3 className="text-xl font-black text-slate-950">{tx("Score explanations", "Erklärung der Bewertungen")}</h3>
-              </div>
-              <div className="mt-4 grid gap-3">
-                {insights.slice(0, 6).map((insight) => (
-                  <div className="grid gap-2 rounded-2xl bg-slate-50 p-3" key={insight.key}>
-                    <div className="flex items-center justify-between gap-3">
-                      <span>
-                        <span className="block text-sm font-black text-slate-950">{insight.label}</span>
-                        <span className="block text-xs font-bold text-slate-500">
-                          {insight.weight}/5 · {getImportanceLabel(insight.weight, language)}
-                        </span>
-                      </span>
-                      <span className="rounded-xl bg-white px-3 py-1.5 text-sm font-black text-slate-900">
-                        {formatScore(insight.score)}/10
-                      </span>
-                    </div>
-                    <div className="h-2 overflow-hidden rounded-full bg-white">
-                      <div className="h-full rounded-full bg-indigo-600" style={{ width: `${insight.score * 10}%` }} />
-                    </div>
-                    <p className="text-xs font-bold leading-5 text-slate-600">{insight.reason}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </section>
-
-          <aside className="grid content-start gap-4">
-            <section className="rounded-[1.35rem] border border-slate-100 bg-slate-50 p-4">
-              <div className="flex items-center gap-2">
-                <BadgeCheck aria-hidden="true" className="h-5 w-5 text-emerald-600" />
-                <h3 className="text-xl font-black text-slate-950">{tx("Known for", "Bekannt für")}</h3>
-              </div>
-              <div className="mt-3 grid gap-2">
-                {facts.map((fact) => (
-                  <div className="flex items-center gap-2 rounded-2xl bg-white px-3 py-2 text-sm font-bold text-slate-700" key={fact}>
-                    <CheckCircle2 aria-hidden="true" className="h-4 w-4 shrink-0 text-emerald-500" />
-                    {fact}
-                  </div>
-                ))}
-              </div>
-            </section>
-
-            <section className="rounded-[1.35rem] border border-violet-100 bg-violet-50 p-4">
-              <div className="flex items-center gap-2">
-                <ExternalLink aria-hidden="true" className="h-5 w-5 text-violet-600" />
-                <h3 className="text-xl font-black text-slate-950">{tx("Apartment search", "Wohnungssuche")}</h3>
-              </div>
-              <p className="mt-2 text-xs font-bold leading-5 text-slate-600">
-                {tx(
-                  "Continue with your district filter on external housing portals.",
-                  "Suche mit diesem Stadtteil-Filter direkt auf externen Wohnungsportalen weiter.",
-                )}
-              </p>
-              <div className="mt-3 grid gap-2">
-                {housingSearchLinks.map((link) => (
-                  <a
-                    className="inline-flex min-h-12 items-center justify-between gap-3 rounded-2xl bg-white px-4 text-sm font-black text-slate-900 shadow-sm shadow-slate-950/5 transition-colors hover:bg-violet-100"
-                    href={link.url}
-                    key={link.label}
-                    rel="noreferrer"
-                    target="_blank"
-                  >
-                    {link.label}
-                    <ExternalLink aria-hidden="true" className="h-4 w-4 text-violet-600" />
-                  </a>
-                ))}
-              </div>
-            </section>
-
+    <section className="-mx-4 -mt-6 grid gap-8 pb-6 sm:mx-0 sm:mt-0">
+      <div className="relative min-h-[31rem] overflow-hidden bg-slate-200 sm:rounded-[2rem]">
+        {district.imageUrl ? (
+          <img alt="" className="absolute inset-0 h-full w-full object-cover" src={district.imageUrl} />
+        ) : (
+          <div className="absolute inset-0 bg-gradient-to-br from-sky-100 via-slate-200 to-indigo-200" />
+        )}
+        <div className="absolute inset-x-0 top-0 flex items-center justify-between p-4">
+          <button
+            aria-label={tx("Back", "Zurück")}
+            className="grid h-16 w-16 place-items-center rounded-full bg-white text-slate-950 shadow-[0_12px_28px_rgba(15,23,42,0.2)]"
+            onClick={onBack}
+            type="button"
+          >
+            <ArrowLeft aria-hidden="true" className="h-8 w-8" />
+          </button>
+          <div className="flex gap-3">
             <button
-              className={[
-                "inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl px-4 text-sm font-black transition-colors",
-                isSaved
-                  ? "bg-rose-50 text-rose-600 hover:bg-rose-100"
-                  : "bg-indigo-600 text-white shadow-lg shadow-indigo-600/20 hover:bg-indigo-700",
-              ].join(" ")}
+              aria-label={isSaved ? tx("Remove from saved", "Aus Gespeichert entfernen") : tx("Save district", "Stadtteil speichern")}
+              className="grid h-16 w-16 place-items-center rounded-full bg-white text-slate-950 shadow-[0_12px_28px_rgba(15,23,42,0.2)]"
               onClick={() => onToggleSave(district.id)}
               type="button"
             >
-              <Heart aria-hidden="true" className={isSaved ? "h-4 w-4 fill-current" : "h-4 w-4"} />
-              {isSaved ? tx("Remove from saved", "Aus Gespeichert entfernen") : tx("Save for comparison", "Für Vergleich speichern")}
+              <Heart aria-hidden="true" className={isSaved ? "h-8 w-8 fill-rose-500 text-rose-500" : "h-8 w-8"} />
             </button>
-
-            <div className="grid grid-cols-2 gap-2">
-              <div className="rounded-2xl bg-slate-50 px-3 py-2">
-                <Euro aria-hidden="true" className="h-4 w-4 text-emerald-600" />
-                <p className="mt-2 text-xs font-bold text-slate-500">{tx("Rent", "Miete")}</p>
-                <p className="text-sm font-black text-slate-950">
-                  EUR {new Intl.NumberFormat(language === "de" ? "de-DE" : "en-US").format(district.rentPerSqm)}/{tx("sqm", "qm")}
-                </p>
-              </div>
-              <div className="rounded-2xl bg-slate-50 px-3 py-2">
-                <Building2 aria-hidden="true" className="h-4 w-4 text-indigo-600" />
-                <p className="mt-2 text-xs font-bold text-slate-500">{tx("Density", "Dichte")}</p>
-                <p className="text-sm font-black text-slate-950">
-                  {district.populationDensity.toLocaleString(language === "de" ? "de-DE" : "en-US")}/km²
-                </p>
-              </div>
-            </div>
-          </aside>
+            <button
+              aria-label={tx("Share district", "Stadtteil teilen")}
+              className="grid h-16 w-16 place-items-center rounded-full bg-white text-slate-950 shadow-[0_12px_28px_rgba(15,23,42,0.2)]"
+              onClick={shareDistrict}
+              type="button"
+            >
+              <Share2 aria-hidden="true" className="h-7 w-7" />
+            </button>
+          </div>
         </div>
+      </div>
+
+      <article className="-mt-24 mx-4 grid gap-8 sm:mx-0">
+        <section className="relative rounded-[2.5rem] border border-slate-200 bg-white p-8 shadow-[0_20px_54px_rgba(15,23,42,0.12)]">
+          <div className="grid grid-cols-[1fr_auto] gap-5">
+            <div>
+              <p className="text-lg font-black uppercase tracking-[0.18em] text-rose-500">Hamburg</p>
+              <h1 className="mt-3 text-[3.25rem] font-black leading-none tracking-[-0.06em] text-slate-950">
+                {district.name}
+              </h1>
+              <p className="mt-4 text-2xl font-medium leading-tight tracking-[-0.03em] text-slate-500">
+                {district.shortDescription}
+              </p>
+            </div>
+            <div className="text-right">
+              <p className="text-[3.4rem] font-black leading-none tracking-[-0.06em] text-sky-500">{match.score}%</p>
+              <p className="mt-2 text-sm font-black uppercase tracking-wide text-slate-400">Match</p>
+            </div>
+          </div>
+
+          <p className="mt-7 text-[1.6rem] font-medium leading-[1.55] tracking-[-0.03em] text-slate-700">
+            {match.explanation}
+          </p>
+
+          <div className="mt-8 grid grid-cols-3 gap-4">
+            <div className="rounded-[1.65rem] bg-slate-50 p-5">
+              <p className="text-sm font-black uppercase text-slate-400">{tx("Rent", "Miete")}</p>
+              <p className="mt-5 text-2xl font-black text-slate-950">
+                {new Intl.NumberFormat(language === "de" ? "de-DE" : "en-US", {
+                  maximumFractionDigits: 1,
+                }).format(district.rentPerSqm)}{" "}
+                €<span className="text-base font-medium text-slate-500">/m²</span>
+              </p>
+            </div>
+            <div className="rounded-[1.65rem] bg-slate-50 p-5">
+              <p className="text-sm font-black uppercase text-slate-400">{tx("Safety", "Sicherheit")}</p>
+              <p className="mt-5 text-2xl font-black text-slate-950">
+                {Math.round(district.safetyScore * 10)}
+                <span className="text-base font-medium text-slate-500">/100</span>
+              </p>
+            </div>
+            <div className="rounded-[1.65rem] bg-slate-50 p-5">
+              <p className="text-sm font-black uppercase text-slate-400">ÖPNV</p>
+              <p className="mt-5 text-2xl font-black text-slate-950">
+                {Math.round(district.publicTransportScore * 10)}
+                <span className="text-base font-medium text-slate-500">/100</span>
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-8 grid grid-cols-2 gap-4">
+            <button
+              className="inline-flex min-h-16 items-center justify-center gap-3 rounded-full border border-slate-200 bg-white px-5 text-xl font-black text-slate-950 transition-colors hover:bg-slate-50"
+              onClick={() => onToggleSave(district.id)}
+              type="button"
+            >
+              <BadgeCheck aria-hidden="true" className="h-6 w-6" />
+              {tx("Compare", "Vergleichen")}
+            </button>
+            <button
+              className="inline-flex min-h-16 items-center justify-center gap-3 rounded-full bg-slate-950 px-5 text-xl font-black text-white transition-colors hover:bg-slate-800"
+              onClick={onBack}
+              type="button"
+            >
+              <Info aria-hidden="true" className="h-6 w-6" />
+              {tx("On map", "Auf Karte")}
+            </button>
+          </div>
+        </section>
+
+        <section className="rounded-[2.5rem] border border-slate-200 bg-white p-8 shadow-sm">
+          <h2 className="text-2xl font-black uppercase tracking-[0.18em] text-slate-400">
+            {tx("Fits you because", "Passt zu dir, weil:")}
+          </h2>
+          <div className="mt-8 grid gap-5">
+            {match.strengths.slice(0, 3).map((strength) => (
+              <p className="flex items-center gap-5 text-2xl font-medium text-slate-950" key={strength}>
+                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-sky-50 text-sky-500">
+                  <CheckCircle2 aria-hidden="true" className="h-6 w-6" />
+                </span>
+                {strength}
+              </p>
+            ))}
+          </div>
+        </section>
+
+        <section className="rounded-[2.5rem] border border-slate-200 bg-white p-8 shadow-sm">
+          <h2 className="text-2xl font-black uppercase tracking-[0.18em] text-slate-400">
+            {tx("Ratings", "Bewertungen")}
+          </h2>
+          <div className="mt-8 grid gap-5">
+            {insights.slice(0, 6).map((insight) => (
+              <div className="grid grid-cols-[1fr_36%_auto] items-center gap-4" key={insight.key}>
+                <span className="text-xl font-medium text-slate-500">{insight.label}</span>
+                <span className="h-3 overflow-hidden rounded-full bg-slate-200">
+                  <span className="block h-full rounded-full bg-slate-950" style={{ width: `${insight.score * 10}%` }} />
+                </span>
+                <span className="text-xl font-black text-slate-950">{Math.round(insight.score * 10)}</span>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section className="rounded-[2.5rem] border border-slate-200 bg-white p-8 shadow-sm">
+          <h2 className="text-2xl font-black uppercase tracking-[0.18em] text-sky-500">{tx("Advantages", "Vorteile")}</h2>
+          <div className="mt-6 grid gap-5">
+            {match.strengths.slice(0, 4).map((strength) => (
+              <p className="flex items-center gap-4 text-2xl font-medium text-slate-950" key={strength}>
+                <CheckCircle2 aria-hidden="true" className="h-6 w-6 text-sky-500" />
+                {strength}
+              </p>
+            ))}
+          </div>
+        </section>
+
+        <section className="rounded-[2.5rem] border border-slate-200 bg-white p-8 shadow-sm">
+          <h2 className="text-2xl font-black uppercase tracking-[0.18em] text-rose-500">{tx("Watch out for", "Zu beachten")}</h2>
+          <div className="mt-6 grid gap-5">
+            {(match.tradeoffs.length ? match.tradeoffs : [tx("Rent level may vary by street.", "Mietniveau kann je nach Lage variieren.")]).slice(0, 3).map((tradeoff) => (
+              <p className="flex items-center gap-4 text-2xl font-medium text-slate-950" key={tradeoff}>
+                <span className="text-rose-500">×</span>
+                {tradeoff}
+              </p>
+            ))}
+          </div>
+        </section>
+
+        <section className="rounded-[2.5rem] border border-violet-100 bg-violet-50 p-8 shadow-sm">
+          <h2 className="text-xl font-black uppercase tracking-[0.16em] text-violet-700">
+            {tx("Next step", "Nächster Schritt")}
+          </h2>
+          <p className="mt-3 text-xl font-medium leading-relaxed text-slate-700">
+            {tx(
+              "We forward you with this district as a filter.",
+              "Wir leiten dich mit diesem Stadtteil als Filter weiter.",
+            )}
+          </p>
+          <div className="mt-6 grid gap-3">
+            {housingSearchLinks.map((link) => (
+              <a
+                className="inline-flex min-h-16 items-center justify-between rounded-[1.4rem] bg-white px-5 text-xl font-black text-slate-950 shadow-sm transition-colors hover:bg-violet-100"
+                href={link.url}
+                key={link.label}
+                rel="noreferrer"
+                target="_blank"
+              >
+                <span className="inline-flex items-center gap-4">
+                  <Building2 aria-hidden="true" className="h-6 w-6 text-violet-600" />
+                  {link.label}
+                </span>
+                <ExternalLink aria-hidden="true" className="h-5 w-5 text-slate-500" />
+              </a>
+            ))}
+          </div>
+        </section>
       </article>
     </section>
   );

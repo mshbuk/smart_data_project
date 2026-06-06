@@ -1022,7 +1022,64 @@ export function MapView({ matches, onOpenDetails, onToggleSave, savedDistrictIds
   };
 
   return (
-    <section className="overflow-hidden rounded-[1.6rem] border border-white/80 bg-white shadow-[0_18px_45px_rgba(15,23,42,0.08)]">
+    <section className="grid gap-7">
+      <div className="rounded-[2rem] border border-slate-200 bg-white p-7 shadow-sm">
+        <h2 className="text-2xl font-black text-slate-950">{tx("How the map works", "So funktioniert die Karte")}</h2>
+        <div className="mt-6 grid gap-5">
+          {[
+            [tx("Top districts", "Top Stadtteile"), tx("Based on your priorities", "Basierend auf deinen Prioritäten"), "#10b981"],
+            [tx("Explore map", "Karte erkunden"), tx("Discover landmarks and factors", "Sehenswürdigkeiten & Faktoren entdecken"), "#8b5cf6"],
+            [tx("Choose district", "Stadtteil wählen"), tx("Details and ratings at a glance", "Details & Bewertungen im Überblick"), "#3b82f6"],
+            [tx("Find apartments", "Wohnungen finden"), tx("Continue to partner platforms", "Weiter zu Partnerplattformen"), "#334155"],
+          ].map(([title, copy, color], index) => (
+            <div className="grid grid-cols-[3rem_1fr] gap-4" key={title}>
+              <span
+                className="grid h-12 w-12 place-items-center rounded-full text-xl font-black text-white"
+                style={{ backgroundColor: color }}
+              >
+                {index + 1}
+              </span>
+              <span>
+                <span className="block text-xl font-black text-slate-950">{title}</span>
+                <span className="block text-xl font-medium leading-tight text-slate-500">{copy}</span>
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="rounded-[2rem] border border-slate-200 bg-white p-7 shadow-sm">
+        <h2 className="text-2xl font-black text-slate-950">📍 {tx("Your top districts", "Deine Top Stadtteile")}</h2>
+        <div className="mt-6 grid gap-4">
+          {matches.slice(0, 3).map((match, index) => (
+            <button
+              className={[
+                "grid min-h-20 grid-cols-[3.5rem_1fr_auto] items-center gap-4 rounded-[1.55rem] border px-5 text-left transition-colors",
+                index === 0 ? "border-emerald-200 bg-emerald-50" : "border-slate-200 bg-white hover:bg-slate-50",
+              ].join(" ")}
+              key={match.district.id}
+              onClick={() => onOpenDetails(match.district.id)}
+              type="button"
+            >
+              <span
+                className={[
+                  "grid h-12 w-12 place-items-center rounded-full text-xl font-black text-white",
+                  index === 0 ? "bg-emerald-500" : index === 1 ? "bg-violet-500" : "bg-amber-500",
+                ].join(" ")}
+              >
+                {index + 1}
+              </span>
+              <span>
+                <span className="block text-2xl font-black text-slate-950">{match.district.name}</span>
+                <span className="block text-xl font-medium text-slate-500">{match.score}% Match</span>
+              </span>
+              <span className="text-2xl font-black text-slate-950">{match.score}%</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <section className="overflow-hidden rounded-[1.6rem] border border-white/80 bg-white shadow-[0_18px_45px_rgba(15,23,42,0.08)]">
       <div className="grid gap-4 p-4 md:grid-cols-[1fr_auto] md:items-start md:p-5">
         <div className="flex items-start gap-3">
           <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-indigo-600 text-white shadow-lg shadow-indigo-600/20">
@@ -1244,6 +1301,7 @@ export function MapView({ matches, onOpenDetails, onToggleSave, savedDistrictIds
           </div>
         )}
       </div>
+      </section>
     </section>
   );
 }

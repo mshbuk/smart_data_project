@@ -7,7 +7,6 @@ import {
   CalendarDays,
   Home,
   Map as MapIcon,
-  MessageCircle,
   SlidersHorizontal,
   User,
   type LucideIcon,
@@ -18,6 +17,7 @@ import { CustomQuestionnaire } from "./components/CustomQuestionnaire";
 import { DistrictDetail } from "./components/DistrictDetail";
 import { EventsView } from "./components/EventsView";
 import { MapView } from "./components/MapView";
+import { OverviewView } from "./components/OverviewView";
 import { PreferenceForm } from "./components/PreferenceForm";
 import { ProfilePage } from "./components/ProfilePage";
 import { ProfileSelector } from "./components/ProfileSelector";
@@ -142,6 +142,7 @@ function App() {
   const [flowStep, setFlowStep] = useState<FlowStep>(initialState.flowStep ?? "profile");
   const [language, setLanguage] = useState<Language>(initialState.language ?? "de");
   const [selectedDistrictId, setSelectedDistrictId] = useState<string | null>(null);
+  const [showFullResults, setShowFullResults] = useState(false);
   const [criteriaEditSignal, setCriteriaEditSignal] = useState(0);
   const criteriaPanelRef = useRef<HTMLDivElement | null>(null);
 
@@ -235,12 +236,14 @@ function App() {
   const handleWelcomeStart = () => {
     setSelectedDistrictId(null);
     setActiveView("results");
+    setShowFullResults(false);
     setFlowStep("profile");
   };
 
   const openCriteriaEditor = () => {
     setSelectedDistrictId(null);
     setActiveView("results");
+    setShowFullResults(false);
     setFlowStep("criteria");
     setCriteriaEditSignal((currentSignal) => currentSignal + 1);
     window.requestAnimationFrame(() => {
@@ -249,25 +252,12 @@ function App() {
   };
 
   const viewOptions: ViewOption[] = [
-    { view: "results", label: tx("Start", "Start"), icon: Home },
+    { view: "results", label: tx("Overview", "Übersicht"), icon: Home },
     { view: "map", label: tx("Map", "Karte"), icon: MapIcon },
     { view: "events", label: "Events", icon: CalendarDays },
     { view: "saved", label: tx("Compare", "Vergleich"), icon: BarChart3 },
     { view: "profile", label: tx("Profile", "Profil"), icon: User },
   ];
-  const pageTitle =
-    selectedDetailMatch?.district.name ??
-    (activeView === "events"
-      ? "Events"
-      : activeView === "map"
-        ? tx("Map", "Karte")
-        : activeView === "saved"
-          ? tx("Compare", "Vergleich")
-          : flowStep === "profile"
-            ? tx("District Finder", "Stadtteil-Finder")
-            : flowStep === "questionnaire"
-              ? tx("Questionnaire", "Fragebogen")
-              : tx("Your top districts", "Deine Top-Stadtteile"));
 
   if (!authGateCompleted) {
     return (
@@ -307,56 +297,35 @@ function App() {
   return (
     <I18nProvider language={language} setLanguage={setLanguage}>
     <main className="min-h-screen bg-[var(--moin-background)] pb-28 font-sans text-slate-950 antialiased">
-      <header className="sticky top-0 z-[1300] border-b border-slate-200 bg-white/95 backdrop-blur-xl">
-        <div className="mx-auto flex min-h-20 w-full max-w-[760px] items-center justify-between gap-3 px-4">
-          <div className="flex min-w-0 items-center gap-3">
-            {flowStep !== "welcome" && (
-              <button
-                aria-label={tx("Back", "Zurück")}
-                className="grid h-11 w-11 shrink-0 place-items-center rounded-full text-slate-950 hover:bg-slate-100"
-                onClick={() => {
-                  if (selectedDetailMatch) {
-                    setSelectedDistrictId(null);
-                    return;
-                  }
-                  if (activeView !== "results") {
-                    setActiveView("results");
-                    return;
-                  }
-                  setFlowStep("profile");
-                }}
-                type="button"
-              >
-                <ArrowLeft aria-hidden="true" className="h-6 w-6" />
-              </button>
-            )}
-            <div className="min-w-0">
-              <p className="text-xs font-black uppercase tracking-[0.12em] text-violet-600">Moin</p>
-              <h1 className="truncate text-2xl font-black leading-tight text-slate-950">{pageTitle}</h1>
-            </div>
+      {!selectedDetailMatch && (
+        <header className="sticky top-0 z-[1300] border-b border-slate-200 bg-[var(--moin-background)]/95 backdrop-blur-xl">
+          <div className="mx-auto flex min-h-[7.5rem] w-full max-w-[760px] items-center justify-between gap-4 px-6">
+            <button
+              className="text-left text-[2.15rem] font-black leading-none tracking-[-0.04em] text-slate-950"
+              onClick={() => {
+                setSelectedDistrictId(null);
+                setActiveView("results");
+                setShowFullResults(false);
+                if (flowStep !== "recommendations") setFlowStep("welcome");
+              }}
+              type="button"
+            >
+              moin<span className="text-rose-500">.</span>
+            </button>
+            <button
+              aria-label={tx("Open profile", "Profil öffnen")}
+              className="grid h-20 w-20 place-items-center rounded-full border-[6px] border-white bg-slate-200 text-lg font-black text-slate-600 shadow-[0_0_0_1px_rgba(203,213,225,0.8),0_16px_36px_rgba(15,23,42,0.08)]"
+              onClick={() => {
+                setSelectedDistrictId(null);
+                setActiveView("profile");
+              }}
+              type="button"
+            >
+              G
+            </button>
           </div>
-
-          <div className="flex shrink-0 items-center gap-3">
-            <MessageCircle aria-hidden="true" className="hidden h-7 w-7 text-slate-950 sm:block" />
-            <div className="grid grid-cols-2 rounded-full border border-slate-200 bg-white p-1 text-xs font-black shadow-sm">
-              {languages.map((option) => (
-                <button
-                  aria-pressed={language === option}
-                  className={[
-                    "rounded-full px-3 py-2 transition-colors",
-                    language === option ? "moin-gradient-primary text-white" : "text-slate-600 hover:bg-slate-100",
-                  ].join(" ")}
-                  key={option}
-                  onClick={() => setLanguage(option)}
-                  type="button"
-                >
-                  {option.toUpperCase()}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-      </header>
+        </header>
+      )}
 
       <div className="mx-auto w-full max-w-[760px] px-4 py-6">
         {flowStep === "welcome" && (
@@ -429,7 +398,7 @@ function App() {
 
         {flowStep === "recommendations" && (
           <>
-            {activeView === "results" && (
+            {activeView === "results" && showFullResults && (
             <section className="mb-4 px-1">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
@@ -461,6 +430,7 @@ function App() {
                       onClick={() => {
                         setSelectedDistrictId(null);
                         setFlowStep("profile");
+                        setShowFullResults(false);
                       }}
                       type="button"
                     >
@@ -487,14 +457,15 @@ function App() {
                       <button
                         aria-pressed={isActive}
                         className={[
-                          "relative flex min-h-16 flex-col items-center justify-center gap-1 rounded-2xl px-1.5 text-[0.68rem] font-black transition-colors sm:min-h-14 sm:gap-1.5 sm:px-3 sm:text-sm",
+                          "relative flex min-h-16 flex-col items-center justify-center gap-1 rounded-2xl px-1.5 text-[0.68rem] font-black uppercase transition-colors sm:min-h-14 sm:gap-1.5 sm:px-3 sm:text-sm",
                           "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600",
-                          isActive ? "bg-indigo-600 text-white shadow-lg shadow-indigo-600/20" : "text-slate-600 hover:bg-slate-100",
+                          isActive ? "text-slate-950" : "text-slate-500 hover:bg-slate-100 hover:text-slate-800",
                         ].join(" ")}
                         key={option.view}
                         onClick={() => {
                           setSelectedDistrictId(null);
                           setActiveView(option.view);
+                          if (option.view === "results") setShowFullResults(false);
                         }}
                         type="button"
                       >
@@ -504,7 +475,7 @@ function App() {
                           <span
                             className={[
                               "absolute right-2 top-2 grid h-5 min-w-6 place-items-center rounded-full px-1.5 text-[0.62rem] font-black leading-none sm:static sm:h-auto sm:min-w-6 sm:px-1.5 sm:py-0.5 sm:text-xs",
-                              isActive ? "bg-white/20 text-white" : "bg-slate-100 text-slate-700",
+                              isActive ? "bg-slate-950 text-white" : "bg-slate-100 text-slate-700",
                             ].join(" ")}
                           >
                             {option.count}
@@ -526,7 +497,19 @@ function App() {
                 preferences={preferences}
               />
             )}
-            {!selectedDetailMatch && activeView === "results" && (
+            {!selectedDetailMatch && activeView === "results" && !showFullResults && (
+              <OverviewView
+                matches={matches}
+                onOpenDetails={setSelectedDistrictId}
+                onShowAllResults={() => setShowFullResults(true)}
+                onStartFinder={() => {
+                  setSelectedDistrictId(null);
+                  setFlowStep("profile");
+                  setShowFullResults(false);
+                }}
+              />
+            )}
+            {!selectedDetailMatch && activeView === "results" && showFullResults && (
               <ResultsList
                 matches={matches}
                 onOpenDetails={setSelectedDistrictId}
