@@ -93,8 +93,8 @@ The production site is deployed automatically with GitHub Actions when changes a
 - Ranked district recommendations with 10 districts per page.
 - Clickable district image areas that open in-app district detail views.
 - Hamburg-only district photo pool on all 104 district result cards and detail pages instead of non-Hamburg placeholders.
-- District detail pages with character traits, known-for facts, score explanations, sharing action, demo apartment previews, and external apartment-search links.
-- Demo apartment preview cards with realistic apartment photos, kept clearly in-platform and non-listing-based before optional external search.
+- District detail pages with character traits, known-for facts, score explanations, sharing action, and external apartment-search links.
+- External housing links for ImmoScout24, Immowelt, WG-Gesucht, and Kleinanzeigen from each district detail page.
 - Save/favorite districts and compare saved districts side by side.
 - Comparison view with best-value highlights, a saved-district radar diagram, and a priority-shape diagram based on the current preferences.
 - Leaflet map with Hamburg district polygons, top-match highlighting, a current-location button, emoji landmark/local-spot markers, and district popups with save/detail actions.
@@ -128,7 +128,7 @@ src/data/districts.geojson
 To update the prototype, edit the JSON values directly. Keep the same property names so TypeScript and the scoring function continue to work.
 Keep district names aligned with the `Stadtteil` names in `districts.geojson` so the map can match scores to borders.
 
-District detail pages also derive demo-only apartment previews, character traits, and score explanations from this local district data. These previews are not real listings and should be replaced only when a real listing provider or dataset is available.
+District detail pages also derive character traits and score explanations from this local district data. Apartment previews are no longer rendered; the detail page links out to housing portals instead.
 
 ## Map Icons And POIs
 
@@ -158,7 +158,7 @@ The Events tab is currently a prototype dataset based on supplied Hamburg event 
 
 ## Image Sources
 
-District card photos and demo apartment preview photos use Pexels-hosted images. District cards rotate through a 20-photo Hamburg-only pool; some districts can share a photo, but non-Hamburg images should not be used for district cards. These are demo visual assets, not factual proof of a specific apartment or street. The source notes live in:
+District card photos use Pexels-hosted Hamburg images. District cards rotate through a 20-photo Hamburg-only pool; some districts can share a photo, but non-Hamburg images should not be used for district cards. These are demo visual assets, not factual proof of a specific street. The source notes live in:
 
 ```text
 evidence/image-sources/

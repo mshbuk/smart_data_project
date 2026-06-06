@@ -6,7 +6,6 @@ import {
   Euro,
   ExternalLink,
   Heart,
-  Home,
   Info,
   Share2,
   Sparkles,
@@ -15,7 +14,6 @@ import type { DistrictMatch, Preferences } from "../types/District";
 import {
   formatScore,
   getCriterionInsights,
-  getDemoListings,
   getDistrictTraits,
   getImportanceLabel,
   getKnownFor,
@@ -43,6 +41,10 @@ function createHousingSearchLinks(districtName: string) {
       url: `https://www.immowelt.de/suche/hamburg/wohnungen/mieten?query=${query}`,
     },
     {
+      label: "WG-Gesucht",
+      url: `https://www.wg-gesucht.de/wohnungen-in-Hamburg.55.2.1.0.html?query=${query}`,
+    },
+    {
       label: "Kleinanzeigen",
       url: `https://www.kleinanzeigen.de/s-wohnung-mieten/hamburg/${query}/k0c203l9409`,
     },
@@ -63,7 +65,6 @@ export function DistrictDetail({
   const insights = getCriterionInsights(district, preferences, language)
     .filter((insight) => insight.weight > 0)
     .sort((a, b) => b.weight - a.weight || b.score - a.score);
-  const listings = getDemoListings(district, language);
   const housingSearchLinks = createHousingSearchLinks(district.name);
   const shareDistrict = () => {
     const message =
@@ -205,68 +206,30 @@ export function DistrictDetail({
               </div>
             </section>
 
-            <section className="rounded-[1.35rem] border border-indigo-100 bg-indigo-50 p-4">
+            <section className="rounded-[1.35rem] border border-violet-100 bg-violet-50 p-4">
               <div className="flex items-center gap-2">
-                <Home aria-hidden="true" className="h-5 w-5 text-indigo-600" />
-                <h3 className="text-xl font-black text-slate-950">{tx("Apartment previews", "Wohnungs-Vorschau")}</h3>
+                <ExternalLink aria-hidden="true" className="h-5 w-5 text-violet-600" />
+                <h3 className="text-xl font-black text-slate-950">{tx("Apartment search", "Wohnungssuche")}</h3>
               </div>
               <p className="mt-2 text-xs font-bold leading-5 text-slate-600">
                 {tx(
-                  "Demo listings shown in-platform so the flow does not depend on external redirects.",
-                  "Demo-Angebote werden direkt in der Plattform gezeigt, damit der Flow nicht von Weiterleitungen abhängt.",
+                  "Continue with your district filter on external housing portals.",
+                  "Suche mit diesem Stadtteil-Filter direkt auf externen Wohnungsportalen weiter.",
                 )}
               </p>
               <div className="mt-3 grid gap-2">
-                {listings.map((listing) => (
-                  <article className="overflow-hidden rounded-2xl bg-white shadow-sm shadow-slate-950/5" key={listing.id}>
-                    <img
-                      alt=""
-                      className="h-28 w-full object-cover"
-                      loading="lazy"
-                      src={listing.imageUrl}
-                    />
-                    <div className="flex items-start justify-between gap-3 p-3 pb-0">
-                      <div>
-                        <h4 className="text-sm font-black text-slate-950">{listing.title}</h4>
-                        <p className="mt-1 text-xs font-bold text-slate-500">
-                          {listing.rooms} {tx("rooms", "Zimmer")} · {listing.size} {tx("sqm", "qm")}
-                        </p>
-                      </div>
-                      <span className="rounded-xl bg-emerald-50 px-2 py-1 text-xs font-black text-emerald-700">
-                        EUR {listing.rent}
-                      </span>
-                    </div>
-                    <div className="p-3 pt-2">
-                      <span className="inline-flex rounded-full bg-slate-100 px-2.5 py-1 text-[0.68rem] font-black text-slate-600">
-                        {listing.tag}
-                      </span>
-                    </div>
-                  </article>
+                {housingSearchLinks.map((link) => (
+                  <a
+                    className="inline-flex min-h-12 items-center justify-between gap-3 rounded-2xl bg-white px-4 text-sm font-black text-slate-900 shadow-sm shadow-slate-950/5 transition-colors hover:bg-violet-100"
+                    href={link.url}
+                    key={link.label}
+                    rel="noreferrer"
+                    target="_blank"
+                  >
+                    {link.label}
+                    <ExternalLink aria-hidden="true" className="h-4 w-4 text-violet-600" />
+                  </a>
                 ))}
-              </div>
-              <div className="mt-3 rounded-2xl bg-white p-3">
-                <a
-                  className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-indigo-600 px-4 text-sm font-black text-white shadow-lg shadow-indigo-600/20 transition-colors hover:bg-indigo-700"
-                  href={housingSearchLinks[0].url}
-                  rel="noreferrer"
-                  target="_blank"
-                >
-                  <ExternalLink aria-hidden="true" className="h-4 w-4" />
-                  {tx("Explore apartments", "Wohnungen entdecken")}
-                </a>
-                <div className="mt-2 flex flex-wrap gap-2">
-                  {housingSearchLinks.slice(1).map((link) => (
-                    <a
-                      className="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-black text-slate-700 transition-colors hover:bg-slate-200"
-                      href={link.url}
-                      key={link.label}
-                      rel="noreferrer"
-                      target="_blank"
-                    >
-                      {link.label}
-                    </a>
-                  ))}
-                </div>
               </div>
             </section>
 
