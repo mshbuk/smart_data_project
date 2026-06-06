@@ -7,6 +7,7 @@ import {
   CalendarDays,
   Home,
   Map as MapIcon,
+  MessageCircle,
   SlidersHorizontal,
   User,
   type LucideIcon,
@@ -254,6 +255,19 @@ function App() {
     { view: "saved", label: tx("Compare", "Vergleich"), icon: BarChart3 },
     { view: "profile", label: tx("Profile", "Profil"), icon: User },
   ];
+  const pageTitle =
+    selectedDetailMatch?.district.name ??
+    (activeView === "events"
+      ? "Events"
+      : activeView === "map"
+        ? tx("Map", "Karte")
+        : activeView === "saved"
+          ? tx("Compare", "Vergleich")
+          : flowStep === "profile"
+            ? tx("District Finder", "Stadtteil-Finder")
+            : flowStep === "questionnaire"
+              ? tx("Questionnaire", "Fragebogen")
+              : tx("Your top districts", "Deine Top-Stadtteile"));
 
   if (!authGateCompleted) {
     return (
@@ -292,79 +306,59 @@ function App() {
 
   return (
     <I18nProvider language={language} setLanguage={setLanguage}>
-    <main className="min-h-screen bg-[#f4f7fb] pb-28 font-sans text-slate-950 antialiased md:pb-16">
-      <section
-        className="relative overflow-hidden bg-slate-950 bg-cover bg-center"
-        style={{
-          backgroundImage: `linear-gradient(180deg, rgba(15,23,42,0.25) 0%, rgba(15,23,42,0.70) 72%), url("${import.meta.env.BASE_URL}hamburg-harbor.png")`,
-        }}
-      >
-        <div className="mx-auto flex min-h-[350px] w-full max-w-[1080px] flex-col justify-end px-4 py-7 md:min-h-[430px] md:px-6 md:py-10">
-          <button
-            aria-label={tx("Open profile", "Profil öffnen")}
-            className="absolute right-4 top-4 grid h-12 w-12 place-items-center rounded-2xl bg-white/95 text-indigo-600 shadow-xl shadow-slate-950/20 backdrop-blur transition-colors hover:bg-indigo-50 md:right-6 md:top-6"
-            onClick={() => {
-              setSelectedDistrictId(null);
-              setActiveView("profile");
-            }}
-            type="button"
-          >
-            <User aria-hidden="true" className="h-6 w-6" strokeWidth={2.5} />
-          </button>
-
-          <div className="absolute right-20 top-4 grid grid-cols-2 rounded-2xl bg-white/90 p-1 text-xs font-black shadow-xl shadow-slate-950/20 backdrop-blur md:right-24 md:top-6">
-            {languages.map((option) => (
+    <main className="min-h-screen bg-[var(--moin-background)] pb-28 font-sans text-slate-950 antialiased">
+      <header className="sticky top-0 z-[1300] border-b border-slate-200 bg-white/95 backdrop-blur-xl">
+        <div className="mx-auto flex min-h-20 w-full max-w-[760px] items-center justify-between gap-3 px-4">
+          <div className="flex min-w-0 items-center gap-3">
+            {flowStep !== "welcome" && (
               <button
-                aria-pressed={language === option}
-                className={[
-                  "rounded-xl px-2.5 py-2 transition-colors",
-                  language === option ? "bg-indigo-600 text-white" : "text-slate-700 hover:bg-white",
-                ].join(" ")}
-                key={option}
-                onClick={() => setLanguage(option)}
+                aria-label={tx("Back", "Zurück")}
+                className="grid h-11 w-11 shrink-0 place-items-center rounded-full text-slate-950 hover:bg-slate-100"
+                onClick={() => {
+                  if (selectedDetailMatch) {
+                    setSelectedDistrictId(null);
+                    return;
+                  }
+                  if (activeView !== "results") {
+                    setActiveView("results");
+                    return;
+                  }
+                  setFlowStep("profile");
+                }}
                 type="button"
               >
-                {option.toUpperCase()}
+                <ArrowLeft aria-hidden="true" className="h-6 w-6" />
               </button>
-            ))}
+            )}
+            <div className="min-w-0">
+              <p className="text-xs font-black uppercase tracking-[0.12em] text-violet-600">Moin</p>
+              <h1 className="truncate text-2xl font-black leading-tight text-slate-950">{pageTitle}</h1>
+            </div>
           </div>
 
-          <div className="absolute left-4 top-4 flex gap-2 md:left-6 md:top-6">
-            <button
-              className="min-h-10 rounded-2xl bg-white/90 px-3 text-xs font-black text-slate-800 shadow-lg shadow-slate-950/15 backdrop-blur transition-colors hover:bg-white"
-              onClick={() => {
-                setSelectedDistrictId(null);
-                setActiveView("profile");
-              }}
-              type="button"
-            >
-              {tx("Sign in", "Anmelden")}
-            </button>
-            <button
-              className="min-h-10 rounded-2xl bg-indigo-600/95 px-3 text-xs font-black text-white shadow-lg shadow-indigo-950/20 backdrop-blur transition-colors hover:bg-indigo-500"
-              onClick={() => {
-                setSelectedDistrictId(null);
-                setActiveView("profile");
-              }}
-              type="button"
-            >
-              {tx("Register", "Registrieren")}
-            </button>
-          </div>
-
-          <div className="max-w-3xl">
-            <h1 className="text-5xl font-black leading-none text-white drop-shadow md:text-7xl">Moin</h1>
-            <p className="mt-4 max-w-2xl text-base leading-7 text-white/90 md:text-lg">
-              {tx(
-                "Find the Hamburg district that matches your lifestyle, budget, events, and priorities.",
-                "Finde den Hamburger Stadtteil, der zu deinem Lebensstil, Budget, deinen Events und Prioritäten passt.",
-              )}
-            </p>
+          <div className="flex shrink-0 items-center gap-3">
+            <MessageCircle aria-hidden="true" className="hidden h-7 w-7 text-slate-950 sm:block" />
+            <div className="grid grid-cols-2 rounded-full border border-slate-200 bg-white p-1 text-xs font-black shadow-sm">
+              {languages.map((option) => (
+                <button
+                  aria-pressed={language === option}
+                  className={[
+                    "rounded-full px-3 py-2 transition-colors",
+                    language === option ? "moin-gradient-primary text-white" : "text-slate-600 hover:bg-slate-100",
+                  ].join(" ")}
+                  key={option}
+                  onClick={() => setLanguage(option)}
+                  type="button"
+                >
+                  {option.toUpperCase()}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
-      </section>
+      </header>
 
-      <div className="mx-auto mt-6 w-full max-w-[1080px] px-3.5 md:px-6">
+      <div className="mx-auto w-full max-w-[760px] px-4 py-6">
         {flowStep === "welcome" && (
           <WelcomeIntro onBack={handleWelcomeBack} onStart={handleWelcomeStart} />
         )}
@@ -435,34 +429,35 @@ function App() {
 
         {flowStep === "recommendations" && (
           <>
+            {activeView === "results" && (
             <section className="mb-4 px-1">
-              <div className="grid gap-4 md:grid-cols-[1fr_auto] md:items-end">
+              <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
-                  <p className="text-xs font-black uppercase tracking-wide text-indigo-600">{tx("Live ranking", "Live-Ranking")}</p>
-                  <h2 className="m-0 mt-1 text-2xl font-black text-slate-950">{tx("Your recommendations", "Deine Empfehlungen")}</h2>
-                  <p className="mt-1 text-sm leading-6 text-slate-600">
+                  <p className="text-base font-medium text-slate-500">
                     {tx(
-                      `${matches.length} districts ranked by fit. Save favorites to compare them.`,
-                      `${matches.length} Stadtteile nach Passung sortiert. Speichere Favoriten für den Vergleich.`,
+                      "Based on your answers",
+                      "Basierend auf deinen Antworten",
                     )}
                   </p>
+                  {topMatch && (
+                    <p className="mt-1 text-sm font-bold text-slate-600">
+                      {tx("Top match", "Top-Treffer")}: <span className="text-violet-600">{topMatch.district.name}</span> · {topMatch.score}%
+                    </p>
+                  )}
                 </div>
 
                 {topMatch && (
-                  <div className="grid gap-2 sm:grid-cols-[1fr_auto_auto]">
-                    <div className="rounded-[1.25rem] border border-emerald-100 bg-emerald-50 px-4 py-3 text-sm font-bold text-emerald-800">
-                      {tx("Top match", "Top-Treffer")}: <span className="font-black">{topMatch.district.name}</span> ({topMatch.score}%)
-                    </div>
+                  <div className="flex flex-wrap gap-2">
                     <button
-                      className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 px-4 text-sm font-black text-white shadow-lg shadow-indigo-600/25 transition-transform hover:-translate-y-0.5"
+                      className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-slate-200 bg-white px-4 text-sm font-black text-slate-800 shadow-sm transition-colors hover:bg-slate-50"
                       onClick={openCriteriaEditor}
                       type="button"
                     >
-                      <SlidersHorizontal aria-hidden="true" className="h-4 w-4" />
-                      {tx("Edit criteria", "Kriterien bearbeiten")}
+                      <SlidersHorizontal aria-hidden="true" className="h-4 w-4 text-violet-600" />
+                      {tx("Adjust answers", "Antworten anpassen")}
                     </button>
                     <button
-                      className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-amber-400 px-4 text-sm font-black text-slate-950 shadow-lg shadow-amber-400/25 transition-transform hover:-translate-y-0.5 hover:bg-amber-300"
+                      className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full moin-gradient-primary px-4 text-sm font-black text-white shadow-lg shadow-violet-600/20 transition-transform hover:-translate-y-0.5"
                       onClick={() => {
                         setSelectedDistrictId(null);
                         setFlowStep("profile");
@@ -476,11 +471,12 @@ function App() {
                 )}
               </div>
             </section>
+            )}
 
             {!selectedDetailMatch && (
               <nav
                 aria-label={tx("Recommendation views", "Empfehlungsansichten")}
-                className="fixed inset-x-3 bottom-3 z-[1200] mx-auto max-w-[640px] rounded-[1.4rem] border border-white/80 bg-white/95 p-2 shadow-[0_18px_50px_rgba(15,23,42,0.2)] backdrop-blur-xl md:sticky md:inset-x-auto md:top-3 md:bottom-auto md:mb-4 md:max-w-none md:rounded-2xl"
+                className="fixed inset-x-3 bottom-3 z-[1200] mx-auto max-w-[640px] rounded-[1.4rem] border border-slate-200 bg-white/95 p-2 shadow-[0_18px_50px_rgba(15,23,42,0.14)] backdrop-blur-xl"
               >
                 <div className="grid grid-cols-5 gap-1.5">
                   {viewOptions.map((option) => {

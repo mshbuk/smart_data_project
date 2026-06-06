@@ -505,16 +505,16 @@ function OptionButton<T extends string>({
     <button
       aria-pressed={isSelected}
       className={[
-        "min-h-[112px] rounded-2xl border p-3 text-left transition-all",
+        "min-h-[112px] rounded-[1.25rem] border p-4 text-left transition-all",
         isSelected
-          ? "border-indigo-300 bg-indigo-50 ring-4 ring-indigo-100"
-          : "border-slate-100 bg-slate-50 hover:border-indigo-200 hover:bg-white",
+          ? "border-violet-500 bg-violet-50 ring-2 ring-violet-200"
+          : "border-slate-200 bg-white hover:border-violet-200 hover:bg-violet-50/40",
       ].join(" ")}
       onClick={onClick}
       type="button"
     >
       <span className="flex items-center gap-2">
-        <Icon aria-hidden="true" className="h-4 w-4 text-indigo-600" />
+        <Icon aria-hidden="true" className="h-4 w-4 text-violet-600" />
         <span className="text-sm font-black text-slate-950">
           {tx(choice.label, choiceTranslations[choice.label] ?? choice.label)}
         </span>
@@ -766,8 +766,8 @@ export function CustomQuestionnaire({ preferences, onBack, onChange, onNext }: C
 
   return (
     <section className="grid gap-4">
-      <div className="rounded-[1.6rem] border border-white/80 bg-white/95 p-5 shadow-[0_18px_45px_rgba(15,23,42,0.08)] md:p-6">
-        <p className="text-xs font-black uppercase tracking-wide text-indigo-600">{tx("Custom setup", "Eigene Auswahl")}</p>
+      <div className="rounded-[1.6rem] border border-slate-200 bg-white p-5 moin-card-shadow md:p-6">
+        <p className="text-xs font-black uppercase tracking-wide text-violet-600">{tx("Custom setup", "Eigene Auswahl")}</p>
         <h2 className="mt-1 text-3xl font-black leading-tight text-slate-950">{tx("Tell us how you live", "Erzähl uns, wie du lebst")}</h2>
         <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
           {tx(
@@ -776,7 +776,7 @@ export function CustomQuestionnaire({ preferences, onBack, onChange, onNext }: C
           )}
         </p>
         <div className="mt-4 h-2 overflow-hidden rounded-full bg-slate-100">
-          <div className="h-full rounded-full bg-indigo-600 transition-all" style={{ width: `${progressPercent}%` }} />
+          <div className="h-full rounded-full moin-gradient-primary transition-all" style={{ width: `${progressPercent}%` }} />
         </div>
         <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs font-black text-slate-500">
           <span>{tx(`Question ${currentStepIndex + 1} of ${steps.length}`, `Frage ${currentStepIndex + 1} von ${steps.length}`)}</span>
@@ -784,13 +784,13 @@ export function CustomQuestionnaire({ preferences, onBack, onChange, onNext }: C
         </div>
       </div>
 
-      <article className="rounded-[1.45rem] border border-white/80 bg-white/90 p-4 shadow-[0_14px_34px_rgba(15,23,42,0.07)]">
+      <article className="rounded-[1.6rem] border border-slate-200 bg-white p-5 moin-card-shadow">
         <div className="flex items-start gap-3">
-          <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-indigo-600 text-white">
+          <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl moin-gradient-primary text-white">
             <CurrentStepIcon aria-hidden="true" className="h-5 w-5" />
           </span>
           <div>
-            <p className="text-xs font-black uppercase tracking-wide text-indigo-600">
+            <p className="text-xs font-black uppercase tracking-wide text-violet-600">
               {tx(currentStepMeta.eyebrow, currentStepMeta.eyebrowDe)}
             </p>
             <h3 className="mt-1 text-xl font-black text-slate-950">{tx(currentStepMeta.title, currentStepMeta.titleDe)}</h3>
@@ -799,9 +799,9 @@ export function CustomQuestionnaire({ preferences, onBack, onChange, onNext }: C
         {renderStepContent()}
       </article>
 
-      <div className="sticky bottom-4 z-20 grid gap-2 rounded-[1.35rem] border border-white/80 bg-white/95 p-3 shadow-[0_18px_50px_rgba(15,23,42,0.16)] backdrop-blur md:grid-cols-[auto_1fr_auto] md:items-center">
+      <div className="sticky bottom-4 z-20 grid gap-2 rounded-[1.45rem] border border-slate-200 bg-white/95 p-3 moin-soft-shadow backdrop-blur md:grid-cols-[auto_1fr_auto] md:items-center">
         <button
-          className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-slate-100 px-4 text-sm font-black text-slate-700 transition-colors hover:bg-slate-200"
+          className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-slate-100 px-5 text-sm font-black text-slate-700 transition-colors hover:bg-slate-200"
           onClick={goBack}
           type="button"
         >
@@ -814,7 +814,7 @@ export function CustomQuestionnaire({ preferences, onBack, onChange, onNext }: C
             : tx("Choose an answer to continue.", "Wähle eine Antwort, um weiterzugehen.")}
         </p>
         <button
-          className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-indigo-600 px-5 text-sm font-black text-white shadow-lg shadow-indigo-600/20 transition-colors hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-45"
+          className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full moin-gradient-primary px-6 text-sm font-black text-white shadow-lg shadow-violet-600/20 transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-45"
           disabled={!isCurrentStepComplete || (isLastStep && !isComplete)}
           onClick={goForward}
           type="button"

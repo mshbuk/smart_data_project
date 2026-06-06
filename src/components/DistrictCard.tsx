@@ -1,18 +1,5 @@
-import {
-  AlertCircle,
-  Check,
-  Euro,
-  GraduationCap,
-  Heart,
-  Info,
-  Shield,
-  Train,
-  TreePine,
-  Volume2,
-  type LucideIcon,
-} from "lucide-react";
+import { Heart, Info } from "lucide-react";
 import type { DistrictMatch } from "../types/District";
-import { formatScore } from "../utils/districtInsights";
 import { useI18n } from "../i18n";
 
 type DistrictCardProps = {
@@ -21,13 +8,6 @@ type DistrictCardProps = {
   onToggleSave: (districtId: string) => void;
   onOpenDetails?: (districtId: string) => void;
   rank: number;
-};
-
-type StatItem = {
-  label: string;
-  value: string;
-  icon: LucideIcon;
-  color: string;
 };
 
 function getScoreTone(score: number, tx: (english: string, german: string) => string) {
@@ -58,23 +38,14 @@ export function DistrictCard({ match, isSaved, onToggleSave, onOpenDetails, rank
   const { language, tx } = useI18n();
   const { district } = match;
   const tone = getScoreTone(match.score, tx);
-
-  const stats: StatItem[] = [
-    {
-      label: tx("Rent", "Miete"),
-      value: `EUR ${new Intl.NumberFormat(language === "de" ? "de-DE" : "en-US").format(district.rentPerSqm)}/${tx("sqm", "qm")}`,
-      icon: Euro,
-      color: "#059669",
-    },
-    { label: tx("Safety", "Sicherheit"), value: `${formatScore(district.safetyScore)}/10`, icon: Shield, color: "#2563eb" },
-    { label: tx("Transport", "Verkehr"), value: `${formatScore(district.publicTransportScore)}/10`, icon: Train, color: "#0891b2" },
-    { label: tx("Green", "Grün"), value: `${formatScore(district.greenScore)}/10`, icon: TreePine, color: "#16a34a" },
-    { label: tx("Schools", "Schulen"), value: `${formatScore(district.schoolScore)}/10`, icon: GraduationCap, color: "#d97706" },
-    { label: tx("Quiet", "Ruhe"), value: `${formatScore(district.quietnessScore)}/10`, icon: Volume2, color: "#7c3aed" },
-  ];
+  const rentFormatter = new Intl.NumberFormat(language === "de" ? "de-DE" : "en-US", {
+    maximumFractionDigits: 2,
+    minimumFractionDigits: 0,
+  });
+  const shortReason = match.strengths[0] ?? district.shortDescription;
 
   return (
-    <article className="overflow-hidden rounded-[1.6rem] border border-slate-200 bg-white shadow-[0_16px_42px_rgba(15,23,42,0.08)] transition-transform duration-200 hover:-translate-y-0.5">
+    <article className="overflow-hidden rounded-[1.6rem] border border-slate-200 bg-white moin-card-shadow transition-transform duration-200 hover:-translate-y-0.5">
       <div className="grid">
         <button
           aria-label={tx(`Open ${district.name} details`, `${district.name} Details öffnen`)}
@@ -96,7 +67,7 @@ export function DistrictCard({ match, isSaved, onToggleSave, onOpenDetails, rank
           <div className="absolute left-4 top-4 rounded-2xl bg-white/90 px-3 py-2 text-sm font-black text-slate-950 shadow-lg backdrop-blur">
             #{rank}
           </div>
-          <div className={`absolute bottom-4 left-4 rounded-2xl px-3 py-2 font-black shadow-lg ${tone.badge}`}>
+          <div className="absolute right-4 top-4 grid h-16 w-16 place-items-center rounded-full bg-slate-500/75 text-center text-white shadow-lg backdrop-blur">
             <span className="block text-2xl leading-none">{match.score}%</span>
             <span className="mt-1 block text-[0.68rem] uppercase tracking-wide">Match</span>
           </div>
@@ -110,9 +81,7 @@ export function DistrictCard({ match, isSaved, onToggleSave, onOpenDetails, rank
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
               <h3 className="mt-1 text-2xl font-black leading-tight text-slate-950">{district.name}</h3>
-              <p className="mt-2 text-sm leading-6 text-slate-600">
-                {tx(district.shortDescription, district.shortDescription)}
-              </p>
+              <p className="mt-3 text-base leading-6 text-slate-500">{shortReason}</p>
             </div>
             <button
               aria-label={
@@ -121,8 +90,8 @@ export function DistrictCard({ match, isSaved, onToggleSave, onOpenDetails, rank
                   : tx(`Save ${district.name}`, `${district.name} speichern`)
               }
               className={[
-                "grid h-11 w-11 shrink-0 place-items-center rounded-2xl border transition-all",
-                "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600",
+                "grid h-11 w-11 shrink-0 place-items-center rounded-full border transition-all",
+                "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600",
                 isSaved
                   ? "border-rose-200 bg-rose-50 text-rose-500"
                   : "border-slate-200 bg-slate-50 text-slate-400 hover:border-rose-200 hover:bg-rose-50 hover:text-rose-500",
@@ -134,62 +103,6 @@ export function DistrictCard({ match, isSaved, onToggleSave, onOpenDetails, rank
             </button>
           </div>
 
-          <p className="mt-4 rounded-2xl bg-slate-50 px-4 py-3 text-sm leading-6 text-slate-700">{match.explanation}</p>
-
-          <div className="mt-4 grid grid-cols-2 gap-2 md:grid-cols-3">
-            {stats.map((stat) => {
-              const Icon = stat.icon;
-
-              return (
-                <div className="flex min-w-0 items-center gap-2 rounded-2xl bg-slate-50 px-3 py-2" key={stat.label}>
-                  <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-white" style={{ color: stat.color }}>
-                    <Icon aria-hidden="true" className="h-4 w-4" strokeWidth={2.4} />
-                  </span>
-                  <span className="min-w-0">
-                    <span className="block text-[0.68rem] font-black uppercase tracking-wide text-slate-400">{stat.label}</span>
-                    <span className="block truncate text-sm font-black text-slate-800">{stat.value}</span>
-                  </span>
-                </div>
-              );
-            })}
-          </div>
-
-          <div className="mt-4 grid gap-3 md:grid-cols-2">
-            <div>
-              <div className="mb-2 flex items-center gap-2 text-sm font-black text-slate-900">
-                <Check aria-hidden="true" className="h-4 w-4 text-emerald-500" />
-                {tx("Best fits", "Passt besonders")}
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {match.strengths.map((strength) => (
-                  <span className="rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-700" key={strength}>
-                    {strength}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            <div>
-              <div className="mb-2 flex items-center gap-2 text-sm font-black text-slate-900">
-                <AlertCircle aria-hidden="true" className="h-4 w-4 text-rose-500" />
-                {tx("Trade-offs", "Kompromisse")}
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {match.tradeoffs.length ? (
-                  match.tradeoffs.map((tradeoff) => (
-                    <span className="rounded-full bg-rose-50 px-3 py-1.5 text-xs font-bold text-rose-700" key={tradeoff}>
-                      {tradeoff}
-                    </span>
-                  ))
-                ) : (
-                  <span className="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-bold text-slate-600">
-                    {tx("No major trade-off", "Kein grosser Kompromiss")}
-                  </span>
-                )}
-              </div>
-            </div>
-          </div>
-
           <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
             <div className="flex flex-wrap gap-2">
               {match.highlights.slice(0, 3).map((highlight) => (
@@ -197,9 +110,12 @@ export function DistrictCard({ match, isSaved, onToggleSave, onOpenDetails, rank
                   {highlight}
                 </span>
               ))}
+              <span className="rounded-full bg-emerald-100 px-3 py-1.5 text-xs font-black text-emerald-700">
+                Ø {rentFormatter.format(district.rentPerSqm)} €/m²
+              </span>
             </div>
             <button
-              className="inline-flex min-h-12 w-full items-center justify-center rounded-2xl bg-gradient-to-r from-violet-600 to-purple-600 px-5 text-sm font-black text-white shadow-lg shadow-violet-600/25 transition-transform hover:-translate-y-0.5"
+              className="inline-flex min-h-12 w-full items-center justify-center rounded-full moin-gradient-primary px-5 text-sm font-black text-white shadow-lg shadow-violet-600/20 transition-transform hover:-translate-y-0.5"
               onClick={() => onOpenDetails?.(district.id)}
               type="button"
             >

@@ -1,4 +1,4 @@
-import { LogIn, MapPinned, UserPlus, Users } from "lucide-react";
+import { ArrowLeft, MessageCircle } from "lucide-react";
 import { useState } from "react";
 import { useI18n } from "../i18n";
 
@@ -8,140 +8,155 @@ type AuthGateProps = {
   onContinue: (mode: AuthGateMode) => void;
 };
 
+type AuthScreen = "landing" | "login" | "register";
+
 export function AuthGate({ onContinue }: AuthGateProps) {
   const { language, setLanguage, tx } = useI18n();
-  const [mode, setMode] = useState<Exclude<AuthGateMode, "guest">>("login");
-  const isLogin = mode === "login";
+  const [screen, setScreen] = useState<AuthScreen>("landing");
+  const isRegister = screen === "register";
+
+  const languageSwitch = (
+    <div className="grid grid-cols-2 rounded-full border border-slate-200 bg-white/90 p-1 text-sm font-bold shadow-sm backdrop-blur">
+      {(["de", "en"] as const).map((option) => (
+        <button
+          aria-pressed={language === option}
+          className={[
+            "rounded-full px-4 py-2 transition-colors",
+            language === option ? "moin-gradient-primary text-white shadow-sm" : "text-slate-600 hover:bg-slate-100",
+          ].join(" ")}
+          key={option}
+          onClick={() => setLanguage(option)}
+          type="button"
+        >
+          {option.toUpperCase()}
+        </button>
+      ))}
+    </div>
+  );
+
+  if (screen === "landing") {
+    return (
+      <main
+        className="min-h-screen bg-slate-950 bg-cover bg-center font-sans text-white antialiased"
+        style={{
+          backgroundImage: `var(--moin-gradient-hero), url("${import.meta.env.BASE_URL}hamburg-harbor.png")`,
+        }}
+      >
+        <section className="mx-auto flex min-h-screen w-full max-w-[760px] flex-col justify-between px-6 py-8">
+          <div className="flex justify-end">{languageSwitch}</div>
+
+          <div className="pb-10">
+            <div className="inline-flex items-center gap-2 rounded-full bg-black/35 px-3 py-1.5 text-xs font-bold uppercase tracking-[0.12em] backdrop-blur">
+              <span className="h-2 w-2 rounded-full bg-white" />
+              Hamburg Finder
+            </div>
+            <h1 className="mt-6 max-w-[680px] text-5xl font-black leading-[0.98] md:text-7xl">
+              {tx(
+                "Find the Hamburg district that fits you.",
+                "Finde den Hamburger Stadtteil, der zu dir passt.",
+              )}
+            </h1>
+            <p className="mt-5 max-w-[620px] text-xl font-medium leading-8 text-white/88">
+              {tx(
+                "We compare districts with data and your priorities for better decisions.",
+                "Wir vergleichen Stadtteile mit Daten und deinen Prioritäten für bessere Entscheidungen.",
+              )}
+            </p>
+
+            <div className="mt-10 grid gap-4">
+              <button
+                className="moin-gradient-primary min-h-16 rounded-full px-6 text-lg font-black text-white shadow-2xl shadow-violet-950/30 transition-transform hover:-translate-y-0.5"
+                onClick={() => setScreen("register")}
+                type="button"
+              >
+                {tx("Register for free", "Kostenlos registrieren")}
+              </button>
+              <button
+                className="min-h-16 rounded-full border border-white/55 bg-white/10 px-6 text-lg font-black text-white backdrop-blur transition-colors hover:bg-white/18"
+                onClick={() => setScreen("login")}
+                type="button"
+              >
+                {tx("Log in", "Anmelden")}
+              </button>
+              <button
+                className="min-h-12 rounded-full px-6 text-lg font-bold text-white/82 transition-colors hover:text-white"
+                onClick={() => onContinue("guest")}
+                type="button"
+              >
+                {tx("Start as guest", "Als Gast starten")}
+              </button>
+            </div>
+          </div>
+        </section>
+      </main>
+    );
+  }
 
   return (
-    <main
-      className="min-h-screen bg-slate-950 bg-cover bg-center font-sans text-slate-950 antialiased"
-      style={{
-        backgroundImage: `linear-gradient(180deg, rgba(15,23,42,0.42) 0%, rgba(15,23,42,0.84) 100%), url("${import.meta.env.BASE_URL}hamburg-harbor.png")`,
-      }}
-    >
-      <section className="mx-auto grid min-h-screen w-full max-w-[1080px] content-center gap-5 px-4 py-8 md:grid-cols-[0.9fr_1.1fr] md:items-center md:px-6">
-        <div className="text-white">
-          <div className="inline-flex items-center gap-2 rounded-2xl bg-white/15 px-3 py-2 text-xs font-black uppercase tracking-wide backdrop-blur">
-            <MapPinned aria-hidden="true" className="h-4 w-4" />
-            Moin
+    <main className="min-h-screen bg-[var(--moin-background)] font-sans text-slate-950 antialiased">
+      <header className="border-b border-slate-200 bg-white/90 backdrop-blur">
+        <div className="mx-auto flex min-h-20 w-full max-w-[760px] items-center justify-between gap-3 px-5">
+          <button
+            className="inline-flex items-center gap-3 text-2xl font-black text-slate-950"
+            onClick={() => setScreen("landing")}
+            type="button"
+          >
+            <ArrowLeft aria-hidden="true" className="h-7 w-7" />
+            {isRegister ? tx("Register", "Registrieren") : tx("Log in", "Anmelden")}
+          </button>
+          <div className="flex items-center gap-4">
+            <MessageCircle aria-hidden="true" className="h-8 w-8 text-slate-950" strokeWidth={2.2} />
+            {languageSwitch}
           </div>
-          <h1 className="mt-5 max-w-xl text-5xl font-black leading-none drop-shadow md:text-7xl">
-            {tx("Find your Hamburg fit", "Finde deinen Hamburger Stadtteil")}
-          </h1>
-          <p className="mt-5 max-w-lg text-base leading-7 text-white/85 md:text-lg">
-            {tx(
-              "Sign in for the demo flow, create a demo account, or continue as a guest. The recommendation logic stays the same for all options.",
-              "Melde dich für den Demo-Flow an, erstelle ein Demo-Konto oder fahre als Gast fort. Die Empfehlungslogik bleibt für alle Optionen gleich.",
-            )}
-          </p>
         </div>
+      </header>
 
-        <div className="rounded-[1.8rem] border border-white/70 bg-white/95 p-5 shadow-[0_28px_90px_rgba(15,23,42,0.32)] backdrop-blur md:p-6">
-          <div className="flex items-center justify-between gap-3">
-            <div>
-            <p className="text-xs font-black uppercase tracking-wide text-violet-600">Moin</p>
-              <h2 className="mt-1 text-3xl font-black text-slate-950">
-                {isLogin ? tx("Log in", "Anmelden") : tx("Create account", "Registrieren")}
-              </h2>
-            </div>
-            <div className="grid grid-cols-2 rounded-2xl bg-slate-100 p-1 text-xs font-black">
-              {(["de", "en"] as const).map((option) => (
-                <button
-                  aria-pressed={language === option}
-                  className={[
-                    "rounded-xl px-2.5 py-2 transition-colors",
-                    language === option ? "bg-violet-600 text-white" : "text-slate-700 hover:bg-white",
-                  ].join(" ")}
-                  key={option}
-                  onClick={() => setLanguage(option)}
-                  type="button"
-                >
-                  {option.toUpperCase()}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className="mt-5 grid grid-cols-2 gap-2 rounded-2xl bg-slate-100 p-1">
-            <button
-              aria-pressed={isLogin}
-              className={[
-                "inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-3 text-sm font-black transition-colors",
-                isLogin ? "bg-white text-violet-600 shadow-sm" : "text-slate-600 hover:bg-white/70",
-              ].join(" ")}
-              onClick={() => setMode("login")}
-              type="button"
-            >
-              <LogIn aria-hidden="true" className="h-4 w-4" />
-              {tx("Log in", "Anmelden")}
-            </button>
-            <button
-              aria-pressed={!isLogin}
-              className={[
-                "inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-3 text-sm font-black transition-colors",
-                !isLogin ? "bg-white text-violet-600 shadow-sm" : "text-slate-600 hover:bg-white/70",
-              ].join(" ")}
-              onClick={() => setMode("register")}
-              type="button"
-            >
-              <UserPlus aria-hidden="true" className="h-4 w-4" />
-              {tx("Register", "Registrieren")}
-            </button>
-          </div>
-
-          <div className="mt-5 grid gap-3">
-            <label className="grid gap-1.5 text-sm font-black text-slate-700">
-              E-Mail
+      <section className="mx-auto w-full max-w-[760px] px-6 py-16">
+        <div className="mx-auto grid max-w-[520px] gap-7">
+          {isRegister && (
+            <label className="grid gap-2 text-base font-bold text-slate-600">
+              {tx("Name", "Name")}
               <input
-                className="min-h-12 rounded-2xl border border-slate-200 bg-slate-50 px-4 text-sm font-bold text-slate-950 outline-none transition focus:border-violet-300 focus:ring-4 focus:ring-violet-100"
-                placeholder="demo@hamburg.de"
-                type="email"
+                className="min-h-16 rounded-[1.4rem] border border-slate-200 bg-white px-5 text-xl font-medium text-slate-950 outline-none transition focus:border-violet-300 focus:ring-4 focus:ring-violet-100"
+                placeholder={tx("First name", "Vorname")}
+                type="text"
               />
             </label>
-            <label className="grid gap-1.5 text-sm font-black text-slate-700">
-              {tx("Password", "Passwort")}
-              <input
-                className="min-h-12 rounded-2xl border border-slate-200 bg-slate-50 px-4 text-sm font-bold text-slate-950 outline-none transition focus:border-violet-300 focus:ring-4 focus:ring-violet-100"
-                placeholder="••••••••"
-                type="password"
-              />
-            </label>
-            {!isLogin && (
-              <label className="grid gap-1.5 text-sm font-black text-slate-700">
-                {tx("Name", "Name")}
-                <input
-                  className="min-h-12 rounded-2xl border border-slate-200 bg-slate-50 px-4 text-sm font-bold text-slate-950 outline-none transition focus:border-violet-300 focus:ring-4 focus:ring-violet-100"
-                  placeholder={tx("Demo user", "Demo-Nutzer/in")}
-                  type="text"
-                />
-              </label>
-            )}
-          </div>
+          )}
+          <label className="grid gap-2 text-base font-bold text-slate-600">
+            E-Mail
+            <input
+              className="min-h-16 rounded-[1.4rem] border border-slate-200 bg-white px-5 text-xl font-medium text-slate-950 outline-none transition focus:border-violet-300 focus:ring-4 focus:ring-violet-100"
+              placeholder="name@beispiel.de"
+              type="email"
+            />
+          </label>
+          <label className="grid gap-2 text-base font-bold text-slate-600">
+            {tx("Password", "Passwort")}
+            <input
+              className="min-h-16 rounded-[1.4rem] border border-slate-200 bg-white px-5 text-xl font-medium text-slate-950 outline-none transition focus:border-violet-300 focus:ring-4 focus:ring-violet-100"
+              placeholder="••••••••"
+              type="password"
+            />
+          </label>
 
           <button
-            className="mt-5 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-violet-600 to-purple-600 px-4 text-sm font-black text-white shadow-lg shadow-violet-600/25 transition-transform hover:-translate-y-0.5"
-            onClick={() => onContinue(mode)}
+            className="moin-gradient-primary mt-2 min-h-16 rounded-full px-6 text-lg font-black text-white shadow-xl shadow-violet-600/20 transition-transform hover:-translate-y-0.5"
+            onClick={() => onContinue(isRegister ? "register" : "login")}
             type="button"
           >
-            {isLogin ? <LogIn aria-hidden="true" className="h-4 w-4" /> : <UserPlus aria-hidden="true" className="h-4 w-4" />}
-            {isLogin ? tx("Log in", "Anmelden") : tx("Register for free", "Kostenlos registrieren")}
+            {isRegister ? tx("Register", "Registrieren") : tx("Log in", "Anmelden")}
           </button>
 
-          <button
-            className="mt-3 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-amber-400 px-4 text-sm font-black text-slate-950 shadow-lg shadow-amber-400/20 transition-colors hover:bg-amber-300"
-            onClick={() => onContinue("guest")}
-            type="button"
-          >
-            <Users aria-hidden="true" className="h-4 w-4" />
-            {tx("Continue as guest", "Als Gast fortfahren")}
-          </button>
-
-          <p className="mt-4 text-center text-xs font-bold leading-5 text-slate-500">
-            {tx(
-              "Demo only: these buttons do not create a real account yet.",
-              "Nur Demo: Diese Buttons erstellen noch kein echtes Konto.",
-            )}
+          <p className="text-center text-lg font-medium text-slate-500">
+            {isRegister ? tx("Already have an account?", "Schon ein Konto?") : tx("No account yet?", "Noch kein Konto?")}{" "}
+            <button
+              className="font-black text-violet-600"
+              onClick={() => setScreen(isRegister ? "login" : "register")}
+              type="button"
+            >
+              {isRegister ? tx("Log in", "Anmelden") : tx("Register", "Registrieren")}
+            </button>
           </p>
         </div>
       </section>
