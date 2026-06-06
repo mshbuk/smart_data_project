@@ -1,0 +1,324 @@
+[
+  {
+    "id": "methfesselfest-2026",
+    "title": "Methfesselfest",
+    "category": "music",
+    "district": "Eimsbüttel",
+    "venue": "Else-Rauch-Platz",
+    "address": "Else-Rauch-Platz, 20255 Hamburg",
+    "latitude": 53.57325,
+    "longitude": 9.9524,
+    "dates": ["2026-07-03", "2026-07-04"],
+    "time": "Ganztägig",
+    "price": "Kostenlos",
+    "description": "Eimsbüttels legendäres Stadtteilfest seit über 50 Jahren. Livemusik von Indie bis HipHop, Lesungen, Kinderprogramm und politische Podien auf dem Else-Rauch-Platz.",
+    "sourceLabel": "Methfesselfest – Mit Vergnügen Position beziehen",
+    "sourceUrl": "https://www.google.com/maps/place/Else-Rauch-Platz,+20255+Hamburg",
+    "mapUrl": "https://www.google.com/maps/place/Else-Rauch-Platz,+20255+Hamburg",
+    "imageUrl": "https://images.pexels.com/photos/1388030/pexels-photo-1388030.jpeg?auto=compress&cs=tinysrgb&w=900",
+    "attendees": 42,
+    "comments": [
+      {
+        "name": "Lena M.",
+        "bio": "Neu in Hamburg, liebt Stadtteilfeste",
+        "avatar": "👩‍🦱",
+        "message": "Ich war letztes Jahr da und die Stimmung war super. Wer kommt Freitag mit?",
+        "likes": 14
+      },
+      {
+        "name": "Jonas K.",
+        "bio": "Eimsbüttel-Fan",
+        "avatar": "🧑",
+        "message": "Guter Ort, um Leute aus dem Viertel kennenzulernen.",
+        "likes": 8
+      }
+    ]
+  },
+  {
+    "id": "schanzenzelt-soli-konzert-2026",
+    "title": "Schanzenzelt Soli-Konzert",
+    "category": "music",
+    "district": "Sternschanze",
+    "venue": "Schanzenzelt",
+    "address": "Schanzenzelt, 20357 Hamburg",
+    "latitude": 53.562,
+    "longitude": 9.9702,
+    "dates": ["2026-07-03"],
+    "time": "Ganztägig",
+    "price": "Kostenlos",
+    "description": "Benefiz-Konzert zur Rettung des Schanzenzelts. Seit 1992 steht das Zelt am Fuß des Wasserturms für Stadtteilkultur pur.",
+    "sourceLabel": "Schanzenzelt - hamburg.de",
+    "sourceUrl": "https://www.hamburg.de/",
+    "mapUrl": "https://www.google.com/maps/place/Schanzenzelt,+20357+Hamburg",
+    "imageUrl": "https://images.pexels.com/photos/1190298/pexels-photo-1190298.jpeg?auto=compress&cs=tinysrgb&w=900",
+    "attendees": 31,
+    "comments": [
+      {
+        "name": "Mira S.",
+        "bio": "Kultur und Konzerte",
+        "avatar": "👩",
+        "message": "Schanzenzelt klingt perfekt für einen Sommerabend.",
+        "likes": 6
+      }
+    ]
+  },
+  {
+    "id": "ms-dockville-2026",
+    "title": "MS Dockville Festival",
+    "category": "music",
+    "district": "Wilhelmsburg",
+    "venue": "Schlengendeich",
+    "address": "Schlengendeich 12, 21107 Hamburg",
+    "latitude": 53.5031,
+    "longitude": 9.9882,
+    "dates": ["2026-08-14", "2026-08-15"],
+    "time": "Ganztägig",
+    "price": "ab 125 €",
+    "description": "Zwei Tage Indie, Elektro und HipHop direkt an der Elbe in Wilhelmsburg. Dazu Kunstinstallationen, Workshops und Sonnenuntergänge am Hafen.",
+    "sourceLabel": "MS Dockville",
+    "sourceUrl": "https://kopfundsteine.shop/category/msdockville",
+    "mapUrl": "https://www.google.com/maps/place/Schlengendeich+12,+21107+Hamburg",
+    "imageUrl": "https://images.pexels.com/photos/167636/pexels-photo-167636.jpeg?auto=compress&cs=tinysrgb&w=900",
+    "attendees": 88,
+    "comments": [
+      {
+        "name": "Tom B.",
+        "bio": "Festivalgruppe gesucht",
+        "avatar": "🧑🏾",
+        "message": "Ich gehe Samstag hin. Hat jemand Lust auf eine kleine Gruppe?",
+        "likes": 18
+      }
+    ]
+  },
+  {
+    "id": "isemarkt-sommer-2026",
+    "title": "Isemarkt",
+    "category": "food",
+    "district": "Eimsbüttel",
+    "venue": "Isemarkt",
+    "address": "Isemarkt, Hamburg",
+    "latitude": 53.580913,
+    "longitude": 9.9810533,
+    "dates": ["2026-06-30", "2026-07-03", "2026-07-07", "2026-07-10", "2026-07-14", "2026-07-17"],
+    "time": "08:30–14:00",
+    "price": "Kostenlos",
+    "description": "Einer der längsten und schönsten Freiluft-Wochenmärkte Europas, direkt unter dem U3-Viadukt. Frisches Obst, Käse, Blumen, Fisch und Feinkost.",
+    "sourceLabel": "Isemarkt",
+    "sourceUrl": "https://www.google.com/maps/place/Isemarkt/@53.580913,9.9784784,17z",
+    "mapUrl": "https://www.google.com/maps/place/Isemarkt/@53.580913,9.9784784,17z",
+    "imageUrl": "https://images.pexels.com/photos/375897/pexels-photo-375897.jpeg?auto=compress&cs=tinysrgb&w=900",
+    "attendees": 56,
+    "comments": [
+      {
+        "name": "Sofia R.",
+        "bio": "Foodie und Bloggerin",
+        "avatar": "👵",
+        "message": "Perfekt für Samstagvormittag. Der Käse-Stand ist super.",
+        "likes": 9
+      },
+      {
+        "name": "Lena M.",
+        "bio": "Neu in Hamburg",
+        "avatar": "👩‍🦱",
+        "message": "Ich suche jemanden zum Mitgehen und Kaffee danach.",
+        "likes": 7
+      }
+    ]
+  },
+  {
+    "id": "kreativhaus-flohmarkt-2026",
+    "title": "Kreativhaus Flohmarkt mit Hofcafé",
+    "category": "food",
+    "district": "Eimsbüttel",
+    "venue": "Kreativhaus Eimsbüttel",
+    "address": "Kreativhaus Eimsbüttel, Hamburg",
+    "latitude": 53.5784353,
+    "longitude": 9.9527584,
+    "dates": ["2026-07-04", "2026-08-01", "2026-09-05", "2026-10-03"],
+    "time": "11:00–16:00",
+    "price": "Kostenlos",
+    "description": "Gemütlicher Hofflohmarkt auf dem Schulhof des Kreativhauses. Dazu ein großes Angebot an selbstgebackenem Kuchen.",
+    "sourceLabel": "Kreativhaus Eimsbüttel",
+    "sourceUrl": "https://www.kreativhaus-eimsbuettel.de/seite/613574/flohmarkt.html",
+    "mapUrl": "https://www.google.com/maps/place/Kreativhaus+Eimsb%C3%BCttel",
+    "imageUrl": "https://images.pexels.com/photos/1381556/pexels-photo-1381556.jpeg?auto=compress&cs=tinysrgb&w=900",
+    "attendees": 27,
+    "comments": [
+      {
+        "name": "Anna P.",
+        "bio": "Vintage und Kuchen",
+        "avatar": "👩🏻",
+        "message": "Der Flohmarkt ist klein, aber sehr herzlich.",
+        "likes": 5
+      }
+    ]
+  },
+  {
+    "id": "hamburger-sommerdom-2026",
+    "title": "Hamburger Sommerdom",
+    "category": "food",
+    "district": "St. Pauli",
+    "venue": "Heiligengeistfeld",
+    "address": "Heiligengeistfeld, 20359 Hamburg",
+    "latitude": 53.55305,
+    "longitude": 9.97076,
+    "dates": ["2026-07-24", "2026-07-25", "2026-07-26", "2026-07-27", "2026-07-28", "2026-07-29", "2026-07-30", "2026-07-31", "2026-08-01", "2026-08-02", "2026-08-03", "2026-08-04", "2026-08-05", "2026-08-06", "2026-08-07", "2026-08-08", "2026-08-09", "2026-08-10", "2026-08-11", "2026-08-12", "2026-08-13", "2026-08-14", "2026-08-15", "2026-08-16", "2026-08-17", "2026-08-18", "2026-08-19", "2026-08-20", "2026-08-21", "2026-08-22", "2026-08-23", "2026-08-24", "2026-08-25", "2026-08-26", "2026-08-27", "2026-08-28", "2026-08-29", "2026-08-30"],
+    "time": "Mo–Sa ab 15:00, So ab 14:00",
+    "price": "Eintritt frei",
+    "description": "Norddeutschlands größtes Volksfest auf dem Heiligengeistfeld. DOM-Leckereien, Fahrgeschäfte, Feuerwerk und Familientag.",
+    "sourceLabel": "Hamburger DOM - hamburg.de",
+    "sourceUrl": "https://www.hamburg.de/dom/",
+    "mapUrl": "https://www.google.com/maps/place/Heiligengeistfeld,+20359+Hamburg",
+    "imageUrl": "https://images.pexels.com/photos/1388007/pexels-photo-1388007.jpeg?auto=compress&cs=tinysrgb&w=900",
+    "attendees": 134,
+    "comments": [
+      {
+        "name": "Jonas K.",
+        "bio": "Barista aus Eppendorf",
+        "avatar": "👩",
+        "message": "Ich gehe am Mittwoch wegen Familientag. Wer ist dabei?",
+        "likes": 8
+      }
+    ]
+  },
+  {
+    "id": "founders-running-club-hamburg-2026",
+    "title": "Founders Running Club Hamburg",
+    "category": "sport",
+    "district": "Hamburg-Altstadt",
+    "venue": "Hamburg Innenstadt",
+    "address": "Hamburg Innenstadt",
+    "latitude": 53.5506,
+    "longitude": 9.9937,
+    "dates": ["2026-06-27", "2026-07-04", "2026-07-11", "2026-07-18", "2026-07-25", "2026-08-01"],
+    "time": "09:30",
+    "price": "Kostenlos",
+    "description": "Lockerer Samstagslauf für Gründer, Tech-Leute und Kreative. Jedes Tempo willkommen. Danach Kaffee und Gespräche.",
+    "sourceLabel": "Founders Running Club :: Hamburg | Meetup",
+    "sourceUrl": "https://www.meetup.com/",
+    "mapUrl": "https://www.google.com/maps/search/Founders+Running+Club+Hamburg",
+    "imageUrl": "https://images.pexels.com/photos/2402777/pexels-photo-2402777.jpeg?auto=compress&cs=tinysrgb&w=900",
+    "attendees": 24,
+    "comments": [
+      {
+        "name": "Mats H.",
+        "bio": "Läuft langsam, aber gerne",
+        "avatar": "🏃",
+        "message": "Ich bin neu dabei. Gibt es eine lockere Gruppe?",
+        "likes": 4
+      }
+    ]
+  },
+  {
+    "id": "parksport-wassermannpark-2026",
+    "title": "ParkSport Wassermannpark Schnelsen",
+    "category": "sport",
+    "district": "Schnelsen",
+    "venue": "Wassermannpark",
+    "address": "Wassermannpark, Hamburg-Schnelsen",
+    "latitude": 53.6451025,
+    "longitude": 9.9177236,
+    "dates": ["2026-06-28", "2026-07-05", "2026-07-12", "2026-07-19", "2026-07-26", "2026-08-02", "2026-08-09", "2026-08-16", "2026-08-23", "2026-08-30", "2026-09-06", "2026-09-13", "2026-09-20"],
+    "time": "14:00–18:00",
+    "price": "Kostenlos",
+    "description": "Jeden Sonntag offene Spiel- und Sportangebote für alle Altersgruppen und Familien im Wassermannpark.",
+    "sourceLabel": "ParkSportInsel",
+    "sourceUrl": "https://parksportinsel.de/parks/wassermannpark/",
+    "mapUrl": "https://www.google.com/maps/place/Bewegungsinsel+Wassermannpark/@53.6451025,9.9151487,17z",
+    "imageUrl": "https://images.pexels.com/photos/3621104/pexels-photo-3621104.jpeg?auto=compress&cs=tinysrgb&w=900",
+    "attendees": 19,
+    "comments": [
+      {
+        "name": "Nina T.",
+        "bio": "Familie und Sport",
+        "avatar": "👩🏽",
+        "message": "Gut für Kinder, weil man einfach vorbeikommen kann.",
+        "likes": 6
+      }
+    ]
+  },
+  {
+    "id": "hella-halbmarathon-2026",
+    "title": "Hella Halbmarathon Hamburg",
+    "category": "sport",
+    "district": "Hamburg-Altstadt",
+    "venue": "Innenstadt Hamburg",
+    "address": "Hamburg Innenstadt",
+    "latitude": 53.552,
+    "longitude": 9.993,
+    "dates": ["2026-06-28"],
+    "time": "Ganztägig",
+    "price": "Kostenlos (Zuschauen)",
+    "description": "Tausende Läufer auf den Straßen Hamburgs. Eine der beliebtesten Laufveranstaltungen Norddeutschlands.",
+    "sourceLabel": "hella hamburg halbmarathon",
+    "sourceUrl": "https://www.hamburg-halbmarathon.de/",
+    "mapUrl": "https://www.google.com/maps/search/Hella+Halbmarathon+Hamburg",
+    "imageUrl": "https://images.pexels.com/photos/2526878/pexels-photo-2526878.jpeg?auto=compress&cs=tinysrgb&w=900",
+    "attendees": 47,
+    "comments": [
+      {
+        "name": "Ole F.",
+        "bio": "Laufgruppe gesucht",
+        "avatar": "🧑🏻",
+        "message": "Ich feuere an der Alster an. Wer kommt mit?",
+        "likes": 10
+      }
+    ]
+  },
+  {
+    "id": "deutsches-galoppderby-2026",
+    "title": "Deutsches Galoppderby",
+    "category": "sport",
+    "district": "Horn",
+    "venue": "Galopprennbahn Hamburg-Horn",
+    "address": "Rennbahnstraße, Hamburg-Horn",
+    "latitude": 53.5605608,
+    "longitude": 10.0841068,
+    "dates": ["2026-07-05"],
+    "time": "Ganztägig",
+    "price": "ab 10 €",
+    "description": "Das traditionsreichste Pferderennen Deutschlands auf der Horner Rennbahn mit Rennprogramm und Rahmenprogramm für die ganze Familie.",
+    "sourceLabel": "Galopp Hamburg",
+    "sourceUrl": "https://www.galopp-hamburg.de/rennbahnbesuch/termine",
+    "mapUrl": "https://www.google.com/maps/place/Galopprennbahn+Hamburg-Horn/@53.5605608,10.0815319,17z",
+    "imageUrl": "https://images.pexels.com/photos/1996333/pexels-photo-1996333.jpeg?auto=compress&cs=tinysrgb&w=900",
+    "attendees": 22,
+    "comments": [
+      {
+        "name": "Sofia R.",
+        "bio": "Ausprobieren und berichten",
+        "avatar": "👵",
+        "message": "Noch nie da gewesen. Sieht nach einem besonderen Sonntag aus.",
+        "likes": 3
+      }
+    ]
+  },
+  {
+    "id": "world-triathlon-hamburg-2026",
+    "title": "World Triathlon Hamburg",
+    "category": "sport",
+    "district": "Hamburg-Altstadt",
+    "venue": "Binnenalster und Innenstadt",
+    "address": "Hamburg Innenstadt",
+    "latitude": 53.555,
+    "longitude": 9.994,
+    "dates": ["2026-07-11", "2026-07-12"],
+    "time": "Ganztägig",
+    "price": "Kostenlos (Zuschauen)",
+    "description": "Weltklasse-Triathlon mitten in der City: Schwimmen in der Binnenalster, Radfahren und Laufen durch die Innenstadt.",
+    "sourceLabel": "World Triathlon Hamburg",
+    "sourceUrl": "https://hamburg.triathlon.org/",
+    "mapUrl": "https://www.google.com/maps/search/World+Triathlon+Hamburg",
+    "imageUrl": "https://images.pexels.com/photos/3756042/pexels-photo-3756042.jpeg?auto=compress&cs=tinysrgb&w=900",
+    "attendees": 64,
+    "comments": [
+      {
+        "name": "Tom B.",
+        "bio": "Sport und Stadt",
+        "avatar": "🧑🏾",
+        "message": "Ich schaue am Rathausmarkt. Die Stimmung ist jedes Jahr stark.",
+        "likes": 12
+      }
+    ]
+  }
+]

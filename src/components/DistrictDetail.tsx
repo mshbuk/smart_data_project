@@ -68,8 +68,8 @@ export function DistrictDetail({
   const shareDistrict = () => {
     const message =
       language === "de"
-        ? `${district.name} wirkt spannend im District Finder.`
-        : `${district.name} looks interesting in District Finder.`;
+        ? `${district.name} wirkt spannend in Moin.`
+        : `${district.name} looks interesting in Moin.`;
 
     if (navigator.share) {
       void navigator.share({

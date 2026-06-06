@@ -239,8 +239,8 @@ export function ProfilePage({
             </div>
             <p className="mt-3 text-sm leading-6 text-slate-600">
               {tx(
-                "District Finder uses local dummy district data and local browser storage only. Sensitive attributes are intentionally excluded from the scoring model.",
-                "District Finder nutzt lokale Stadtteildaten und lokalen Browser-Speicher. Sensible Merkmale sind bewusst nicht im Bewertungsmodell enthalten.",
+                "Moin uses local dummy district data and local browser storage only. Sensitive attributes are intentionally excluded from the scoring model.",
+                "Moin nutzt lokale Stadtteildaten und lokalen Browser-Speicher. Sensible Merkmale sind bewusst nicht im Bewertungsmodell enthalten.",
               )}
             </p>
           </section>

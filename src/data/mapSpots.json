@@ -1,0 +1,600 @@
+[
+  {
+    "id": "eimsbuettel-cafe-glueck-und-selig",
+    "district": "Eimsbüttel",
+    "type": "cafe",
+    "emoji": "☕",
+    "name": "Café Glück und Selig",
+    "latitude": 53.57982,
+    "longitude": 9.95593,
+    "description": {
+      "de": "Café-Spot in Eimsbüttel.",
+      "en": "Cafe spot in Eimsbuettel."
+    }
+  },
+  {
+    "id": "eimsbuettel-cafe-delice",
+    "district": "Eimsbüttel",
+    "type": "cafe",
+    "emoji": "☕",
+    "name": "Café Délice",
+    "latitude": 53.57887,
+    "longitude": 9.94682,
+    "description": {
+      "de": "Café-Spot in Eimsbüttel.",
+      "en": "Cafe spot in Eimsbuettel."
+    }
+  },
+  {
+    "id": "eimsbuettel-mynt-cafe",
+    "district": "Eimsbüttel",
+    "type": "cafe",
+    "emoji": "☕",
+    "name": "MYNT Café",
+    "latitude": 53.57919,
+    "longitude": 9.95648,
+    "description": {
+      "de": "Café-Spot in Eimsbüttel.",
+      "en": "Cafe spot in Eimsbuettel."
+    }
+  },
+  {
+    "id": "eimsbuettel-cafe-eims",
+    "district": "Eimsbüttel",
+    "type": "cafe",
+    "emoji": "☕",
+    "name": "Café Eims",
+    "latitude": 53.57962,
+    "longitude": 9.94915,
+    "description": {
+      "de": "Café-Spot in Eimsbüttel.",
+      "en": "Cafe spot in Eimsbuettel."
+    }
+  },
+  {
+    "id": "eimsbuettel-blackline-coffee",
+    "district": "Eimsbüttel",
+    "type": "cafe",
+    "emoji": "☕",
+    "name": "Blackline Coffee",
+    "latitude": 53.57176,
+    "longitude": 9.95837,
+    "description": {
+      "de": "Café-Spot in Eimsbüttel.",
+      "en": "Cafe spot in Eimsbuettel."
+    }
+  },
+  {
+    "id": "eimsbuettel-speisekammer",
+    "district": "Eimsbüttel",
+    "type": "cafe",
+    "emoji": "☕",
+    "name": "Speisekammer",
+    "latitude": 53.57204,
+    "longitude": 9.95955,
+    "description": {
+      "de": "Café-Spot in Eimsbüttel.",
+      "en": "Cafe spot in Eimsbuettel."
+    }
+  },
+  {
+    "id": "eimsbuettel-1407-breakfast-club",
+    "district": "Eimsbüttel",
+    "type": "cafe",
+    "emoji": "☕",
+    "name": "1407 Breakfast Club",
+    "latitude": 53.57517,
+    "longitude": 9.95762,
+    "description": {
+      "de": "Frühstücks- und Café-Spot in Eimsbüttel.",
+      "en": "Breakfast and cafe spot in Eimsbuettel."
+    }
+  },
+  {
+    "id": "eimsbuettel-thirdroom",
+    "district": "Eimsbüttel",
+    "type": "cafe",
+    "emoji": "☕",
+    "name": "THIRDROOM",
+    "latitude": 53.57564,
+    "longitude": 9.95521,
+    "description": {
+      "de": "Café-Spot in Eimsbüttel.",
+      "en": "Cafe spot in Eimsbuettel."
+    }
+  },
+  {
+    "id": "eimsbuettel-good-one-cafe",
+    "district": "Eimsbüttel",
+    "type": "cafe",
+    "emoji": "☕",
+    "name": "Good One Café",
+    "latitude": 53.56847,
+    "longitude": 9.95514,
+    "description": {
+      "de": "Café-Spot in Eimsbüttel.",
+      "en": "Cafe spot in Eimsbuettel."
+    }
+  },
+  {
+    "id": "eimsbuettel-cafe-golden-bean",
+    "district": "Eimsbüttel",
+    "type": "cafe",
+    "emoji": "☕",
+    "name": "Café Golden Bean",
+    "latitude": 53.57723,
+    "longitude": 9.94748,
+    "description": {
+      "de": "Café-Spot in Eimsbüttel.",
+      "en": "Cafe spot in Eimsbuettel."
+    }
+  },
+  {
+    "id": "eimsbuettel-kneipe-fasan",
+    "district": "Eimsbüttel",
+    "type": "bar",
+    "emoji": "🍻",
+    "name": "Kneipe Fasan",
+    "latitude": 53.57502,
+    "longitude": 9.96343,
+    "description": {
+      "de": "Bar in Eimsbüttel.",
+      "en": "Bar in Eimsbuettel."
+    }
+  },
+  {
+    "id": "eimsbuettel-q-bar",
+    "district": "Eimsbüttel",
+    "type": "bar",
+    "emoji": "🍻",
+    "name": "Q-Bar Eimsbüttel",
+    "latitude": 53.58089,
+    "longitude": 9.94608,
+    "description": {
+      "de": "Bar in Eimsbüttel.",
+      "en": "Bar in Eimsbuettel."
+    }
+  },
+  {
+    "id": "eimsbuettel-kuddl",
+    "district": "Eimsbüttel",
+    "type": "bar",
+    "emoji": "🍻",
+    "name": "Kuddl",
+    "latitude": 53.57799,
+    "longitude": 9.94793,
+    "description": {
+      "de": "Bar in Eimsbüttel.",
+      "en": "Bar in Eimsbuettel."
+    }
+  },
+  {
+    "id": "eimsbuettel-zilles-eck",
+    "district": "Eimsbüttel",
+    "type": "bar",
+    "emoji": "🍻",
+    "name": "Zille's Eck",
+    "latitude": 53.57999,
+    "longitude": 9.93905,
+    "description": {
+      "de": "Bar in Eimsbüttel.",
+      "en": "Bar in Eimsbuettel."
+    }
+  },
+  {
+    "id": "eimsbuettel-arians-pub",
+    "district": "Eimsbüttel",
+    "type": "bar",
+    "emoji": "🍻",
+    "name": "Arian's Pub",
+    "latitude": 53.57907,
+    "longitude": 9.95006,
+    "description": {
+      "de": "Pub in Eimsbüttel.",
+      "en": "Pub in Eimsbuettel."
+    }
+  },
+  {
+    "id": "eimsbuettel-zzzischer",
+    "district": "Eimsbüttel",
+    "type": "bar",
+    "emoji": "🍻",
+    "name": "Zzzischer",
+    "latitude": 53.5775,
+    "longitude": 9.94444,
+    "description": {
+      "de": "Bar in Eimsbüttel.",
+      "en": "Bar in Eimsbuettel."
+    }
+  },
+  {
+    "id": "eimsbuettel-galopper",
+    "district": "Eimsbüttel",
+    "type": "bar",
+    "emoji": "🍻",
+    "name": "Galopper",
+    "latitude": 53.57955,
+    "longitude": 9.94872,
+    "description": {
+      "de": "Bar in Eimsbüttel.",
+      "en": "Bar in Eimsbuettel."
+    }
+  },
+  {
+    "id": "eimsbuettel-gaststaette-behr",
+    "district": "Eimsbüttel",
+    "type": "bar",
+    "emoji": "🍻",
+    "name": "Gaststätte Behr",
+    "latitude": 53.5798,
+    "longitude": 9.94879,
+    "description": {
+      "de": "Gaststätte in Eimsbüttel.",
+      "en": "Pub restaurant in Eimsbuettel."
+    }
+  },
+  {
+    "id": "eimsbuettel-crazy-angels",
+    "district": "Eimsbüttel",
+    "type": "bar",
+    "emoji": "🍻",
+    "name": "CRAZY ANGELS Sports Bar",
+    "latitude": 53.57824,
+    "longitude": 9.94195,
+    "description": {
+      "de": "Sportsbar in Eimsbüttel.",
+      "en": "Sports bar in Eimsbuettel."
+    }
+  },
+  {
+    "id": "eimsbuettel-cafe-bar-sonnenseite",
+    "district": "Eimsbüttel",
+    "type": "bar",
+    "emoji": "🍻",
+    "name": "Café Bar Sonnenseite",
+    "latitude": 53.56747,
+    "longitude": 9.96506,
+    "description": {
+      "de": "Café-Bar in Eimsbüttel.",
+      "en": "Cafe bar in Eimsbuettel."
+    }
+  },
+  {
+    "id": "eimsbuettel-u-christuskirche",
+    "district": "Eimsbüttel",
+    "type": "ubahn",
+    "emoji": "🚇",
+    "name": "U Christuskirche",
+    "latitude": 53.56944,
+    "longitude": 9.96222,
+    "description": {
+      "de": "U-Bahn-Station in Eimsbüttel.",
+      "en": "U-Bahn station in Eimsbuettel."
+    }
+  },
+  {
+    "id": "eimsbuettel-u-emilienstrasse",
+    "district": "Eimsbüttel",
+    "type": "ubahn",
+    "emoji": "🚇",
+    "name": "U Emilienstraße",
+    "latitude": 53.57167,
+    "longitude": 9.9525,
+    "description": {
+      "de": "U-Bahn-Station in Eimsbüttel.",
+      "en": "U-Bahn station in Eimsbuettel."
+    }
+  },
+  {
+    "id": "eimsbuettel-u-osterstrasse",
+    "district": "Eimsbüttel",
+    "type": "ubahn",
+    "emoji": "🚇",
+    "name": "U Osterstraße",
+    "latitude": 53.57639,
+    "longitude": 9.95167,
+    "description": {
+      "de": "U-Bahn-Station in Eimsbüttel.",
+      "en": "U-Bahn station in Eimsbuettel."
+    }
+  },
+  {
+    "id": "eimsbuettel-u-lutterothstrasse",
+    "district": "Eimsbüttel",
+    "type": "ubahn",
+    "emoji": "🚇",
+    "name": "U Lutterothstraße",
+    "latitude": 53.58179,
+    "longitude": 9.9476,
+    "description": {
+      "de": "U-Bahn-Station in Eimsbüttel.",
+      "en": "U-Bahn station in Eimsbuettel."
+    }
+  },
+  {
+    "id": "eimsbuettel-u-schlump",
+    "district": "Eimsbüttel",
+    "type": "ubahn",
+    "emoji": "🚇",
+    "name": "U Schlump",
+    "latitude": 53.56803,
+    "longitude": 9.97009,
+    "description": {
+      "de": "U-Bahn-Station bei Eimsbüttel.",
+      "en": "U-Bahn station near Eimsbuettel."
+    }
+  },
+  {
+    "id": "eimsbuettel-u-hoheluftbruecke",
+    "district": "Eimsbüttel",
+    "type": "ubahn",
+    "emoji": "🚇",
+    "name": "U Hoheluftbrücke",
+    "latitude": 53.57784,
+    "longitude": 9.97634,
+    "description": {
+      "de": "U-Bahn-Station bei Eimsbüttel.",
+      "en": "U-Bahn station near Eimsbuettel."
+    }
+  },
+  {
+    "id": "eimsbuettel-s-sternschanze",
+    "district": "Eimsbüttel",
+    "type": "sbahn",
+    "emoji": "🚆",
+    "name": "S Sternschanze",
+    "latitude": 53.56064,
+    "longitude": 9.96683,
+    "description": {
+      "de": "S-Bahn-Anbindung nahe Eimsbüttel.",
+      "en": "S-Bahn connection near Eimsbuettel."
+    }
+  },
+  {
+    "id": "eimsbuettel-s-holstenstrasse",
+    "district": "Eimsbüttel",
+    "type": "sbahn",
+    "emoji": "🚆",
+    "name": "S Holstenstraße",
+    "latitude": 53.56292,
+    "longitude": 9.95389,
+    "description": {
+      "de": "S-Bahn-Anbindung nahe Eimsbüttel.",
+      "en": "S-Bahn connection near Eimsbuettel."
+    }
+  },
+  {
+    "id": "eimsbuettel-s-stellingen",
+    "district": "Eimsbüttel",
+    "type": "sbahn",
+    "emoji": "🚆",
+    "name": "S Stellingen",
+    "latitude": 53.59228,
+    "longitude": 9.93178,
+    "description": {
+      "de": "S-Bahn-Anbindung nördlich von Eimsbüttel.",
+      "en": "S-Bahn connection north of Eimsbuettel."
+    }
+  },
+  {
+    "id": "eimsbuettel-hvv-u-osterstrasse",
+    "district": "Eimsbüttel",
+    "type": "hvv",
+    "emoji": "🚌",
+    "name": "U Osterstraße",
+    "latitude": 53.576,
+    "longitude": 9.95262,
+    "description": {
+      "de": "HVV-Haltestelle in Eimsbüttel.",
+      "en": "HVV stop in Eimsbuettel."
+    }
+  },
+  {
+    "id": "eimsbuettel-hvv-u-emilienstrasse",
+    "district": "Eimsbüttel",
+    "type": "hvv",
+    "emoji": "🚌",
+    "name": "U Emilienstraße",
+    "latitude": 53.57158,
+    "longitude": 9.95281,
+    "description": {
+      "de": "HVV-Haltestelle in Eimsbüttel.",
+      "en": "HVV stop in Eimsbuettel."
+    }
+  },
+  {
+    "id": "eimsbuettel-hvv-methfesselstrasse",
+    "district": "Eimsbüttel",
+    "type": "hvv",
+    "emoji": "🚌",
+    "name": "Methfesselstraße",
+    "latitude": 53.57824,
+    "longitude": 9.94195,
+    "description": {
+      "de": "HVV-Haltestelle in Eimsbüttel.",
+      "en": "HVV stop in Eimsbuettel."
+    }
+  },
+  {
+    "id": "eimsbuettel-hvv-eimsbuetteler-marktplatz",
+    "district": "Eimsbüttel",
+    "type": "hvv",
+    "emoji": "🚌",
+    "name": "Eimsbütteler Marktplatz",
+    "latitude": 53.57274,
+    "longitude": 9.95581,
+    "description": {
+      "de": "HVV-Haltestelle in Eimsbüttel.",
+      "en": "HVV stop in Eimsbuettel."
+    }
+  },
+  {
+    "id": "eimsbuettel-hvv-tornquiststrasse",
+    "district": "Eimsbüttel",
+    "type": "hvv",
+    "emoji": "🚌",
+    "name": "Tornquiststraße",
+    "latitude": 53.57324,
+    "longitude": 9.95652,
+    "description": {
+      "de": "HVV-Haltestelle in Eimsbüttel.",
+      "en": "HVV stop in Eimsbuettel."
+    }
+  },
+  {
+    "id": "eimsbuettel-hvv-langenfelder-damm",
+    "district": "Eimsbüttel",
+    "type": "hvv",
+    "emoji": "🚌",
+    "name": "Langenfelder Damm",
+    "latitude": 53.57998,
+    "longitude": 9.93905,
+    "description": {
+      "de": "HVV-Haltestelle in Eimsbüttel.",
+      "en": "HVV stop in Eimsbuettel."
+    }
+  },
+  {
+    "id": "eimsbuettel-hvv-hellkamp",
+    "district": "Eimsbüttel",
+    "type": "hvv",
+    "emoji": "🚌",
+    "name": "Hellkamp",
+    "latitude": 53.57795,
+    "longitude": 9.94871,
+    "description": {
+      "de": "HVV-Haltestelle in Eimsbüttel.",
+      "en": "HVV stop in Eimsbuettel."
+    }
+  },
+  {
+    "id": "eimsbuettel-hvv-fruchtallee",
+    "district": "Eimsbüttel",
+    "type": "hvv",
+    "emoji": "🚌",
+    "name": "Fruchtallee",
+    "latitude": 53.57194,
+    "longitude": 9.95236,
+    "description": {
+      "de": "HVV-Haltestelle in Eimsbüttel.",
+      "en": "HVV stop in Eimsbuettel."
+    }
+  },
+  {
+    "id": "eimsbuettel-park-eimsbuetteler-park",
+    "district": "Eimsbüttel",
+    "type": "park",
+    "emoji": "🌳",
+    "name": "Eimsbütteler Park",
+    "latitude": 53.57889,
+    "longitude": 9.95816,
+    "description": {
+      "de": "Grünfläche in Eimsbüttel.",
+      "en": "Green space in Eimsbuettel."
+    }
+  },
+  {
+    "id": "eimsbuettel-park-wehbers-park",
+    "district": "Eimsbüttel",
+    "type": "park",
+    "emoji": "🌳",
+    "name": "Wehbers Park",
+    "latitude": 53.57177,
+    "longitude": 9.9544,
+    "description": {
+      "de": "Grünfläche in Eimsbüttel.",
+      "en": "Green space in Eimsbuettel."
+    }
+  },
+  {
+    "id": "eimsbuettel-park-unna-park",
+    "district": "Eimsbüttel",
+    "type": "park",
+    "emoji": "🌳",
+    "name": "Unna Park",
+    "latitude": 53.57531,
+    "longitude": 9.95037,
+    "description": {
+      "de": "Grünfläche in Eimsbüttel.",
+      "en": "Green space in Eimsbuettel."
+    }
+  },
+  {
+    "id": "eimsbuettel-park-wasserturm",
+    "district": "Eimsbüttel",
+    "type": "park",
+    "emoji": "🌳",
+    "name": "Stadtpark Am Wasserturm",
+    "latitude": 53.58668,
+    "longitude": 9.94331,
+    "description": {
+      "de": "Grünfläche in Eimsbüttel.",
+      "en": "Green space in Eimsbuettel."
+    }
+  },
+  {
+    "id": "eimsbuettel-kita-sonnen-kinder",
+    "district": "Eimsbüttel",
+    "type": "kita",
+    "emoji": "🏫",
+    "name": "Kita Sonnen-Kinder",
+    "latitude": 53.57192,
+    "longitude": 9.95233,
+    "description": {
+      "de": "Kita in Eimsbüttel.",
+      "en": "Daycare in Eimsbuettel."
+    }
+  },
+  {
+    "id": "eimsbuettel-kita-fruechtchen",
+    "district": "Eimsbüttel",
+    "type": "kita",
+    "emoji": "🏫",
+    "name": "Kita Früchtchen",
+    "latitude": 53.57227,
+    "longitude": 9.95055,
+    "description": {
+      "de": "Kita in Eimsbüttel.",
+      "en": "Daycare in Eimsbuettel."
+    }
+  },
+  {
+    "id": "eimsbuettel-kita-hohe-weide",
+    "district": "Eimsbüttel",
+    "type": "kita",
+    "emoji": "🏫",
+    "name": "Ev. Kita Hohe Weide",
+    "latitude": 53.57086,
+    "longitude": 9.96506,
+    "description": {
+      "de": "Kita in Eimsbüttel.",
+      "en": "Daycare in Eimsbuettel."
+    }
+  },
+  {
+    "id": "eimsbuettel-kita-st-bonifatius",
+    "district": "Eimsbüttel",
+    "type": "kita",
+    "emoji": "🏫",
+    "name": "Kath. Kita St. Bonifatius",
+    "latitude": 53.57801,
+    "longitude": 9.95758,
+    "description": {
+      "de": "Kita in Eimsbüttel.",
+      "en": "Daycare in Eimsbuettel."
+    }
+  },
+  {
+    "id": "eimsbuettel-kita-emilienstrasse",
+    "district": "Eimsbüttel",
+    "type": "kita",
+    "emoji": "🏫",
+    "name": "Elbkinder-Kita Emilienstraße",
+    "latitude": 53.57183,
+    "longitude": 9.95346,
+    "description": {
+      "de": "Kita in Eimsbüttel.",
+      "en": "Daycare in Eimsbuettel."
+    }
+  }
+]

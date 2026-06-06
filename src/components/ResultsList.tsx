@@ -37,7 +37,7 @@ export function ResultsList({ matches, savedDistrictIds, onOpenDetails, onToggle
   };
 
   return (
-    <section className="grid gap-4">
+    <section className="mx-auto grid w-full max-w-[760px] gap-4">
       {visibleMatches.map((match, index) => (
         <DistrictCard
           isSaved={savedDistrictIds.includes(match.district.id)}

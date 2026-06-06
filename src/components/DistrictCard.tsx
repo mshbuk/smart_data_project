@@ -1,23 +1,17 @@
 import {
   AlertCircle,
-  BadgeCheck,
-  BarChart3,
-  Building2,
   Check,
-  Database,
   Euro,
   GraduationCap,
   Heart,
   Info,
-  Siren,
   Shield,
   Train,
   TreePine,
-  Users,
   Volume2,
   type LucideIcon,
 } from "lucide-react";
-import type { District, DistrictMatch } from "../types/District";
+import type { DistrictMatch } from "../types/District";
 import { formatScore } from "../utils/districtInsights";
 import { useI18n } from "../i18n";
 
@@ -32,14 +26,6 @@ type DistrictCardProps = {
 type StatItem = {
   label: string;
   value: string;
-  icon: LucideIcon;
-  color: string;
-};
-
-type EvidenceMetric = {
-  label: string;
-  value: string;
-  detail: string;
   icon: LucideIcon;
   color: string;
 };
@@ -68,141 +54,6 @@ function getScoreTone(score: number, tx: (english: string, german: string) => st
   };
 }
 
-function formatNumber(value: number, language: "de" | "en") {
-  return new Intl.NumberFormat(language === "de" ? "de-DE" : "en-US").format(value);
-}
-
-function translateMissingSource(source: string, tx: (english: string, german: string) => string) {
-  return tx(source, {
-    "Miet-Check rent row": "Miet-Check-Mietzeile",
-    "Statistikamt Stadtteilprofile row": "Statistikamt-Stadtteilprofilzeile",
-  }[source] ?? source);
-}
-
-function getDataQuality(district: District, tx: (english: string, german: string) => string) {
-  if (district.dataQuality === "sourced") {
-    return {
-      label: tx("Sourced", "Belegt"),
-      detail: tx("Source-backed profile", "Quellenbasiertes Profil"),
-      icon: BadgeCheck,
-      className: "border-emerald-200 bg-emerald-50 text-emerald-700",
-    };
-  }
-
-  if (district.dataQuality === "partially-sourced") {
-    return {
-      label: tx("Partial", "Teilweise"),
-      detail: tx("Some fields still use demo values", "Einige Felder nutzen Demo-Werte"),
-      icon: Database,
-      className: "border-amber-200 bg-amber-50 text-amber-700",
-    };
-  }
-
-  return {
-    label: "Demo",
-    detail: tx("Placeholder profile", "Platzhalterprofil"),
-    icon: BarChart3,
-    className: "border-slate-200 bg-slate-50 text-slate-600",
-  };
-}
-
-function getEvidenceMetrics(
-  district: District,
-  tx: (english: string, german: string) => string,
-  language: "de" | "en",
-): EvidenceMetric[] {
-  const hasSourcedRent = Boolean(district.sourceSummary?.includes("Miet-Check"));
-  const metrics: EvidenceMetric[] = [];
-
-  if (hasSourcedRent || district.dataQuality === "placeholder") {
-    metrics.push({
-      label: tx("Rent", "Miete"),
-      value: `EUR ${district.rentPerSqm.toFixed(2)}`,
-      detail: hasSourcedRent ? tx("Miet-Check / sqm", "Miet-Check / qm") : tx("Demo rent / sqm", "Demo-Miete / qm"),
-      icon: Euro,
-      color: "#059669",
-    });
-  }
-
-  if (typeof district.population === "number") {
-    metrics.push({
-      label: tx("Residents", "Einwohner"),
-      value: formatNumber(district.population, language),
-      detail: "Statistikamt 2024",
-      icon: Users,
-      color: "#4f46e5",
-    });
-    metrics.push({
-      label: tx("Density", "Dichte"),
-      value: formatNumber(district.populationDensity, language),
-      detail: tx("Residents / km²", "Einwohner / km²"),
-      icon: Building2,
-      color: "#0f766e",
-    });
-  }
-
-  if (typeof district.crimeCases2024 === "number") {
-    metrics.push({
-      label: tx("PKS cases", "PKS-Fälle"),
-      value: formatNumber(district.crimeCases2024, language),
-      detail: tx("Police 2024", "Polizei 2024"),
-      icon: Siren,
-      color: "#dc2626",
-    });
-  }
-
-  return metrics;
-}
-
-function EvidencePanel({ district }: { district: District }) {
-  const { language, tx } = useI18n();
-  const quality = getDataQuality(district, tx);
-  const QualityIcon = quality.icon;
-  const evidenceMetrics = getEvidenceMetrics(district, tx, language);
-
-  return (
-    <div className="mt-3 rounded-2xl border border-slate-100 bg-slate-50/80 p-3">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <span className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-black ${quality.className}`}>
-          <QualityIcon aria-hidden="true" className="h-4 w-4" />
-          {quality.label}
-        </span>
-        <span className="text-xs font-bold text-slate-500">{quality.detail}</span>
-      </div>
-
-      <div className="mt-3 grid grid-cols-2 gap-2 md:grid-cols-4">
-        {evidenceMetrics.map((metric) => {
-          const Icon = metric.icon;
-
-          return (
-            <div className="min-w-0 rounded-2xl bg-white px-3 py-2 shadow-sm shadow-slate-950/5" key={metric.label}>
-              <div className="flex items-center gap-2">
-                <span className="grid h-7 w-7 shrink-0 place-items-center rounded-xl bg-slate-50" style={{ color: metric.color }}>
-                  <Icon aria-hidden="true" className="h-4 w-4" strokeWidth={2.4} />
-                </span>
-                <span className="min-w-0">
-                  <span className="block truncate text-[0.64rem] font-black uppercase tracking-wide text-slate-400">
-                    {metric.label}
-                  </span>
-                  <span className="block truncate text-sm font-black text-slate-900">{metric.value}</span>
-                </span>
-              </div>
-              <div className="mt-1 truncate text-[0.68rem] font-bold text-slate-500">{metric.detail}</div>
-            </div>
-          );
-        })}
-      </div>
-
-      {district.missingSources && district.missingSources.length > 0 && (
-        <div className="mt-2 rounded-2xl border border-amber-100 bg-amber-50 px-3 py-2 text-xs font-bold text-amber-800">
-          {tx("Missing source rows", "Fehlende Quelldaten")}:{" "}
-          {district.missingSources.map((source) => translateMissingSource(source, tx)).join(", ")}
-        </div>
-      )}
-    </div>
-  );
-}
-
 export function DistrictCard({ match, isSaved, onToggleSave, onOpenDetails, rank }: DistrictCardProps) {
   const { language, tx } = useI18n();
   const { district } = match;
@@ -223,18 +74,18 @@ export function DistrictCard({ match, isSaved, onToggleSave, onOpenDetails, rank
   ];
 
   return (
-    <article className="overflow-hidden rounded-[1.6rem] border border-white/80 bg-white shadow-[0_22px_55px_rgba(15,23,42,0.1)] transition-transform duration-200 hover:-translate-y-0.5">
-      <div className="grid md:grid-cols-[240px_1fr]">
+    <article className="overflow-hidden rounded-[1.6rem] border border-slate-200 bg-white shadow-[0_16px_42px_rgba(15,23,42,0.08)] transition-transform duration-200 hover:-translate-y-0.5">
+      <div className="grid">
         <button
           aria-label={tx(`Open ${district.name} details`, `${district.name} Details öffnen`)}
-          className="group relative min-h-[210px] overflow-hidden bg-slate-200 text-left md:min-h-full"
+          className="group relative min-h-[300px] overflow-hidden bg-slate-200 text-left"
           onClick={() => onOpenDetails?.(district.id)}
           type="button"
         >
           {district.imageUrl ? (
             <img
               alt=""
-              className="h-full min-h-[210px] w-full object-cover md:absolute md:inset-0"
+              className="absolute inset-0 h-full w-full object-cover"
               loading="lazy"
               src={district.imageUrl}
             />
@@ -247,7 +98,7 @@ export function DistrictCard({ match, isSaved, onToggleSave, onOpenDetails, rank
           </div>
           <div className={`absolute bottom-4 left-4 rounded-2xl px-3 py-2 font-black shadow-lg ${tone.badge}`}>
             <span className="block text-2xl leading-none">{match.score}%</span>
-            <span className="mt-1 block text-[0.68rem] uppercase tracking-wide">{tone.label}</span>
+            <span className="mt-1 block text-[0.68rem] uppercase tracking-wide">Match</span>
           </div>
           <span className="absolute bottom-4 right-4 inline-flex items-center gap-2 rounded-2xl bg-white/90 px-3 py-2 text-xs font-black text-slate-800 opacity-100 shadow-lg backdrop-blur transition-colors group-hover:bg-indigo-600 group-hover:text-white">
             <Info aria-hidden="true" className="h-4 w-4" />
@@ -259,11 +110,9 @@ export function DistrictCard({ match, isSaved, onToggleSave, onOpenDetails, rank
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
               <h3 className="mt-1 text-2xl font-black leading-tight text-slate-950">{district.name}</h3>
-              {district.dataQuality === "placeholder" && (
-                <p className="mt-2 text-sm leading-6 text-slate-600">
-                  {tx(district.shortDescription, "Demo-Profil mit Platzhalterdaten für diesen Stadtteil.")}
-                </p>
-              )}
+              <p className="mt-2 text-sm leading-6 text-slate-600">
+                {tx(district.shortDescription, district.shortDescription)}
+              </p>
             </div>
             <button
               aria-label={
@@ -284,8 +133,6 @@ export function DistrictCard({ match, isSaved, onToggleSave, onOpenDetails, rank
               <Heart aria-hidden="true" className={isSaved ? "h-5 w-5 fill-current" : "h-5 w-5"} />
             </button>
           </div>
-
-          <EvidencePanel district={district} />
 
           <p className="mt-4 rounded-2xl bg-slate-50 px-4 py-3 text-sm leading-6 text-slate-700">{match.explanation}</p>
 
@@ -351,6 +198,13 @@ export function DistrictCard({ match, isSaved, onToggleSave, onOpenDetails, rank
                 </span>
               ))}
             </div>
+            <button
+              className="inline-flex min-h-12 w-full items-center justify-center rounded-2xl bg-gradient-to-r from-violet-600 to-purple-600 px-5 text-sm font-black text-white shadow-lg shadow-violet-600/25 transition-transform hover:-translate-y-0.5"
+              onClick={() => onOpenDetails?.(district.id)}
+              type="button"
+            >
+              {tx("Full view", "Vollständige Ansicht")}
+            </button>
           </div>
         </div>
       </div>

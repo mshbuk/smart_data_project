@@ -1,8 +1,8 @@
-# District Finder
+# Moin
 
-District Finder is a mobile-first React prototype for a university Smart Data project. It recommends Hamburg districts based on a selected lifestyle profile, budget, and personal priorities.
+Moin is a mobile-first React prototype for a university Smart Data project. It recommends Hamburg districts based on a selected lifestyle profile, budget, and personal priorities.
 
-The app uses local district data, transparent scoring logic, result cards, district detail views, saved comparisons, German/English UI text, and a Leaflet map with Hamburg district borders from GeoJSON.
+The app uses local district data, transparent scoring logic, result cards, district detail views, saved comparisons, German/English UI text, a local Hamburg events module, and a Leaflet map with Hamburg district borders from GeoJSON.
 
 Styling uses Tailwind CSS v4 through the official Vite plugin. The UI is built with Tailwind utility classes in the React components rather than a custom plain CSS stylesheet.
 
@@ -89,6 +89,7 @@ The production site is deployed automatically with GitHub Actions when changes a
 - Lifestyle profile presets for tourist/short stay, family relocation, and long-term living.
 - User-defined setup with a one-question-at-a-time questionnaire, progress bar, previous/next navigation, and branching follow-up questions that adjust criteria from lifestyle answers.
 - Editable priority weights with clear importance labels such as `important` and `very important`.
+- Lovable-inspired white/violet visual direction with the product name `Moin`, image-led recommendation cards, and a five-tab bottom menu: Start, Karte, Events, Vergleich, Profil.
 - Ranked district recommendations with 10 districts per page.
 - Clickable district image areas that open in-app district detail views.
 - Hamburg-only district photo pool on all 104 district result cards and detail pages instead of non-Hamburg placeholders.
@@ -96,7 +97,8 @@ The production site is deployed automatically with GitHub Actions when changes a
 - Demo apartment preview cards with realistic apartment photos, kept clearly in-platform and non-listing-based before optional external search.
 - Save/favorite districts and compare saved districts side by side.
 - Comparison view with best-value highlights, a saved-district radar diagram, and a priority-shape diagram based on the current preferences.
-- Leaflet map with Hamburg district polygons, top-match highlighting, a current-location button, owner-supplied landmark icons for key Hamburg places, and district popups with save/detail actions.
+- Leaflet map with Hamburg district polygons, top-match highlighting, a current-location button, emoji landmark/local-spot markers, and district popups with save/detail actions.
+- Events tab with local Hamburg event data, date/category/district filters, event detail pages, sign-up state, add-to-calendar download, route links, community comments, and a demo chat modal.
 - Local demo profile page with favorites count, searched city, saved preferences, Datenschutz/Impressum notes, local data cleanup, logout, and placeholder sign-in/register actions.
 
 ## Editing Dummy Data
@@ -130,17 +132,29 @@ District detail pages also derive demo-only apartment previews, character traits
 
 ## Map Icons And POIs
 
-Map marker assets live in:
+Map POI data for owner-provided exact spots lives in:
 
 ```text
-public/map-icons/
+src/data/mapSpots.json
 ```
 
-The map uses owner-supplied image files only. Current marker files cover bars, bus stops, cafes, Kitas, schools, libraries, universities, Hamburg Rathaus, Hamburg Airport, Elbphilharmonie, and Hamburg Hauptbahnhof. `MapView.tsx` wraps each image in a white circular Leaflet marker so icons stay readable on the map.
+`MapView.tsx` renders POIs as emoji markers in white circular Leaflet badges. The older owner-supplied image files remain in `public/map-icons/` for traceability, but the visible map marker layer now uses emoji symbols.
 
 Permanent Hamburg landmarks include Rathaus, Elbphilharmonie, Flughafen HAM, Universität Hamburg, HAW Hamburg, TU Hamburg, and Hauptbahnhof. District-click POIs are exact for Dulsberg, Cranz, and Finkenwerder where coordinates were provided; other districts use deterministic demo spots around the district center until a real POI dataset is added.
 
+`src/data/mapSpots.json` currently adds exact Eimsbüttel cafes, bars, U-Bahn/S-Bahn/HVV stops, parks, and Kitas. Add future exact POIs there rather than burying them only in component code.
+
 The optional orientation toggle layer was removed. The map now keeps the recommendation polygons, permanent Hamburg landmarks, district-click spot icons, and a clearer two-line legend for match percentages and icon meanings. The former floating "Lokale Spots" panel was removed so district clicks only show the map popup and do not cover the map with a second overlay.
+
+## Events Data
+
+Local demo events live in:
+
+```text
+src/data/events.json
+```
+
+The Events tab is currently a prototype dataset based on supplied Hamburg event examples. Each event includes dates, time, price, district, venue/address, coordinates, source/map links, an image URL, attendee count, and community comments. The app does not call a live events API yet; replace or augment this JSON when a stable public Hamburg event feed is selected.
 
 ## Image Sources
 

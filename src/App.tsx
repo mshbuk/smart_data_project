@@ -1,10 +1,21 @@
 import "leaflet/dist/leaflet.css";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ArrowLeft, ArrowRight, Heart, List, Map as MapIcon, SlidersHorizontal, User, type LucideIcon } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowRight,
+  BarChart3,
+  CalendarDays,
+  Home,
+  Map as MapIcon,
+  SlidersHorizontal,
+  User,
+  type LucideIcon,
+} from "lucide-react";
 import districts from "./data/districts.json";
 import { AuthGate } from "./components/AuthGate";
 import { CustomQuestionnaire } from "./components/CustomQuestionnaire";
 import { DistrictDetail } from "./components/DistrictDetail";
+import { EventsView } from "./components/EventsView";
 import { MapView } from "./components/MapView";
 import { PreferenceForm } from "./components/PreferenceForm";
 import { ProfilePage } from "./components/ProfilePage";
@@ -16,7 +27,7 @@ import type { District, Preferences, UserProfile } from "./types/District";
 import { I18nProvider, translate, type Language } from "./i18n";
 import { calculateDistrictMatches, profileDefaults } from "./utils/scoring";
 
-type ActiveView = "results" | "map" | "saved" | "profile";
+type ActiveView = "results" | "map" | "events" | "saved" | "profile";
 type AuthGateMode = "guest" | "login" | "register";
 type FlowStep = "welcome" | "profile" | "questionnaire" | "criteria" | "recommendations";
 
@@ -43,7 +54,7 @@ const districtIds = new Set(districtData.map((district) => district.id));
 const city = "Hamburg";
 const storageKey = "district-finder-state-v2";
 const userProfiles: UserProfile[] = ["tourist", "family", "longTerm", "custom"];
-const activeViews: ActiveView[] = ["results", "map", "saved", "profile"];
+const activeViews: ActiveView[] = ["results", "map", "events", "saved", "profile"];
 const authGateModes: AuthGateMode[] = ["guest", "login", "register"];
 const flowSteps: FlowStep[] = ["welcome", "profile", "questionnaire", "criteria", "recommendations"];
 const languages: Language[] = ["de", "en"];
@@ -237,9 +248,11 @@ function App() {
   };
 
   const viewOptions: ViewOption[] = [
-    { view: "results", label: tx("Results", "Ergebnisse"), icon: List, count: matches.length },
+    { view: "results", label: tx("Start", "Start"), icon: Home },
     { view: "map", label: tx("Map", "Karte"), icon: MapIcon },
-    { view: "saved", label: tx("Saved", "Gespeichert"), icon: Heart, count: savedDistrictIds.length },
+    { view: "events", label: "Events", icon: CalendarDays },
+    { view: "saved", label: tx("Compare", "Vergleich"), icon: BarChart3 },
+    { view: "profile", label: tx("Profile", "Profil"), icon: User },
   ];
 
   if (!authGateCompleted) {
@@ -340,11 +353,11 @@ function App() {
           </div>
 
           <div className="max-w-3xl">
-            <h1 className="text-5xl font-black leading-none text-white drop-shadow md:text-7xl">District Finder</h1>
+            <h1 className="text-5xl font-black leading-none text-white drop-shadow md:text-7xl">Moin</h1>
             <p className="mt-4 max-w-2xl text-base leading-7 text-white/90 md:text-lg">
               {tx(
-                "Find Hamburg districts that match your lifestyle, budget, and priorities with transparent scoring.",
-                "Finde Hamburger Stadtteile, die zu deinem Lebensstil, Budget und deinen Prioritäten passen.",
+                "Find the Hamburg district that matches your lifestyle, budget, events, and priorities.",
+                "Finde den Hamburger Stadtteil, der zu deinem Lebensstil, Budget, deinen Events und Prioritäten passt.",
               )}
             </p>
           </div>
@@ -469,7 +482,7 @@ function App() {
                 aria-label={tx("Recommendation views", "Empfehlungsansichten")}
                 className="fixed inset-x-3 bottom-3 z-[1200] mx-auto max-w-[640px] rounded-[1.4rem] border border-white/80 bg-white/95 p-2 shadow-[0_18px_50px_rgba(15,23,42,0.2)] backdrop-blur-xl md:sticky md:inset-x-auto md:top-3 md:bottom-auto md:mb-4 md:max-w-none md:rounded-2xl"
               >
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-5 gap-1.5">
                   {viewOptions.map((option) => {
                     const Icon = option.icon;
                     const isActive = activeView === option.view;
@@ -478,7 +491,7 @@ function App() {
                       <button
                         aria-pressed={isActive}
                         className={[
-                          "relative flex min-h-16 flex-col items-center justify-center gap-1 rounded-2xl px-2 text-xs font-black transition-colors sm:min-h-14 sm:flex-row sm:gap-2 sm:px-3 sm:text-sm",
+                          "relative flex min-h-16 flex-col items-center justify-center gap-1 rounded-2xl px-1.5 text-[0.68rem] font-black transition-colors sm:min-h-14 sm:gap-1.5 sm:px-3 sm:text-sm",
                           "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600",
                           isActive ? "bg-indigo-600 text-white shadow-lg shadow-indigo-600/20" : "text-slate-600 hover:bg-slate-100",
                         ].join(" ")}
@@ -532,6 +545,9 @@ function App() {
                 preferences={preferences}
                 savedMatches={savedMatches}
               />
+            )}
+            {!selectedDetailMatch && activeView === "events" && (
+              <EventsView />
             )}
             {!selectedDetailMatch && activeView === "map" && (
               <MapView
