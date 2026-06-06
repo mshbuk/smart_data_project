@@ -138,21 +138,23 @@ export function ProfilePage({
               </span>
             ))}
           </div>
-          <button
-            className="mt-8 inline-flex min-h-16 items-center justify-center gap-3 rounded-full bg-slate-950 px-9 text-xl font-black text-white transition-colors hover:bg-slate-800"
-            onClick={onEditCriteria}
-            type="button"
-          >
-            {tx("Start quiz", "Quiz starten")}
-            <ChevronRight aria-hidden="true" className="h-6 w-6" />
-          </button>
-          <button
-            className="mt-4 text-base font-black text-sky-500"
-            onClick={onChangeProfile}
-            type="button"
-          >
-            {tx("Change profile", "Profil ändern")}
-          </button>
+          <div className="mt-8 grid justify-items-center gap-3">
+            <button
+              className="inline-flex min-h-16 items-center justify-center gap-3 rounded-full bg-slate-950 px-9 text-xl font-black text-white transition-colors hover:bg-slate-800"
+              onClick={onEditCriteria}
+              type="button"
+            >
+              {tx("Start quiz", "Quiz starten")}
+              <ChevronRight aria-hidden="true" className="h-6 w-6" />
+            </button>
+            <button
+              className="text-base font-black text-sky-500"
+              onClick={onChangeProfile}
+              type="button"
+            >
+              {tx("Change profile", "Profil ändern")}
+            </button>
+          </div>
         </div>
       </section>
 

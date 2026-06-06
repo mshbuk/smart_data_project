@@ -83,84 +83,84 @@ export function DistrictDetail({
 
   return (
     <section className="-mx-4 -mt-6 grid gap-8 pb-6 sm:mx-0 sm:mt-0">
-      <div className="relative min-h-[31rem] overflow-hidden bg-slate-200 sm:rounded-[2rem]">
+      <div className="relative min-h-[25rem] overflow-hidden bg-slate-200 sm:rounded-[2rem]">
         {district.imageUrl ? (
           <img alt="" className="absolute inset-0 h-full w-full object-cover" src={district.imageUrl} />
         ) : (
-          <div className="absolute inset-0 bg-gradient-to-br from-sky-100 via-slate-200 to-indigo-200" />
+          <div className="absolute inset-0 bg-gradient-to-br from-sky-100 via-slate-200 to-slate-200" />
         )}
         <div className="absolute inset-x-0 top-0 flex items-center justify-between p-4">
           <button
             aria-label={tx("Back", "Zurück")}
-            className="grid h-16 w-16 place-items-center rounded-full bg-white text-slate-950 shadow-[0_12px_28px_rgba(15,23,42,0.2)]"
+            className="grid h-13 w-13 place-items-center rounded-full bg-white text-slate-950 shadow-[0_12px_28px_rgba(15,23,42,0.2)]"
             onClick={onBack}
             type="button"
           >
-            <ArrowLeft aria-hidden="true" className="h-8 w-8" />
+            <ArrowLeft aria-hidden="true" className="h-6 w-6" />
           </button>
           <div className="flex gap-3">
             <button
               aria-label={isSaved ? tx("Remove from saved", "Aus Gespeichert entfernen") : tx("Save district", "Stadtteil speichern")}
-              className="grid h-16 w-16 place-items-center rounded-full bg-white text-slate-950 shadow-[0_12px_28px_rgba(15,23,42,0.2)]"
+              className="grid h-13 w-13 place-items-center rounded-full bg-white text-slate-950 shadow-[0_12px_28px_rgba(15,23,42,0.2)]"
               onClick={() => onToggleSave(district.id)}
               type="button"
             >
-              <Heart aria-hidden="true" className={isSaved ? "h-8 w-8 fill-rose-500 text-rose-500" : "h-8 w-8"} />
+              <Heart aria-hidden="true" className={isSaved ? "h-6 w-6 fill-rose-500 text-rose-500" : "h-6 w-6"} />
             </button>
             <button
               aria-label={tx("Share district", "Stadtteil teilen")}
-              className="grid h-16 w-16 place-items-center rounded-full bg-white text-slate-950 shadow-[0_12px_28px_rgba(15,23,42,0.2)]"
+              className="grid h-13 w-13 place-items-center rounded-full bg-white text-slate-950 shadow-[0_12px_28px_rgba(15,23,42,0.2)]"
               onClick={shareDistrict}
               type="button"
             >
-              <Share2 aria-hidden="true" className="h-7 w-7" />
+              <Share2 aria-hidden="true" className="h-6 w-6" />
             </button>
           </div>
         </div>
       </div>
 
       <article className="-mt-24 mx-4 grid gap-8 sm:mx-0">
-        <section className="relative rounded-[2.5rem] border border-slate-200 bg-white p-8 shadow-[0_20px_54px_rgba(15,23,42,0.12)]">
+        <section className="relative rounded-[2.2rem] border border-slate-200 bg-white p-6 shadow-[0_20px_54px_rgba(15,23,42,0.12)]">
           <div className="grid grid-cols-[1fr_auto] gap-5">
             <div>
               <p className="text-lg font-black uppercase tracking-[0.18em] text-rose-500">Hamburg</p>
-              <h1 className="mt-3 text-[3.25rem] font-black leading-none tracking-[-0.06em] text-slate-950">
+              <h1 className="mt-3 text-[2.55rem] font-black leading-none tracking-[-0.06em] text-slate-950">
                 {district.name}
               </h1>
-              <p className="mt-4 text-2xl font-medium leading-tight tracking-[-0.03em] text-slate-500">
+              <p className="mt-4 text-xl font-medium leading-tight tracking-[-0.03em] text-slate-500">
                 {district.shortDescription}
               </p>
             </div>
             <div className="text-right">
-              <p className="text-[3.4rem] font-black leading-none tracking-[-0.06em] text-sky-500">{match.score}%</p>
+              <p className="text-[2.65rem] font-black leading-none tracking-[-0.06em] text-sky-500">{match.score}%</p>
               <p className="mt-2 text-sm font-black uppercase tracking-wide text-slate-400">Match</p>
             </div>
           </div>
 
-          <p className="mt-7 text-[1.6rem] font-medium leading-[1.55] tracking-[-0.03em] text-slate-700">
+          <p className="mt-7 text-[1.25rem] font-medium leading-[1.55] tracking-[-0.03em] text-slate-700">
             {match.explanation}
           </p>
 
           <div className="mt-8 grid grid-cols-3 gap-4">
-            <div className="rounded-[1.65rem] bg-slate-50 p-5">
+            <div className="rounded-[1.45rem] bg-slate-50 p-5">
               <p className="text-sm font-black uppercase text-slate-400">{tx("Rent", "Miete")}</p>
-              <p className="mt-5 text-2xl font-black text-slate-950">
+              <p className="mt-4 text-lg font-black text-slate-950">
                 {new Intl.NumberFormat(language === "de" ? "de-DE" : "en-US", {
                   maximumFractionDigits: 1,
                 }).format(district.rentPerSqm)}{" "}
                 €<span className="text-base font-medium text-slate-500">/m²</span>
               </p>
             </div>
-            <div className="rounded-[1.65rem] bg-slate-50 p-5">
+            <div className="rounded-[1.45rem] bg-slate-50 p-5">
               <p className="text-sm font-black uppercase text-slate-400">{tx("Safety", "Sicherheit")}</p>
-              <p className="mt-5 text-2xl font-black text-slate-950">
+              <p className="mt-4 text-lg font-black text-slate-950">
                 {Math.round(district.safetyScore * 10)}
                 <span className="text-base font-medium text-slate-500">/100</span>
               </p>
             </div>
-            <div className="rounded-[1.65rem] bg-slate-50 p-5">
+            <div className="rounded-[1.45rem] bg-slate-50 p-5">
               <p className="text-sm font-black uppercase text-slate-400">ÖPNV</p>
-              <p className="mt-5 text-2xl font-black text-slate-950">
+              <p className="mt-4 text-lg font-black text-slate-950">
                 {Math.round(district.publicTransportScore * 10)}
                 <span className="text-base font-medium text-slate-500">/100</span>
               </p>
@@ -169,7 +169,7 @@ export function DistrictDetail({
 
           <div className="mt-8 grid grid-cols-2 gap-4">
             <button
-              className="inline-flex min-h-16 items-center justify-center gap-3 rounded-full border border-slate-200 bg-white px-5 text-xl font-black text-slate-950 transition-colors hover:bg-slate-50"
+              className="inline-flex min-h-13 items-center justify-center gap-3 rounded-full border border-slate-200 bg-white px-4 text-base font-black text-slate-950 transition-colors hover:bg-slate-50"
               onClick={() => onToggleSave(district.id)}
               type="button"
             >
@@ -177,7 +177,7 @@ export function DistrictDetail({
               {tx("Compare", "Vergleichen")}
             </button>
             <button
-              className="inline-flex min-h-16 items-center justify-center gap-3 rounded-full bg-slate-950 px-5 text-xl font-black text-white transition-colors hover:bg-slate-800"
+              className="inline-flex min-h-13 items-center justify-center gap-3 rounded-full bg-slate-950 px-4 text-base font-black text-white transition-colors hover:bg-slate-800"
               onClick={onBack}
               type="button"
             >
@@ -187,13 +187,13 @@ export function DistrictDetail({
           </div>
         </section>
 
-        <section className="rounded-[2.5rem] border border-slate-200 bg-white p-8 shadow-sm">
-          <h2 className="text-2xl font-black uppercase tracking-[0.18em] text-slate-400">
+        <section className="rounded-[2.2rem] border border-slate-200 bg-white p-6 shadow-sm">
+          <h2 className="text-xl font-black uppercase tracking-[0.18em] text-slate-400">
             {tx("Fits you because", "Passt zu dir, weil:")}
           </h2>
           <div className="mt-8 grid gap-5">
             {match.strengths.slice(0, 3).map((strength) => (
-              <p className="flex items-center gap-5 text-2xl font-medium text-slate-950" key={strength}>
+              <p className="flex items-center gap-5 text-xl font-medium text-slate-950" key={strength}>
                 <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-sky-50 text-sky-500">
                   <CheckCircle2 aria-hidden="true" className="h-6 w-6" />
                 </span>
@@ -203,8 +203,8 @@ export function DistrictDetail({
           </div>
         </section>
 
-        <section className="rounded-[2.5rem] border border-slate-200 bg-white p-8 shadow-sm">
-          <h2 className="text-2xl font-black uppercase tracking-[0.18em] text-slate-400">
+        <section className="rounded-[2.2rem] border border-slate-200 bg-white p-6 shadow-sm">
+          <h2 className="text-xl font-black uppercase tracking-[0.18em] text-slate-400">
             {tx("Ratings", "Bewertungen")}
           </h2>
           <div className="mt-8 grid gap-5">
@@ -220,11 +220,11 @@ export function DistrictDetail({
           </div>
         </section>
 
-        <section className="rounded-[2.5rem] border border-slate-200 bg-white p-8 shadow-sm">
-          <h2 className="text-2xl font-black uppercase tracking-[0.18em] text-sky-500">{tx("Advantages", "Vorteile")}</h2>
+        <section className="rounded-[2.2rem] border border-slate-200 bg-white p-6 shadow-sm">
+          <h2 className="text-xl font-black uppercase tracking-[0.18em] text-sky-500">{tx("Advantages", "Vorteile")}</h2>
           <div className="mt-6 grid gap-5">
             {match.strengths.slice(0, 4).map((strength) => (
-              <p className="flex items-center gap-4 text-2xl font-medium text-slate-950" key={strength}>
+              <p className="flex items-center gap-4 text-xl font-medium text-slate-950" key={strength}>
                 <CheckCircle2 aria-hidden="true" className="h-6 w-6 text-sky-500" />
                 {strength}
               </p>
@@ -232,11 +232,11 @@ export function DistrictDetail({
           </div>
         </section>
 
-        <section className="rounded-[2.5rem] border border-slate-200 bg-white p-8 shadow-sm">
-          <h2 className="text-2xl font-black uppercase tracking-[0.18em] text-rose-500">{tx("Watch out for", "Zu beachten")}</h2>
+        <section className="rounded-[2.2rem] border border-slate-200 bg-white p-6 shadow-sm">
+          <h2 className="text-xl font-black uppercase tracking-[0.18em] text-rose-500">{tx("Watch out for", "Zu beachten")}</h2>
           <div className="mt-6 grid gap-5">
             {(match.tradeoffs.length ? match.tradeoffs : [tx("Rent level may vary by street.", "Mietniveau kann je nach Lage variieren.")]).slice(0, 3).map((tradeoff) => (
-              <p className="flex items-center gap-4 text-2xl font-medium text-slate-950" key={tradeoff}>
+              <p className="flex items-center gap-4 text-xl font-medium text-slate-950" key={tradeoff}>
                 <span className="text-rose-500">×</span>
                 {tradeoff}
               </p>
@@ -244,11 +244,11 @@ export function DistrictDetail({
           </div>
         </section>
 
-        <section className="rounded-[2.5rem] border border-violet-100 bg-violet-50 p-8 shadow-sm">
-          <h2 className="text-xl font-black uppercase tracking-[0.16em] text-violet-700">
+        <section className="rounded-[2.2rem] border border-slate-200 bg-slate-50 p-6 shadow-sm">
+          <h2 className="text-xl font-black uppercase tracking-[0.16em] text-slate-700">
             {tx("Next step", "Nächster Schritt")}
           </h2>
-          <p className="mt-3 text-xl font-medium leading-relaxed text-slate-700">
+          <p className="mt-3 text-base font-medium leading-relaxed text-slate-700">
             {tx(
               "We forward you with this district as a filter.",
               "Wir leiten dich mit diesem Stadtteil als Filter weiter.",
@@ -257,14 +257,14 @@ export function DistrictDetail({
           <div className="mt-6 grid gap-3">
             {housingSearchLinks.map((link) => (
               <a
-                className="inline-flex min-h-16 items-center justify-between rounded-[1.4rem] bg-white px-5 text-xl font-black text-slate-950 shadow-sm transition-colors hover:bg-violet-100"
+                className="inline-flex min-h-13 items-center justify-between rounded-[1.4rem] bg-white px-4 text-base font-black text-slate-950 shadow-sm transition-colors hover:bg-slate-100"
                 href={link.url}
                 key={link.label}
                 rel="noreferrer"
                 target="_blank"
               >
                 <span className="inline-flex items-center gap-4">
-                  <Building2 aria-hidden="true" className="h-6 w-6 text-violet-600" />
+                  <Building2 aria-hidden="true" className="h-6 w-6 text-slate-950" />
                   {link.label}
                 </span>
                 <ExternalLink aria-hidden="true" className="h-5 w-5 text-slate-500" />

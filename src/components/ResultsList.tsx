@@ -75,7 +75,7 @@ export function ResultsList({ matches, savedDistrictIds, onOpenDetails, onToggle
             </button>
 
             <span className="min-w-0 px-2 text-center text-sm font-black text-slate-700">
-              {tx("Page", "Seite")} <span className="text-indigo-600">{currentPage}</span> {tx("of", "von")} {totalPages}
+              {tx("Page", "Seite")} <span className="text-slate-950">{currentPage}</span> {tx("of", "von")} {totalPages}
             </span>
 
             <button
@@ -109,7 +109,7 @@ export function ResultsList({ matches, savedDistrictIds, onOpenDetails, onToggle
                   className={[
                     "h-11 min-w-11 shrink-0 rounded-2xl px-3 text-sm font-black transition-colors",
                     isActive
-                      ? "bg-indigo-600 text-white shadow-lg shadow-indigo-600/20"
+                      ? "bg-slate-950 text-white shadow-lg shadow-slate-950/15"
                       : "bg-slate-100 text-slate-600 hover:bg-slate-200",
                   ].join(" ")}
                   key={pageNumber}

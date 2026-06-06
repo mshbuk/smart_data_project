@@ -343,14 +343,14 @@ function createBoundaryPopup(feature: DistrictBoundaryFeature, language: Languag
         <button
           class="district-map-save-button"
           type="button"
-          style="align-items:center;border:0;border-radius:999px;background:${properties.isSaved ? "#fff1f2" : "#eef2ff"};color:${properties.isSaved ? "#e11d48" : "#4f46e5"};cursor:pointer;display:inline-flex;font-size:12px;font-weight:900;gap:5px;padding:7px 10px;"
+          style="align-items:center;border:0;border-radius:999px;background:${properties.isSaved ? "#fff1f2" : "#eef2ff"};color:${properties.isSaved ? "#e11d48" : "#0f172a"};cursor:pointer;display:inline-flex;font-size:12px;font-weight:900;gap:5px;padding:7px 10px;"
         >
           ${properties.isSaved ? "♥" : "♡"} ${properties.isSaved ? (language === "de" ? "Gespeichert" : "Saved") : (language === "de" ? "Speichern" : "Save")}
         </button>
         <button
           class="district-map-details-button"
           type="button"
-          style="border:0;border-radius:999px;background:#4f46e5;color:#fff;cursor:pointer;font-size:12px;font-weight:900;padding:7px 10px;"
+          style="border:0;border-radius:999px;background:#0f172a;color:#fff;cursor:pointer;font-size:12px;font-weight:900;padding:7px 10px;"
         >
           ${language === "de" ? "Mehr Infos" : "More info"}
         </button>
@@ -360,7 +360,7 @@ function createBoundaryPopup(feature: DistrictBoundaryFeature, language: Languag
 
   return `
     <div style="min-width:230px;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
-      <div style="font-size:12px;font-weight:800;text-transform:uppercase;color:#4f46e5;letter-spacing:.04em;">${rank} ${language === "de" ? "Treffer" : "match"}</div>
+      <div style="font-size:12px;font-weight:800;text-transform:uppercase;color:#0f172a;letter-spacing:.04em;">${rank} ${language === "de" ? "Treffer" : "match"}</div>
       <strong style="display:block;margin-top:3px;font-size:16px;color:#0f172a;">${escapeHtml(districtName)}</strong>
       <div style="margin-top:7px;display:flex;align-items:center;gap:7px;flex-wrap:wrap;">
         <span style="border-radius:999px;background:#ecfdf5;color:#16a34a;padding:5px 9px;font-size:12px;font-weight:900;">${score}% ${language === "de" ? "Passung" : "match"}</span>
@@ -1028,20 +1028,20 @@ export function MapView({ matches, onOpenDetails, onToggleSave, savedDistrictIds
         <div className="mt-6 grid gap-5">
           {[
             [tx("Top districts", "Top Stadtteile"), tx("Based on your priorities", "Basierend auf deinen Prioritäten"), "#10b981"],
-            [tx("Explore map", "Karte erkunden"), tx("Discover landmarks and factors", "Sehenswürdigkeiten & Faktoren entdecken"), "#8b5cf6"],
-            [tx("Choose district", "Stadtteil wählen"), tx("Details and ratings at a glance", "Details & Bewertungen im Überblick"), "#3b82f6"],
+            [tx("Explore map", "Karte erkunden"), tx("Discover landmarks and factors", "Sehenswürdigkeiten & Faktoren entdecken"), "#0f172a"],
+            [tx("Choose district", "Stadtteil wählen"), tx("Details and ratings at a glance", "Details & Bewertungen im Überblick"), "#0ea5e9"],
             [tx("Find apartments", "Wohnungen finden"), tx("Continue to partner platforms", "Weiter zu Partnerplattformen"), "#334155"],
           ].map(([title, copy, color], index) => (
             <div className="grid grid-cols-[3rem_1fr] gap-4" key={title}>
               <span
-                className="grid h-12 w-12 place-items-center rounded-full text-xl font-black text-white"
+                className="grid h-10 w-10 place-items-center rounded-full text-lg font-black text-white"
                 style={{ backgroundColor: color }}
               >
                 {index + 1}
               </span>
               <span>
-                <span className="block text-xl font-black text-slate-950">{title}</span>
-                <span className="block text-xl font-medium leading-tight text-slate-500">{copy}</span>
+                <span className="block text-lg font-black text-slate-950">{title}</span>
+                <span className="block text-base font-medium leading-tight text-slate-500">{copy}</span>
               </span>
             </div>
           ))}
@@ -1054,7 +1054,7 @@ export function MapView({ matches, onOpenDetails, onToggleSave, savedDistrictIds
           {matches.slice(0, 3).map((match, index) => (
             <button
               className={[
-                "grid min-h-20 grid-cols-[3.5rem_1fr_auto] items-center gap-4 rounded-[1.55rem] border px-5 text-left transition-colors",
+                "grid min-h-16 grid-cols-[3.5rem_1fr_auto] items-center gap-4 rounded-[1.55rem] border px-5 text-left transition-colors",
                 index === 0 ? "border-emerald-200 bg-emerald-50" : "border-slate-200 bg-white hover:bg-slate-50",
               ].join(" ")}
               key={match.district.id}
@@ -1063,15 +1063,15 @@ export function MapView({ matches, onOpenDetails, onToggleSave, savedDistrictIds
             >
               <span
                 className={[
-                  "grid h-12 w-12 place-items-center rounded-full text-xl font-black text-white",
-                  index === 0 ? "bg-emerald-500" : index === 1 ? "bg-violet-500" : "bg-amber-500",
+                  "grid h-10 w-10 place-items-center rounded-full text-lg font-black text-white",
+                  index === 0 ? "bg-emerald-500" : index === 1 ? "bg-slate-500" : "bg-amber-500",
                 ].join(" ")}
               >
                 {index + 1}
               </span>
               <span>
                 <span className="block text-2xl font-black text-slate-950">{match.district.name}</span>
-                <span className="block text-xl font-medium text-slate-500">{match.score}% Match</span>
+                <span className="block text-base font-medium text-slate-500">{match.score}% Match</span>
               </span>
               <span className="text-2xl font-black text-slate-950">{match.score}%</span>
             </button>
@@ -1082,11 +1082,11 @@ export function MapView({ matches, onOpenDetails, onToggleSave, savedDistrictIds
       <section className="overflow-hidden rounded-[1.6rem] border border-white/80 bg-white shadow-[0_18px_45px_rgba(15,23,42,0.08)]">
       <div className="grid gap-4 p-4 md:grid-cols-[1fr_auto] md:items-start md:p-5">
         <div className="flex items-start gap-3">
-          <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-indigo-600 text-white shadow-lg shadow-indigo-600/20">
+          <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-slate-950 text-white shadow-lg shadow-slate-950/15">
             <MapPinned aria-hidden="true" className="h-5 w-5" />
           </span>
           <div>
-            <h2 className="text-xl font-black text-slate-950">{tx("Map view", "Kartenansicht")}</h2>
+            <h2 className="text-lg font-black text-slate-950">{tx("Map view", "Kartenansicht")}</h2>
             <p className="mt-1 text-sm leading-6 text-slate-600">
               {tx(
                 "Every Hamburg district from the GeoJSON is shown as its own border. Permanent landmarks stay visible, and clicking a district opens its match details.",
@@ -1097,7 +1097,7 @@ export function MapView({ matches, onOpenDetails, onToggleSave, savedDistrictIds
         </div>
 
         <div className="inline-flex items-center gap-2 rounded-2xl bg-slate-100 px-3 py-2 text-xs font-black text-slate-600">
-          <Layers aria-hidden="true" className="h-4 w-4 text-indigo-500" />
+          <Layers aria-hidden="true" className="h-4 w-4 text-slate-500" />
           {isLoadingBoundaries
             ? tx("Loading borders", "Grenzen laden")
             : tx(
@@ -1119,7 +1119,7 @@ export function MapView({ matches, onOpenDetails, onToggleSave, savedDistrictIds
                 aria-pressed={isActive}
                 className={[
                   "min-h-10 rounded-2xl px-4 text-sm font-black transition-colors",
-                  isActive ? "bg-indigo-600 text-white shadow-lg shadow-indigo-600/20" : "bg-slate-100 text-slate-600 hover:bg-slate-200",
+                  isActive ? "bg-slate-950 text-white shadow-lg shadow-slate-950/15" : "bg-slate-100 text-slate-600 hover:bg-slate-200",
                 ].join(" ")}
                 key={option}
                 onClick={() => setTopBoundaryCount(option)}
@@ -1192,8 +1192,8 @@ export function MapView({ matches, onOpenDetails, onToggleSave, savedDistrictIds
                   <Circle
                     center={[userLocation.latitude, userLocation.longitude]}
                     pathOptions={{
-                      color: "#4f46e5",
-                      fillColor: "#4f46e5",
+                      color: "#0f172a",
+                      fillColor: "#0f172a",
                       fillOpacity: 0.08,
                       opacity: 0.25,
                       weight: 1,
@@ -1205,7 +1205,7 @@ export function MapView({ matches, onOpenDetails, onToggleSave, savedDistrictIds
                   center={[userLocation.latitude, userLocation.longitude]}
                   pathOptions={{
                     color: "#ffffff",
-                    fillColor: "#4f46e5",
+                    fillColor: "#0f172a",
                     fillOpacity: 1,
                     opacity: 1,
                     weight: 3,
@@ -1222,7 +1222,7 @@ export function MapView({ matches, onOpenDetails, onToggleSave, savedDistrictIds
           </MapContainer>
 
           <button
-            className="absolute bottom-3 left-3 z-[650] inline-flex min-h-12 items-center gap-2 rounded-2xl bg-white/95 px-4 text-sm font-black text-indigo-600 shadow-xl shadow-slate-950/20 backdrop-blur transition-colors hover:bg-indigo-50 disabled:cursor-wait disabled:opacity-80"
+            className="absolute bottom-3 left-3 z-[650] inline-flex min-h-12 items-center gap-2 rounded-2xl bg-white/95 px-4 text-sm font-black text-slate-950 shadow-xl shadow-slate-950/20 backdrop-blur transition-colors hover:bg-slate-50 disabled:cursor-wait disabled:opacity-80"
             disabled={locationStatus === "locating"}
             onClick={findCurrentLocation}
             type="button"
@@ -1249,7 +1249,7 @@ export function MapView({ matches, onOpenDetails, onToggleSave, savedDistrictIds
                 "absolute inset-x-3 bottom-[4.75rem] z-[650] rounded-2xl border px-3 py-2 text-xs font-black shadow-lg shadow-slate-950/10 md:left-3 md:right-auto md:max-w-[320px]",
                 locationStatus === "error"
                   ? "border-amber-200 bg-amber-50/95 text-amber-800"
-                  : "border-indigo-100 bg-white/95 text-slate-600",
+                  : "border-slate-200 bg-white/95 text-slate-600",
               ].join(" ")}
             >
               {locationMessage}

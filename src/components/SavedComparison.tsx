@@ -101,7 +101,7 @@ export function SavedComparison({ preferences, savedMatches, onEditCriteria, onF
   if (savedMatches.length === 0) {
     return (
       <section className="rounded-[1.6rem] border border-white/80 bg-white/90 p-8 text-center shadow-[0_18px_45px_rgba(15,23,42,0.08)]">
-        <div className="mx-auto grid h-16 w-16 place-items-center rounded-[1.25rem] bg-indigo-600 text-white shadow-xl shadow-indigo-600/25">
+        <div className="mx-auto grid h-16 w-16 place-items-center rounded-[1.25rem] bg-slate-950 text-white shadow-xl shadow-slate-950/15">
           <Plus aria-hidden="true" className="h-8 w-8" strokeWidth={3} />
         </div>
         <h2 className="mt-4 text-xl font-black text-slate-950">{tx("No saved districts yet", "Noch keine Stadtteile gespeichert")}</h2>
@@ -112,7 +112,7 @@ export function SavedComparison({ preferences, savedMatches, onEditCriteria, onF
           )}
         </p>
         <button
-          className="mt-5 inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-indigo-600 px-5 text-sm font-black text-white shadow-lg shadow-indigo-600/20 transition-colors hover:bg-indigo-700"
+          className="mt-5 inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-slate-950 px-5 text-sm font-black text-white shadow-lg shadow-slate-950/15 transition-colors hover:bg-slate-800"
           onClick={onFindDistricts}
           type="button"
         >
@@ -128,7 +128,7 @@ export function SavedComparison({ preferences, savedMatches, onEditCriteria, onF
       <div className="rounded-[1.6rem] border border-white/80 bg-white/90 p-4 shadow-[0_18px_45px_rgba(15,23,42,0.08)] md:p-5">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="flex items-start gap-3">
-          <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-indigo-600 text-white shadow-lg shadow-indigo-600/20">
+          <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-slate-950 text-white shadow-lg shadow-slate-950/15">
             <Scale aria-hidden="true" className="h-5 w-5" />
           </span>
           <div>
@@ -142,7 +142,7 @@ export function SavedComparison({ preferences, savedMatches, onEditCriteria, onF
           </div>
           </div>
           <button
-            className="inline-flex min-h-11 items-center gap-2 rounded-2xl bg-indigo-600 px-4 text-sm font-black text-white shadow-lg shadow-indigo-600/20 transition-colors hover:bg-indigo-700"
+            className="inline-flex min-h-11 items-center gap-2 rounded-2xl bg-slate-950 px-4 text-sm font-black text-white shadow-lg shadow-slate-950/15 transition-colors hover:bg-slate-800"
             onClick={onFindDistricts}
             type="button"
           >
@@ -157,9 +157,9 @@ export function SavedComparison({ preferences, savedMatches, onEditCriteria, onF
               className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-sm font-bold text-slate-800"
               key={district.id}
             >
-              <span className="h-2 w-2 rounded-full bg-indigo-500" />
+              <span className="h-2 w-2 rounded-full bg-slate-500" />
               {district.name}
-              <span className="text-indigo-600">{score}%</span>
+              <span className="text-slate-950">{score}%</span>
             </span>
           ))}
         </div>
@@ -276,12 +276,12 @@ export function SavedComparison({ preferences, savedMatches, onEditCriteria, onF
               <div className="grid gap-2 rounded-2xl bg-slate-50 p-3" key={key}>
                 <div className="flex items-center justify-between gap-3">
                   <span className="text-sm font-black text-slate-900">{labels[key]}</span>
-                  <span className="text-xs font-black text-indigo-600">
+                  <span className="text-xs font-black text-slate-950">
                     {value}/5 · {getImportanceLabel(value, language)}
                   </span>
                 </div>
                 <div className="h-2 overflow-hidden rounded-full bg-white">
-                  <div className="h-full rounded-full bg-indigo-600" style={{ width: `${value * 20}%` }} />
+                  <div className="h-full rounded-full bg-slate-950" style={{ width: `${value * 20}%` }} />
                 </div>
               </div>
             );
@@ -389,11 +389,11 @@ export function SavedComparison({ preferences, savedMatches, onEditCriteria, onF
                 <span className="font-bold text-slate-700">{formatScore(district.schoolScore)}/10</span>
               </div>
               <div className="flex items-center gap-2 rounded-2xl bg-slate-50 px-3 py-2">
-                <Volume2 aria-hidden="true" className="h-4 w-4 text-violet-600" />
+                <Volume2 aria-hidden="true" className="h-4 w-4 text-slate-950" />
                 <span className="font-bold text-slate-700">{formatScore(district.quietnessScore)}/10</span>
               </div>
               <div className="flex items-center gap-2 rounded-2xl bg-slate-50 px-3 py-2">
-                <Music aria-hidden="true" className="h-4 w-4 text-indigo-600" />
+                <Music aria-hidden="true" className="h-4 w-4 text-slate-950" />
                 <span className="font-bold text-slate-700">{formatScore(district.nightlifeScore)}/10</span>
               </div>
             </div>

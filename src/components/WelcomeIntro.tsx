@@ -28,9 +28,9 @@ export function WelcomeIntro({ onBack, onStart }: WelcomeIntroProps) {
   const { tx } = useI18n();
 
   return (
-    <section className="mx-auto w-full max-w-[1080px] px-3.5 py-5 md:px-6 md:py-8">
+    <section className="mx-auto grid w-full max-w-[760px] gap-5 px-2 py-4 md:px-4 md:py-6">
       <button
-        className="mb-5 inline-flex min-h-11 items-center gap-2 rounded-2xl bg-white px-4 text-sm font-black text-slate-700 shadow-[0_12px_30px_rgba(15,23,42,0.08)] transition-colors hover:bg-slate-50"
+        className="w-fit inline-flex min-h-11 items-center gap-2 rounded-full border border-slate-200 bg-white px-4 text-sm font-black text-slate-700 shadow-sm transition-colors hover:bg-slate-50"
         onClick={onBack}
         type="button"
       >
@@ -38,38 +38,41 @@ export function WelcomeIntro({ onBack, onStart }: WelcomeIntroProps) {
         {tx("Back", "Zurück")}
       </button>
 
-      <div className="rounded-[2rem] border border-white/80 bg-gradient-to-br from-sky-50 via-white to-indigo-50 p-6 text-center shadow-[0_28px_90px_rgba(15,23,42,0.14)] md:p-10">
-        <h2 className="text-5xl font-black leading-tight text-slate-950 md:text-6xl">{tx("Hello!", "Hallo!")}</h2>
-        <p className="mx-auto mt-4 max-w-3xl text-xl font-bold leading-8 text-slate-600 md:text-2xl md:leading-10">
+      <div className="rounded-[2.2rem] border border-slate-200 bg-white p-7 text-left shadow-[0_20px_54px_rgba(15,23,42,0.1)] md:p-10">
+        <p className="text-sm font-black uppercase tracking-[0.22em] text-rose-500">
+          {tx("Welcome", "Willkommen")}
+        </p>
+        <h2 className="mt-5 text-[3.25rem] font-black leading-[0.98] tracking-[-0.06em] text-slate-950 md:text-6xl">
+          {tx("Let's find your district.", "Lass uns deinen Stadtteil finden.")}
+        </h2>
+        <p className="mt-6 max-w-3xl text-[1.35rem] font-medium leading-[1.45] tracking-[-0.03em] text-slate-500 md:text-2xl md:leading-10">
           {tx(
             "Nice to have you here. Let us find the Hamburg district that fits your life.",
             "Schön, dass du da bist. Lass uns gemeinsam den passenden Hamburger Stadtteil für dich finden.",
           )}
         </p>
 
-        <div className="mx-auto mt-8 max-w-3xl rounded-[1.6rem] bg-white/90 p-5 text-left shadow-sm shadow-slate-950/5 md:p-6">
-          <h3 className="text-center text-2xl font-black text-slate-950">{tx("How it works", "So funktioniert's")}</h3>
-          <div className="mt-5 grid gap-4">
+        <div className="mt-8 grid gap-3">
+          <h3 className="text-xl font-black uppercase tracking-[0.18em] text-slate-400">{tx("How it works", "So funktioniert's")}</h3>
             {introSteps.map((step, index) => {
               const Icon = step.icon;
 
               return (
-                <div className="grid grid-cols-[auto_1fr] items-center gap-4" key={step.en}>
-                  <span className="grid h-12 w-12 place-items-center rounded-2xl bg-indigo-100 text-lg font-black text-indigo-600">
+                <div className="grid grid-cols-[auto_auto_1fr] items-center gap-3 rounded-[1.35rem] border border-slate-200 bg-white px-4 py-3" key={step.en}>
+                  <span className="grid h-10 w-10 place-items-center rounded-full bg-slate-950 text-sm font-black text-white">
                     {index + 1}
                   </span>
-                  <span className="flex items-center gap-3 text-lg font-bold leading-7 text-slate-700 md:text-xl">
-                    <Icon aria-hidden="true" className="h-5 w-5 shrink-0 text-indigo-600" />
+                  <Icon aria-hidden="true" className="h-5 w-5 shrink-0 text-slate-500" />
+                  <span className="text-base font-black leading-6 text-slate-950 md:text-lg">
                     {tx(step.en, step.de)}
                   </span>
                 </div>
               );
             })}
-          </div>
         </div>
 
         <button
-          className="mt-8 inline-flex min-h-14 items-center justify-center gap-3 rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 px-8 text-lg font-black text-white shadow-xl shadow-indigo-600/25 transition-transform hover:-translate-y-0.5"
+          className="mt-8 inline-flex min-h-14 w-full items-center justify-center gap-3 rounded-full bg-slate-950 px-8 text-lg font-black text-white shadow-xl shadow-slate-950/15 transition-transform hover:-translate-y-0.5"
           onClick={onStart}
           type="button"
         >

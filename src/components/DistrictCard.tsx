@@ -49,7 +49,7 @@ export function DistrictCard({ match, isSaved, onToggleSave, onOpenDetails, rank
       <div className="grid">
         <button
           aria-label={tx(`Open ${district.name} details`, `${district.name} Details öffnen`)}
-          className="group relative min-h-[300px] overflow-hidden bg-slate-200 text-left"
+          className="group relative min-h-[230px] overflow-hidden bg-slate-200 text-left sm:min-h-[280px]"
           onClick={() => onOpenDetails?.(district.id)}
           type="button"
         >
@@ -61,17 +61,17 @@ export function DistrictCard({ match, isSaved, onToggleSave, onOpenDetails, rank
               src={district.imageUrl}
             />
           ) : (
-            <div className="absolute inset-0 bg-gradient-to-br from-slate-200 via-sky-100 to-indigo-200" />
+            <div className="absolute inset-0 bg-gradient-to-br from-slate-200 via-sky-100 to-slate-200" />
           )}
           <div className="absolute inset-0 bg-gradient-to-t from-slate-950/65 via-slate-950/15 to-transparent" />
           <div className="absolute left-4 top-4 rounded-2xl bg-white/90 px-3 py-2 text-sm font-black text-slate-950 shadow-lg backdrop-blur">
             #{rank}
           </div>
-          <div className="absolute right-4 top-4 grid h-16 w-16 place-items-center rounded-full bg-slate-500/75 text-center text-white shadow-lg backdrop-blur">
-            <span className="block text-2xl leading-none">{match.score}%</span>
+          <div className="absolute right-4 top-4 grid h-14 w-14 place-items-center rounded-full bg-slate-500/75 text-center text-white shadow-lg backdrop-blur">
+            <span className="block text-xl leading-none">{match.score}%</span>
             <span className="mt-1 block text-[0.68rem] uppercase tracking-wide">Match</span>
           </div>
-          <span className="absolute bottom-4 right-4 inline-flex items-center gap-2 rounded-2xl bg-white/90 px-3 py-2 text-xs font-black text-slate-800 opacity-100 shadow-lg backdrop-blur transition-colors group-hover:bg-indigo-600 group-hover:text-white">
+          <span className="absolute bottom-4 right-4 inline-flex items-center gap-2 rounded-2xl bg-white/90 px-3 py-2 text-xs font-black text-slate-800 opacity-100 shadow-lg backdrop-blur transition-colors group-hover:bg-slate-950 group-hover:text-white">
             <Info aria-hidden="true" className="h-4 w-4" />
             {tx("Details", "Details")}
           </span>
@@ -91,7 +91,7 @@ export function DistrictCard({ match, isSaved, onToggleSave, onOpenDetails, rank
               }
               className={[
                 "grid h-11 w-11 shrink-0 place-items-center rounded-full border transition-all",
-                "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600",
+                "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-950",
                 isSaved
                   ? "border-rose-200 bg-rose-50 text-rose-500"
                   : "border-slate-200 bg-slate-50 text-slate-400 hover:border-rose-200 hover:bg-rose-50 hover:text-rose-500",
@@ -115,7 +115,7 @@ export function DistrictCard({ match, isSaved, onToggleSave, onOpenDetails, rank
               </span>
             </div>
             <button
-              className="inline-flex min-h-12 w-full items-center justify-center rounded-full moin-gradient-primary px-5 text-sm font-black text-white shadow-lg shadow-violet-600/20 transition-transform hover:-translate-y-0.5"
+              className="inline-flex min-h-11 w-full items-center justify-center rounded-full moin-gradient-primary px-5 text-sm font-black text-white shadow-lg shadow-slate-950/15 transition-transform hover:-translate-y-0.5"
               onClick={() => onOpenDetails?.(district.id)}
               type="button"
             >

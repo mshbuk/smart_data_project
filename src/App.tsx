@@ -269,12 +269,12 @@ function App() {
 
   return (
     <I18nProvider language={language} setLanguage={setLanguage}>
-    <main className="min-h-screen bg-[var(--moin-background)] pb-28 font-sans text-slate-950 antialiased">
+    <main className="min-h-screen bg-[var(--moin-background)] pb-24 font-sans text-slate-950 antialiased">
       {!selectedDetailMatch && (
         <header className="sticky top-0 z-[1300] border-b border-slate-200 bg-[var(--moin-background)]/95 backdrop-blur-xl">
-          <div className="mx-auto flex min-h-[7.5rem] w-full max-w-[760px] items-center justify-between gap-4 px-6">
+          <div className="mx-auto flex min-h-[6.4rem] w-full max-w-[760px] items-center justify-between gap-4 px-5">
             <button
-              className="text-left text-[2.15rem] font-black leading-none tracking-[-0.04em] text-slate-950"
+              className="text-left text-[2rem] font-black leading-none tracking-[-0.04em] text-slate-950"
               onClick={() => {
                 setSelectedDistrictId(null);
                 setActiveView("results");
@@ -287,7 +287,7 @@ function App() {
             </button>
             <button
               aria-label={tx("Open profile", "Profil öffnen")}
-              className="grid h-20 w-20 place-items-center rounded-full border-[6px] border-white bg-slate-200 text-lg font-black text-slate-600 shadow-[0_0_0_1px_rgba(203,213,225,0.8),0_16px_36px_rgba(15,23,42,0.08)]"
+              className="grid h-16 w-16 place-items-center rounded-full border-[5px] border-white bg-slate-200 text-base font-black text-slate-600 shadow-[0_0_0_1px_rgba(203,213,225,0.8),0_12px_28px_rgba(15,23,42,0.08)]"
               onClick={() => {
                 setSelectedDistrictId(null);
                 setActiveView("profile");
@@ -322,7 +322,7 @@ function App() {
         {flowStep === "criteria" && (
           <section className="grid gap-4" ref={criteriaPanelRef}>
             <div className="rounded-[1.6rem] border border-white/80 bg-white/95 p-5 shadow-[0_18px_45px_rgba(15,23,42,0.08)] md:p-6">
-              <p className="text-xs font-black uppercase tracking-wide text-indigo-600">{tx("Criteria review", "Kriterien prüfen")}</p>
+              <p className="text-xs font-black uppercase tracking-wide text-slate-950">{tx("Criteria review", "Kriterien prüfen")}</p>
               <h2 className="mt-1 text-3xl font-black leading-tight text-slate-950">{tx("These are your criteria", "Das sind deine Kriterien")}</h2>
               <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
                 {tx(
@@ -355,7 +355,7 @@ function App() {
                 )}
               </p>
               <button
-                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-indigo-600 px-5 text-sm font-black text-white shadow-lg shadow-indigo-600/20 transition-colors hover:bg-indigo-700"
+                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-slate-950 px-5 text-sm font-black text-white shadow-lg shadow-slate-950/15 transition-colors hover:bg-slate-800"
                 onClick={() => {
                   setSelectedDistrictId(null);
                   setActiveView("results");
@@ -384,7 +384,7 @@ function App() {
                   </p>
                   {topMatch && (
                     <p className="mt-1 text-sm font-bold text-slate-600">
-                      {tx("Top match", "Top-Treffer")}: <span className="text-violet-600">{topMatch.district.name}</span> · {topMatch.score}%
+                      {tx("Top match", "Top-Treffer")}: <span className="text-slate-950">{topMatch.district.name}</span> · {topMatch.score}%
                     </p>
                   )}
                 </div>
@@ -396,11 +396,11 @@ function App() {
                       onClick={openCriteriaEditor}
                       type="button"
                     >
-                      <SlidersHorizontal aria-hidden="true" className="h-4 w-4 text-violet-600" />
+                      <SlidersHorizontal aria-hidden="true" className="h-4 w-4 text-slate-950" />
                       {tx("Adjust answers", "Antworten anpassen")}
                     </button>
                     <button
-                      className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full moin-gradient-primary px-4 text-sm font-black text-white shadow-lg shadow-violet-600/20 transition-transform hover:-translate-y-0.5"
+                      className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full moin-gradient-primary px-4 text-sm font-black text-white shadow-lg shadow-slate-950/15 transition-transform hover:-translate-y-0.5"
                       onClick={() => {
                         setSelectedDistrictId(null);
                         setFlowStep("profile");
@@ -420,9 +420,9 @@ function App() {
             {!selectedDetailMatch && (
               <nav
                 aria-label={tx("Recommendation views", "Empfehlungsansichten")}
-                className="fixed inset-x-4 bottom-4 z-[1200] mx-auto max-w-[640px] rounded-[2.6rem] border border-slate-200 bg-white/95 p-3 shadow-[0_18px_50px_rgba(15,23,42,0.14)] backdrop-blur-xl"
+                className="fixed inset-x-3 bottom-3 z-[1200] mx-auto max-w-[620px] rounded-[2.4rem] border border-slate-200 bg-white/95 p-2.5 shadow-[0_16px_42px_rgba(15,23,42,0.14)] backdrop-blur-xl"
               >
-                <div className="grid grid-cols-5 gap-1.5">
+                <div className="grid grid-cols-5 gap-1">
                   {viewOptions.map((option) => {
                     const Icon = option.icon;
                     const isActive = activeView === option.view;
@@ -431,8 +431,8 @@ function App() {
                       <button
                         aria-pressed={isActive}
                         className={[
-                          "relative flex min-h-[5.3rem] flex-col items-center justify-center gap-2 rounded-[1.8rem] px-1 text-[0.72rem] font-black uppercase transition-colors sm:min-h-20 sm:gap-2 sm:px-2 sm:text-sm",
-                          "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600",
+                          "relative flex min-h-[4.45rem] flex-col items-center justify-center gap-1.5 rounded-[1.55rem] px-0.5 text-[0.62rem] font-black uppercase transition-colors sm:min-h-[4.9rem] sm:px-2 sm:text-xs",
+                          "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-950",
                           isActive ? "text-slate-950" : "text-slate-500 hover:bg-slate-100 hover:text-slate-800",
                         ].join(" ")}
                         key={option.view}
@@ -443,8 +443,8 @@ function App() {
                         }}
                         type="button"
                       >
-                        <Icon aria-hidden="true" className="h-7 w-7" strokeWidth={2.4} />
-                        <span className="max-w-full truncate">{option.label}</span>
+                        <Icon aria-hidden="true" className="h-5 w-5 sm:h-6 sm:w-6" strokeWidth={2.4} />
+                        <span className="max-w-full truncate leading-none">{option.label}</span>
                         {typeof option.count === "number" && (
                           <span
                             className={[

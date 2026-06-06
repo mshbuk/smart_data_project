@@ -34,7 +34,7 @@ const sliders: Array<{ key: SliderKey; label: string; helper: string; icon: Luci
   { key: "publicTransport", label: "Public transport", helper: "U-Bahn, S-Bahn, bus", icon: Train, color: "#0891b2" },
   { key: "schools", label: "Schools", helper: "School access", icon: GraduationCap, color: "#d97706" },
   { key: "kindergartens", label: "Kindergartens", helper: "Early-childhood options", icon: Baby, color: "#db2777" },
-  { key: "nightlife", label: "Nightlife", helper: "Food, bars, events", icon: Music, color: "#4f46e5" },
+  { key: "nightlife", label: "Nightlife", helper: "Food, bars, events", icon: Music, color: "#0f172a" },
 ];
 
 const labelTranslations: Record<string, string> = {
@@ -83,7 +83,7 @@ export function PreferenceForm({ preferences, onChange, defaultExpanded = false,
       <div className="grid gap-4 md:grid-cols-[1fr_auto] md:items-start">
         <div className="min-w-0">
           <div className="flex items-center gap-2">
-            <SlidersHorizontal aria-hidden="true" className="h-5 w-5 text-indigo-600" />
+            <SlidersHorizontal aria-hidden="true" className="h-5 w-5 text-slate-950" />
             <h2 className="m-0 text-xl font-black text-[#101828]">{tx("Fine-tune priorities", "Prioritäten feinjustieren")}</h2>
           </div>
           <p className="mt-1 text-sm leading-6 text-slate-600">
@@ -96,7 +96,7 @@ export function PreferenceForm({ preferences, onChange, defaultExpanded = false,
 
         <button
           aria-expanded={isExpanded}
-          className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-indigo-600 px-4 text-sm font-black text-white transition-colors hover:bg-indigo-700"
+          className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-slate-950 px-4 text-sm font-black text-white transition-colors hover:bg-slate-800"
           onClick={() => setIsExpanded((current) => !current)}
           type="button"
         >
@@ -148,7 +148,7 @@ export function PreferenceForm({ preferences, onChange, defaultExpanded = false,
                 <span className="block text-xs font-bold text-slate-500">{tx("Euros per square meter", "Euro pro Quadratmeter")}</span>
               </span>
             </span>
-            <span className="flex min-h-11 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 focus-within:border-indigo-300 focus-within:ring-4 focus-within:ring-indigo-100">
+            <span className="flex min-h-11 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 focus-within:border-slate-400 focus-within:ring-4 focus-within:ring-slate-200">
               <span className="text-xs font-black text-slate-500">EUR</span>
               <input
                 className="min-w-0 flex-1 border-0 bg-transparent text-base font-black text-slate-950 outline-none"

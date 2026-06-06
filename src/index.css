@@ -6,12 +6,12 @@
   --moin-foreground: oklch(0.18 0.03 270);
   --moin-muted: oklch(0.5 0.02 270);
   --moin-border: oklch(0.92 0.01 280);
-  --moin-primary: oklch(0.52 0.24 285);
-  --moin-primary-soft: oklch(0.96 0.04 285);
-  --moin-gradient-primary: linear-gradient(135deg, oklch(0.52 0.24 285), oklch(0.62 0.22 310));
+  --moin-primary: oklch(0.16 0.04 250);
+  --moin-primary-soft: oklch(0.96 0.01 250);
+  --moin-gradient-primary: linear-gradient(135deg, oklch(0.12 0.04 250), oklch(0.22 0.04 250));
   --moin-gradient-hero: linear-gradient(180deg, oklch(0 0 0 / 0) 30%, oklch(0 0 0 / 0.76));
   --moin-shadow-card: 0 2px 12px -4px oklch(0.2 0.05 270 / 0.08);
-  --moin-shadow-soft: 0 4px 24px -10px oklch(0.52 0.24 285 / 0.22);
+  --moin-shadow-soft: 0 4px 24px -10px oklch(0.18 0.04 250 / 0.2);
 }
 
 html,
@@ -47,7 +47,7 @@ h4 {
 }
 
 .preference-range {
-  --range-color: #4f46e5;
+  --range-color: #0f172a;
   --range-progress: 50%;
   appearance: none;
   background: transparent;
@@ -100,4 +100,10 @@ h4 {
   box-shadow: 0 3px 10px rgba(15, 23, 42, 0.22);
   height: 1rem;
   width: 1rem;
+}
+
+@media (max-width: 480px) {
+  html {
+    font-size: 14px;
+  }
 }
