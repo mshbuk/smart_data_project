@@ -6,6 +6,7 @@ import {
   CalendarDays,
   Home,
   Map as MapIcon,
+  MessageCircle,
   SlidersHorizontal,
   User,
   type LucideIcon,
@@ -15,6 +16,7 @@ import { AuthGate } from "./components/AuthGate";
 import { CustomQuestionnaire } from "./components/CustomQuestionnaire";
 import { DistrictDetail } from "./components/DistrictDetail";
 import { EventsView } from "./components/EventsView";
+import { GlobalChatModal } from "./components/GlobalChatModal";
 import { MapView } from "./components/MapView";
 import { OverviewView } from "./components/OverviewView";
 import { ProfilePage } from "./components/ProfilePage";
@@ -38,6 +40,7 @@ type PersistedState = {
   preferences?: Preferences;
   savedDistrictIds?: string[];
   selectedProfile?: UserProfile;
+  signedUpEventIds?: string[];
 };
 
 type ViewOption = {
@@ -113,6 +116,9 @@ function loadPersistedState(): PersistedState {
         ? parsed.savedDistrictIds.filter((id): id is string => typeof id === "string" && districtIds.has(id))
         : undefined,
       selectedProfile: isUserProfile(parsed.selectedProfile) ? parsed.selectedProfile : undefined,
+      signedUpEventIds: Array.isArray(parsed.signedUpEventIds)
+        ? parsed.signedUpEventIds.filter((id): id is string => typeof id === "string")
+        : undefined,
     };
   } catch {
     return {};
@@ -142,6 +148,8 @@ function App() {
   const [mapFocusDistrictId, setMapFocusDistrictId] = useState<string | null>(null);
   const [showFullResults, setShowFullResults] = useState(false);
   const [questionnaireBackTarget, setQuestionnaireBackTarget] = useState<QuestionnaireBackTarget>("auth");
+  const [signedUpEventIds, setSignedUpEventIds] = useState<string[]>(initialState.signedUpEventIds ?? []);
+  const [isGlobalChatOpen, setIsGlobalChatOpen] = useState(false);
 
   const matches = useMemo(
     () => calculateDistrictMatches(districtData, preferences, selectedProfile, language),
@@ -170,6 +178,7 @@ function App() {
       preferences,
       savedDistrictIds,
       selectedProfile,
+      signedUpEventIds,
     };
 
     try {
@@ -177,7 +186,7 @@ function App() {
     } catch {
       // Browsers can block storage in private contexts; the app still works for the current session.
     }
-  }, [activeView, authGateCompleted, authMode, flowStep, language, preferences, savedDistrictIds, selectedProfile]);
+  }, [activeView, authGateCompleted, authMode, flowStep, language, preferences, savedDistrictIds, selectedProfile, signedUpEventIds]);
 
   const toggleSave = (districtId: string) => {
     setSavedDistrictIds((currentIds) =>
@@ -195,6 +204,7 @@ function App() {
     setSelectedProfile("longTerm");
     setPreferences(profileDefaults.longTerm);
     setSavedDistrictIds([]);
+    setSignedUpEventIds([]);
     setActiveView("results");
     setShowFullResults(false);
     setQuestionnaireBackTarget("auth");
@@ -259,6 +269,14 @@ function App() {
     setSelectedDistrictId(null);
     setActiveView("map");
     setFlowStep("recommendations");
+  };
+
+  const toggleEventSignUp = (eventId: string) => {
+    setSignedUpEventIds((currentIds) =>
+      currentIds.includes(eventId)
+        ? currentIds.filter((id) => id !== eventId)
+        : [...currentIds, eventId],
+    );
   };
 
   const viewOptions: ViewOption[] = [
@@ -342,6 +360,19 @@ function App() {
                 {tx("Adjust answers", "Antworten anpassen")}
               </button>
             )}
+            <button
+              aria-label={tx("Open chats", "Chats öffnen")}
+              className="relative grid h-9 w-9 place-items-center rounded-full border border-border bg-card text-foreground shadow-card"
+              onClick={() => setIsGlobalChatOpen(true)}
+              type="button"
+            >
+              <MessageCircle aria-hidden="true" className="h-4 w-4" />
+              {signedUpEventIds.length > 0 && (
+                <span className="absolute -right-1 -top-1 grid h-4 min-w-4 place-items-center rounded-full bg-rose-600 px-1 text-[10px] font-bold leading-none text-white">
+                  {signedUpEventIds.length}
+                </span>
+              )}
+            </button>
             <div className="grid grid-cols-2 rounded-full border border-border bg-card p-0.5 text-[11px] font-semibold shadow-card">
               {(["de", "en"] as const).map((option) => (
                 <button
@@ -496,7 +527,10 @@ function App() {
               />
             )}
             {!selectedDetailMatch && activeView === "events" && (
-              <EventsView />
+              <EventsView
+                onToggleSignUp={toggleEventSignUp}
+                signedUpEventIds={signedUpEventIds}
+              />
             )}
             {!selectedDetailMatch && activeView === "map" && (
               <MapView
@@ -529,6 +563,12 @@ function App() {
           </>
         )}
       </div>
+      {isGlobalChatOpen && (
+        <GlobalChatModal
+          onClose={() => setIsGlobalChatOpen(false)}
+          signedUpEventIds={signedUpEventIds}
+        />
+      )}
     </main>
     </I18nProvider>
   );

@@ -1,14 +1,7 @@
 import {
-  Euro,
-  GraduationCap,
-  Music,
   Plus,
   Scale,
-  Shield,
   SlidersHorizontal,
-  Train,
-  TreePine,
-  Volume2,
 } from "lucide-react";
 import type { DistrictMatch, Preferences } from "../types/District";
 import { formatScore, getCriterionLabels, getImportanceLabel, preferenceKeys } from "../utils/districtInsights";
@@ -125,58 +118,57 @@ export function SavedComparison({ preferences, savedMatches, onEditCriteria, onF
 
   return (
     <section className="grid gap-4">
-      <div className="rounded-[1.6rem] border border-white/80 bg-white/90 p-4 shadow-[0_18px_45px_rgba(15,23,42,0.08)] md:p-5">
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div className="flex items-start gap-3">
-          <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-slate-950 text-white shadow-lg shadow-slate-950/15">
+      <div className="flex items-start justify-between gap-3">
+        <p className="text-sm leading-6 text-muted-foreground">
+          {tx(
+            "Compare your saved districts by the criteria that matter to you.",
+            "Vergleiche deine gespeicherten Stadtteile nach deinen Kriterien.",
+          )}
+        </p>
+        <button
+          className="inline-flex min-h-10 shrink-0 items-center gap-1.5 rounded-full bg-primary px-3 text-xs font-semibold text-primary-foreground shadow-card"
+          onClick={onFindDistricts}
+          type="button"
+        >
+          <Plus aria-hidden="true" className="h-3.5 w-3.5" />
+          {tx("Add district", "Stadtteil hinzufügen")}
+        </button>
+      </div>
+
+      <div className="flex flex-wrap gap-2">
+        {savedMatches.map(({ district, score }, index) => (
+          <span
+            className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5 text-sm font-semibold text-foreground shadow-card"
+            key={district.id}
+          >
+            <span
+              className="grid h-5 w-5 place-items-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground"
+            >
+              {index + 1}
+            </span>
+            {district.name}
+            <span className="text-muted-foreground">{score}%</span>
+          </span>
+        ))}
+      </div>
+
+      <div className="rounded-2xl border border-border bg-card p-4 shadow-card">
+        <div className="flex items-start gap-3">
+          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-primary text-primary-foreground shadow-soft">
             <Scale aria-hidden="true" className="h-5 w-5" />
           </span>
           <div>
-            <h2 className="text-xl font-black text-slate-950">{tx("Saved comparison", "Gespeicherter Vergleich")}</h2>
-            <p className="mt-1 text-sm leading-6 text-slate-600">
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Profil-Vergleich</p>
+            <h3 className="mt-1 font-display text-lg font-semibold text-foreground">{tx("Direct visual comparison", "Direkter Vergleich")}</h3>
+            <p className="mt-1 text-sm leading-6 text-muted-foreground">
               {tx(
-                "Compare up to all saved districts. Best values are highlighted in each row.",
-                "Vergleiche alle gespeicherten Stadtteile. Die besten Werte werden pro Zeile hervorgehoben.",
+                "The diagram compares up to three saved districts across the main district qualities.",
+                "Das Diagramm vergleicht bis zu drei gespeicherte Stadtteile über die wichtigsten Stadtteilqualitäten.",
               )}
             </p>
           </div>
-          </div>
-          <button
-            className="inline-flex min-h-11 items-center gap-2 rounded-2xl bg-slate-950 px-4 text-sm font-black text-white shadow-lg shadow-slate-950/15 transition-colors hover:bg-slate-800"
-            onClick={onFindDistricts}
-            type="button"
-          >
-            <Plus aria-hidden="true" className="h-4 w-4" />
-            {tx("Add", "Hinzufügen")}
-          </button>
         </div>
-
-        <div className="mt-4 flex flex-wrap gap-2">
-          {savedMatches.map(({ district, score }) => (
-            <span
-              className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-sm font-bold text-slate-800"
-              key={district.id}
-            >
-              <span className="h-2 w-2 rounded-full bg-slate-500" />
-              {district.name}
-              <span className="text-slate-950">{score}%</span>
-            </span>
-          ))}
-        </div>
-      </div>
-
-      <div className="rounded-[1.6rem] border border-white/80 bg-white/90 p-4 shadow-[0_18px_45px_rgba(15,23,42,0.08)] md:p-5">
-        <div>
-          <p className="text-xs font-black uppercase tracking-wide text-slate-400">{tx("Profile comparison", "Profil-Vergleich")}</p>
-          <h3 className="mt-1 text-xl font-black text-slate-950">{tx("Direct visual comparison", "Direkter Vergleich")}</h3>
-          <p className="mt-1 text-sm leading-6 text-slate-600">
-            {tx(
-              "The diagram compares up to three saved districts across the main district qualities.",
-              "Das Diagramm vergleicht bis zu drei gespeicherte Stadtteile über die wichtigsten Stadtteilqualitäten.",
-            )}
-          </p>
-        </div>
-        <div className="mt-4 overflow-hidden rounded-[1.35rem] bg-white p-3">
+        <div className="mt-4 overflow-hidden rounded-2xl bg-background p-3">
           <svg aria-hidden="true" className="mx-auto h-auto w-full max-w-[520px]" viewBox="0 0 420 380">
             {[0.25, 0.5, 0.75, 1].map((scale) => (
               <polygon
@@ -359,58 +351,6 @@ export function SavedComparison({ preferences, savedMatches, onEditCriteria, onF
             </tbody>
           </table>
         </div>
-      </div>
-
-      <div className="grid gap-3 md:grid-cols-2">
-        {savedMatches.map(({ district, strengths, tradeoffs }) => (
-          <article className="rounded-[1.35rem] border border-white/80 bg-white/90 p-4 shadow-[0_12px_30px_rgba(15,23,42,0.07)]" key={district.id}>
-            <h3 className="text-lg font-black text-slate-950">{district.name}</h3>
-            <div className="mt-3 grid grid-cols-2 gap-2 text-sm">
-              <div className="flex items-center gap-2 rounded-2xl bg-slate-50 px-3 py-2">
-                <Euro aria-hidden="true" className="h-4 w-4 text-emerald-600" />
-                <span className="font-bold text-slate-700">
-                  EUR {new Intl.NumberFormat(language === "de" ? "de-DE" : "en-US").format(district.rentPerSqm)}/{tx("sqm", "qm")}
-                </span>
-              </div>
-              <div className="flex items-center gap-2 rounded-2xl bg-slate-50 px-3 py-2">
-                <Shield aria-hidden="true" className="h-4 w-4 text-blue-600" />
-                <span className="font-bold text-slate-700">{formatScore(district.safetyScore)}/10</span>
-              </div>
-              <div className="flex items-center gap-2 rounded-2xl bg-slate-50 px-3 py-2">
-                <Train aria-hidden="true" className="h-4 w-4 text-cyan-600" />
-                <span className="font-bold text-slate-700">{formatScore(district.publicTransportScore)}/10</span>
-              </div>
-              <div className="flex items-center gap-2 rounded-2xl bg-slate-50 px-3 py-2">
-                <TreePine aria-hidden="true" className="h-4 w-4 text-green-600" />
-                <span className="font-bold text-slate-700">{formatScore(district.greenScore)}/10</span>
-              </div>
-              <div className="flex items-center gap-2 rounded-2xl bg-slate-50 px-3 py-2">
-                <GraduationCap aria-hidden="true" className="h-4 w-4 text-amber-600" />
-                <span className="font-bold text-slate-700">{formatScore(district.schoolScore)}/10</span>
-              </div>
-              <div className="flex items-center gap-2 rounded-2xl bg-slate-50 px-3 py-2">
-                <Volume2 aria-hidden="true" className="h-4 w-4 text-slate-950" />
-                <span className="font-bold text-slate-700">{formatScore(district.quietnessScore)}/10</span>
-              </div>
-              <div className="flex items-center gap-2 rounded-2xl bg-slate-50 px-3 py-2">
-                <Music aria-hidden="true" className="h-4 w-4 text-slate-950" />
-                <span className="font-bold text-slate-700">{formatScore(district.nightlifeScore)}/10</span>
-              </div>
-            </div>
-            <div className="mt-3 flex flex-wrap gap-2">
-              {strengths.slice(0, 2).map((strength) => (
-                <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-700" key={`${district.id}-${strength}`}>
-                  {strength}
-                </span>
-              ))}
-              {tradeoffs.slice(0, 1).map((tradeoff) => (
-                <span className="rounded-full bg-rose-50 px-3 py-1 text-xs font-bold text-rose-700" key={`${district.id}-${tradeoff}`}>
-                  {tradeoff}
-                </span>
-              ))}
-            </div>
-          </article>
-        ))}
       </div>
 
     </section>

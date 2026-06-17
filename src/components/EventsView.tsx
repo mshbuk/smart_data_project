@@ -3,6 +3,7 @@ import {
   ArrowLeft,
   Bookmark,
   CalendarDays,
+  CheckCircle2,
   ExternalLink,
   Heart,
   MapPin,
@@ -11,6 +12,7 @@ import {
   Search,
   Send,
   Share2,
+  Users,
   X,
 } from "lucide-react";
 import events from "../data/events.json";
@@ -20,6 +22,7 @@ import { useI18n } from "../i18n";
 type DateFilter = "all" | "today" | "week" | "weekend";
 
 const cityEvents = events as CityEvent[];
+const userAvatarUrl = "/event-avatars/samira.jpg";
 const categoryFilters: Array<EventCategory | "all"> = ["all", "music", "food", "sport", "culture"];
 const dateFilters: DateFilter[] = ["all", "today", "week", "weekend"];
 const categoryEmoji: Record<EventCategory, string> = {
@@ -30,10 +33,29 @@ const categoryEmoji: Record<EventCategory, string> = {
 };
 
 type EventChatMessage = {
-  avatar: string;
+  avatarUrl: string;
   message: string;
   name: string;
   time: string;
+};
+
+type EventsViewProps = {
+  onToggleSignUp: (eventId: string) => void;
+  signedUpEventIds: string[];
+};
+
+const avatarByName: Record<string, string> = {
+  "Anna M.": "/event-avatars/anna.jpg",
+  "Anna P.": "/event-avatars/anna.jpg",
+  "Felix R.": "/event-avatars/felix.jpg",
+  "Jonas K.": "/event-avatars/jonas.jpg",
+  "Lena M.": "/event-avatars/lena.jpg",
+  "Mats H.": "/event-avatars/mats.jpg",
+  "Mira K.": "/event-avatars/mira.jpg",
+  "Mira S.": "/event-avatars/mira.jpg",
+  "Samira": "/event-avatars/samira.jpg",
+  "Sofia R.": "/event-avatars/sofia.jpg",
+  "Tom B.": "/event-avatars/tom.jpg",
 };
 
 function parseEventDate(date: string) {
@@ -54,16 +76,6 @@ function getFirstDateLabel(event: CityEvent, language: "de" | "en") {
   return `${first} +${event.dates.length - 1}`;
 }
 
-function getDateBadgeParts(date: string, language: "de" | "en") {
-  const parsed = parseEventDate(date);
-
-  return {
-    day: new Intl.DateTimeFormat(language === "de" ? "de-DE" : "en-US", { day: "numeric" }).format(parsed),
-    month: new Intl.DateTimeFormat(language === "de" ? "de-DE" : "en-US", { month: "short" }).format(parsed),
-    weekday: new Intl.DateTimeFormat(language === "de" ? "de-DE" : "en-US", { weekday: "short" }).format(parsed),
-  };
-}
-
 function eventMatchesDateFilter(event: CityEvent, filter: DateFilter) {
   if (filter === "all") return true;
 
@@ -78,6 +90,11 @@ function eventMatchesDateFilter(event: CityEvent, filter: DateFilter) {
     if (filter === "week") return parsed >= today && parsed <= weekEnd;
     return parsed.getDay() === 0 || parsed.getDay() === 6;
   });
+}
+
+function getAvatarUrl(comment: Pick<EventComment, "avatar" | "name">) {
+  if (comment.avatar.startsWith("/")) return comment.avatar;
+  return avatarByName[comment.name] ?? "/event-avatars/lena.jpg";
 }
 
 function getCategoryLabel(category: EventCategory | "all", tx: (english: string, german: string) => string) {
@@ -164,25 +181,25 @@ function getEventReviews(event: CityEvent): EventComment[] {
 function getEventChatMessages(event: CityEvent): EventChatMessage[] {
   return [
     {
-      avatar: "👩‍🦱",
+      avatarUrl: "/event-avatars/lena.jpg",
       name: "Lena",
       time: "18:42",
       message: `Ich bin für ${event.title} angemeldet. Geht noch jemand aus ${event.district}?`,
     },
     {
-      avatar: "🧑",
+      avatarUrl: "/event-avatars/jonas.jpg",
       name: "Jonas",
       time: "18:47",
       message: "Ich komme wahrscheinlich auch. Wollen wir uns vorher an der nächsten Bahnstation treffen?",
     },
     {
-      avatar: "👨‍🦱",
+      avatarUrl: "/event-avatars/tom.jpg",
       name: "Tom",
       time: "18:51",
       message: "Gute Idee. Ich bringe noch zwei Freunde mit, die neu in Hamburg sind.",
     },
     {
-      avatar: "👩",
+      avatarUrl: "/event-avatars/mira.jpg",
       name: "Mira",
       time: "18:55",
       message: "Ich speichere mir das Event. Falls es regnet, suche ich vorher noch ein Café in der Nähe raus.",
@@ -234,9 +251,11 @@ function GroupChatModal({
               key={`${chatMessage.name}-${chatMessage.time}`}
             >
               <div className="flex items-center gap-2">
-                <span className="grid h-8 w-8 place-items-center rounded-full bg-slate-100 text-lg">
-                  {chatMessage.avatar}
-                </span>
+                <img
+                  alt=""
+                  className="h-8 w-8 rounded-full bg-slate-100 object-cover"
+                  src={chatMessage.avatarUrl}
+                />
                 <div>
                   <p className="text-sm font-black text-slate-950">{chatMessage.name}</p>
                   <p className="text-xs font-bold text-slate-400">{chatMessage.time}</p>
@@ -364,7 +383,11 @@ function ChatModal({
       <section className="w-full max-w-[560px] rounded-[1.8rem] bg-white p-4 shadow-[0_24px_90px_rgba(15,23,42,0.32)]">
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-center gap-3">
-            <span className="grid h-14 w-14 place-items-center rounded-full bg-slate-50 text-3xl">{comment.avatar}</span>
+            <img
+              alt=""
+              className="h-14 w-14 rounded-full bg-slate-50 object-cover"
+              src={getAvatarUrl(comment)}
+            />
             <div>
               <h3 className="text-xl font-black text-slate-950">{comment.name}</h3>
               <p className="text-sm font-bold text-slate-500">{comment.bio}</p>
@@ -413,84 +436,96 @@ function EventDetail({
   event,
   isSignedUp,
   onBack,
+  onAddCommunityComment,
   onChat,
   onToggleSignUp,
+  userComments,
 }: {
   event: CityEvent;
   isSignedUp: boolean;
   onBack: () => void;
+  onAddCommunityComment: (eventId: string, message: string) => void;
   onChat: (comment: EventComment) => void;
   onToggleSignUp: (eventId: string) => void;
+  userComments: EventComment[];
 }) {
   const { language, tx } = useI18n();
   const [isGroupChatOpen, setIsGroupChatOpen] = useState(false);
+  const [communityDraft, setCommunityDraft] = useState("");
   const attendees = event.attendees + (isSignedUp ? 1 : 0);
-  const reviews = getEventReviews(event);
+  const signedUpComment: EventComment | null = isSignedUp
+    ? {
+        avatar: userAvatarUrl,
+        bio: tx("You are interested", "Du bist interessiert"),
+        likes: 0,
+        message: tx("I am going and would like to connect with others.", "Ich gehe hin und würde mich gern mit anderen vernetzen."),
+        name: tx("You", "Du"),
+      }
+    : null;
+  const reviews = [...(signedUpComment ? [signedUpComment] : []), ...userComments, ...getEventReviews(event)];
 
   return (
     <section className="mx-auto grid max-w-xl gap-4">
-      <div className="flex items-center justify-between gap-3">
-        <button
-          className="inline-flex min-h-11 items-center gap-2 rounded-2xl bg-white px-4 text-sm font-black text-slate-700 shadow-sm shadow-slate-950/5 transition-colors hover:bg-slate-50"
-          onClick={onBack}
-          type="button"
-        >
-          <ArrowLeft aria-hidden="true" className="h-4 w-4" />
-          {tx("Back", "Zurück")}
-        </button>
-        <div className="flex gap-2">
-          <button className="grid h-10 w-10 place-items-center rounded-2xl bg-white text-slate-900 shadow-sm shadow-slate-950/5" type="button">
-            <Heart aria-hidden="true" className={isSignedUp ? "h-5 w-5 fill-rose-500 text-rose-500" : "h-5 w-5"} />
-          </button>
-          <button className="grid h-10 w-10 place-items-center rounded-2xl bg-white text-slate-900 shadow-sm shadow-slate-950/5" type="button">
-            <Share2 aria-hidden="true" className="h-5 w-5" />
-          </button>
-          <button
-            aria-label={tx("Open event chat", "Event-Chat öffnen")}
-            className="grid h-10 w-10 place-items-center rounded-2xl bg-slate-950 text-white shadow-sm shadow-slate-950/10"
-            onClick={() => setIsGroupChatOpen(true)}
-            type="button"
-          >
-            <MessageCircle aria-hidden="true" className="h-5 w-5" />
-          </button>
-        </div>
-      </div>
-
-      <article className="overflow-hidden rounded-2xl border border-border bg-card shadow-card">
-        <img alt="" className="h-[250px] w-full object-cover sm:h-[320px]" src={event.imageUrl} />
-        <div className="grid gap-4 p-5">
-          <div>
-            <p className="text-sm font-black uppercase tracking-wide text-slate-950">
-              {getFirstDateLabel(event, language)} · {event.time}
-            </p>
-            <h2 className="mt-2 text-2xl font-black leading-tight text-slate-950 sm:text-3xl">{event.title}</h2>
-            <p className="mt-2 flex items-center gap-2 text-base font-bold text-slate-600">
-              <MapPin aria-hidden="true" className="h-5 w-5" />
-              {event.venue}, {event.district}
-            </p>
-            <span className="mt-3 inline-flex rounded-full bg-amber-100 px-3 py-1.5 text-sm font-black text-amber-950">
-              {event.price}
-            </span>
+      <article className="overflow-hidden rounded-[1.8rem] border border-border bg-card shadow-card">
+        <div className="relative aspect-[4/3] overflow-hidden bg-muted">
+          <img alt="" className="h-full w-full object-cover" src={event.imageUrl} />
+          <div className="absolute inset-x-0 top-0 flex items-center justify-between p-3">
+            <button
+              className="grid h-10 w-10 place-items-center rounded-full bg-white/90 text-slate-950 shadow-card backdrop-blur"
+              onClick={onBack}
+              type="button"
+            >
+              <ArrowLeft aria-hidden="true" className="h-5 w-5" />
+            </button>
+            <div className="flex gap-1">
+              <button className="grid h-10 w-10 place-items-center rounded-full bg-white/90 text-slate-950 shadow-card backdrop-blur" type="button">
+                <Heart aria-hidden="true" className={isSignedUp ? "h-5 w-5 fill-rose-500 text-rose-500" : "h-5 w-5"} />
+              </button>
+              <button className="grid h-10 w-10 place-items-center rounded-full bg-white/90 text-slate-950 shadow-card backdrop-blur" type="button">
+                <Share2 aria-hidden="true" className="h-5 w-5" />
+              </button>
+              <button
+                aria-label={tx("Open event chat", "Event-Chat öffnen")}
+                className="grid h-10 w-10 place-items-center rounded-full bg-slate-950 text-white shadow-card"
+                onClick={() => setIsGroupChatOpen(true)}
+                type="button"
+              >
+                <MessageCircle aria-hidden="true" className="h-5 w-5" />
+              </button>
+            </div>
           </div>
+        </div>
 
-          <p className="text-base leading-7 text-slate-700">{event.description}</p>
+        <div className="-mt-6 relative mx-4 rounded-[1.5rem] bg-white p-4 shadow-[0_18px_45px_rgba(15,23,42,0.12)]">
+          <p className="text-xs font-black uppercase tracking-wide text-slate-500">
+            {getFirstDateLabel(event, language)} · {event.time}
+          </p>
+          <h2 className="mt-1 text-2xl font-black leading-tight text-slate-950">{event.title}</h2>
+          <p className="mt-2 flex items-center gap-2 text-sm font-bold text-slate-600">
+            <MapPin aria-hidden="true" className="h-4 w-4" />
+            {event.venue}, {event.district}
+          </p>
+          <span className="mt-3 inline-flex rounded-full bg-amber-100 px-3 py-1 text-xs font-black text-amber-950">
+            {event.price}
+          </span>
+        </div>
+
+        <div className="grid gap-4 p-4 pt-5">
+          <p className="text-sm leading-6 text-slate-700">{event.description}</p>
 
           <button
-            className="inline-flex min-h-13 w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-slate-950 to-slate-800 px-5 text-sm font-black text-white shadow-lg shadow-slate-950/15 transition-transform hover:-translate-y-0.5"
+            className={[
+              "inline-flex min-h-13 w-full items-center justify-center gap-2 rounded-2xl px-5 text-sm font-black shadow-lg transition-transform hover:-translate-y-0.5",
+              isSignedUp
+                ? "bg-emerald-100 text-emerald-700 shadow-emerald-950/5"
+                : "bg-gradient-to-r from-slate-950 to-slate-800 text-white shadow-slate-950/15",
+            ].join(" ")}
             onClick={() => onToggleSignUp(event.id)}
             type="button"
           >
-            {isSignedUp ? tx("Signed up", "Ich gehe hin") : tx("Sign up", "Zur Anmeldung")}
-            <ExternalLink aria-hidden="true" className="h-4 w-4" />
+            <CheckCircle2 aria-hidden="true" className="h-4 w-4" />
+            {isSignedUp ? tx("You are going", "Du gehst hin") : tx("I am going", "Ich gehe hin")}
           </button>
-          {event.sourceUrl && (
-            <p className="text-center text-xs font-bold text-slate-500">
-              {tx("Externally managed demo source", "Extern verwaltete Demo-Quelle")}:{" "}
-              <a className="text-slate-950 underline-offset-4 hover:underline" href={event.sourceUrl} rel="noreferrer" target="_blank">
-                {event.sourceLabel}
-              </a>
-            </p>
-          )}
 
           <div className="grid gap-2 sm:grid-cols-2">
             <button
@@ -510,37 +545,62 @@ function EventDetail({
               <Navigation aria-hidden="true" className="h-4 w-4" />
               {tx("Plan route", "Route planen")}
             </a>
+            {event.sourceUrl && (
+              <a
+                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 text-sm font-black text-slate-800 hover:bg-slate-50 sm:col-span-2"
+                href={event.sourceUrl}
+                rel="noreferrer"
+                target="_blank"
+              >
+                <ExternalLink aria-hidden="true" className="h-4 w-4" />
+                {tx("Event website", "Website des Events")}
+              </a>
+            )}
           </div>
         </div>
       </article>
 
-      <section className="rounded-2xl border border-border bg-card p-4 shadow-card">
-        <h3 className="text-xl font-black text-slate-950">Community</h3>
-        <p className="mt-2 text-sm font-bold text-slate-500">
-          {attendees} {tx("people interested", "Personen interessiert")}
-        </p>
+      <section className="rounded-[1.6rem] border border-border bg-card p-4 shadow-card">
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <h3 className="text-xl font-black text-slate-950">Community</h3>
+            <p className="mt-1 text-sm font-bold text-slate-500">
+              {attendees} {tx("people interested", "Personen interessiert")}
+            </p>
+          </div>
+          <Users aria-hidden="true" className="h-5 w-5 text-slate-400" />
+        </div>
+
         <div className="mt-3 flex items-center">
+          {isSignedUp && (
+            <img
+              alt=""
+              className="-ml-2 first:ml-0 h-10 w-10 rounded-full border-2 border-white bg-slate-50 object-cover shadow-sm"
+              src={userAvatarUrl}
+              title={tx("You", "Du")}
+            />
+          )}
           {event.comments.slice(0, 6).map((comment) => (
-            <span
-              className="-ml-2 first:ml-0 grid h-10 w-10 place-items-center rounded-full border-2 border-white bg-slate-50 text-xl shadow-sm"
+            <img
+              alt=""
+              className="-ml-2 first:ml-0 h-10 w-10 rounded-full border-2 border-white bg-slate-50 object-cover shadow-sm"
               key={comment.name}
+              src={getAvatarUrl(comment)}
               title={comment.name}
-            >
-              {comment.avatar}
-            </span>
+            />
           ))}
           <span className="-ml-2 grid h-10 min-w-10 place-items-center rounded-full border-2 border-white bg-slate-100 px-2 text-xs font-black text-slate-600">
-            +{Math.max(0, attendees - event.comments.length)}
+            +{Math.max(0, attendees - event.comments.length - (isSignedUp ? 1 : 0))}
           </span>
         </div>
 
-        <h4 className="mt-6 text-lg font-black text-slate-950">{tx("Reviews", "Bewertungen")}</h4>
+        <h4 className="mt-6 text-lg font-black text-slate-950">{tx("Community voices", "Stimmen aus der Community")}</h4>
         <div className="mt-3 grid gap-3">
           {reviews.map((comment) => (
-            <article className="rounded-2xl border border-border bg-card p-3" key={comment.name}>
+            <article className="rounded-2xl border border-border bg-card p-3" key={`${comment.name}-${comment.message}`}>
               <div className="flex justify-between gap-3">
                 <div className="flex gap-3">
-                  <span className="grid h-11 w-11 place-items-center rounded-full bg-slate-50 text-2xl">{comment.avatar}</span>
+                  <img alt="" className="h-11 w-11 rounded-full bg-slate-50 object-cover" src={getAvatarUrl(comment)} />
                   <div>
                     <h4 className="text-base font-black text-slate-950">{comment.name}</h4>
                     <p className="text-xs font-bold text-slate-500">{comment.bio}</p>
@@ -548,7 +608,7 @@ function EventDetail({
                 </div>
                 <span className="text-sm font-bold text-slate-500">♡ {comment.likes}</span>
               </div>
-              <p className="mt-3 text-base leading-6 text-slate-800">{comment.message}</p>
+              <p className="mt-3 text-sm leading-6 text-slate-800">{comment.message}</p>
               <button
                 className="mt-3 inline-flex items-center gap-2 text-sm font-black text-slate-950"
                 onClick={() => onChat(comment)}
@@ -560,22 +620,47 @@ function EventDetail({
             </article>
           ))}
         </div>
+
+        <form
+          className="mt-4 grid grid-cols-[1fr_auto] gap-2"
+          onSubmit={(submitEvent) => {
+            submitEvent.preventDefault();
+            if (!communityDraft.trim()) return;
+            onAddCommunityComment(event.id, communityDraft.trim());
+            setCommunityDraft("");
+          }}
+        >
+          <input
+            className="min-h-12 min-w-0 rounded-full border border-border bg-background px-4 text-sm font-bold outline-none focus:border-primary"
+            onChange={(inputEvent) => setCommunityDraft(inputEvent.target.value)}
+            placeholder={tx("Write yourself into the community...", "Schreib dich in die Community ein...")}
+            value={communityDraft}
+          />
+          <button
+            aria-label={tx("Post", "Veröffentlichen")}
+            className="grid h-12 w-12 place-items-center rounded-full bg-primary text-primary-foreground disabled:opacity-40"
+            disabled={!communityDraft.trim()}
+            type="submit"
+          >
+            <Send aria-hidden="true" className="h-4 w-4" />
+          </button>
+        </form>
       </section>
       {isGroupChatOpen && <GroupChatModal event={event} onClose={() => setIsGroupChatOpen(false)} />}
     </section>
   );
 }
 
-export function EventsView() {
+export function EventsView({ onToggleSignUp, signedUpEventIds }: EventsViewProps) {
   const { language, tx } = useI18n();
   const [category, setCategory] = useState<EventCategory | "all">("all");
   const [dateFilter, setDateFilter] = useState<DateFilter>("all");
   const [districtFilter, setDistrictFilter] = useState("all");
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
-  const [signedUpEventIds, setSignedUpEventIds] = useState<string[]>([]);
   const [chatComment, setChatComment] = useState<EventComment | null>(null);
   const [isChatInboxOpen, setIsChatInboxOpen] = useState(false);
   const [groupChatEvent, setGroupChatEvent] = useState<CityEvent | null>(null);
+  const [communityCommentsByEvent, setCommunityCommentsByEvent] = useState<Record<string, EventComment[]>>({});
   const districts = useMemo(() => Array.from(new Set(cityEvents.map((event) => event.district))).sort(), []);
   const filteredEvents = useMemo(
     () =>
@@ -588,10 +673,19 @@ export function EventsView() {
   );
   const selectedEvent = selectedEventId ? cityEvents.find((event) => event.id === selectedEventId) : undefined;
 
-  const toggleSignUp = (eventId: string) => {
-    setSignedUpEventIds((current) =>
-      current.includes(eventId) ? current.filter((id) => id !== eventId) : [...current, eventId],
-    );
+  const addCommunityComment = (eventId: string, message: string) => {
+    const comment: EventComment = {
+      avatar: userAvatarUrl,
+      bio: tx("Joined from Moin", "Über Moin eingetragen"),
+      likes: 0,
+      message,
+      name: tx("You", "Du"),
+    };
+
+    setCommunityCommentsByEvent((current) => ({
+      ...current,
+      [eventId]: [...(current[eventId] ?? []), comment],
+    }));
   };
 
   if (selectedEvent) {
@@ -600,9 +694,11 @@ export function EventsView() {
         <EventDetail
           event={selectedEvent}
           isSignedUp={signedUpEventIds.includes(selectedEvent.id)}
+          onAddCommunityComment={addCommunityComment}
           onBack={() => setSelectedEventId(null)}
           onChat={setChatComment}
-          onToggleSignUp={toggleSignUp}
+          onToggleSignUp={onToggleSignUp}
+          userComments={communityCommentsByEvent[selectedEvent.id] ?? []}
         />
         {chatComment && <ChatModal comment={chatComment} onClose={() => setChatComment(null)} />}
       </>
@@ -704,10 +800,7 @@ export function EventsView() {
 
       <div className="grid gap-3">
         {filteredEvents.length ? (
-          filteredEvents.map((event) => {
-            const badge = getDateBadgeParts(event.dates[0], language);
-
-            return (
+          filteredEvents.map((event) => (
             <button
               className="flex items-stretch gap-3 rounded-2xl border border-border bg-card p-3 text-left shadow-card transition hover:border-primary/40"
               key={event.id}
@@ -716,11 +809,6 @@ export function EventsView() {
             >
               <span className="relative grid h-20 w-16 flex-shrink-0 place-items-center overflow-hidden rounded-xl bg-muted">
                 <img alt="" className="h-full w-full object-cover" loading="lazy" src={event.imageUrl} />
-                <span className="absolute left-2 top-2 grid min-w-12 rounded-2xl bg-white px-2 py-1 text-center shadow-sm">
-                  <span className="text-xs font-black uppercase text-rose-500">{badge.weekday}</span>
-                  <span className="text-xl font-black leading-none text-slate-950">{badge.day}</span>
-                  <span className="text-xs font-bold uppercase text-slate-500">{badge.month}</span>
-                </span>
               </span>
               <span className="flex min-w-0 flex-1 flex-col justify-between py-0.5">
                 <span>
@@ -746,8 +834,7 @@ export function EventsView() {
               </span>
               <Bookmark aria-hidden="true" className="mt-3 h-4 w-4 text-muted-foreground" />
             </button>
-          );
-          })
+          ))
         ) : (
           <div className="rounded-2xl border border-border bg-card p-8 text-center shadow-card">
             <p className="font-display text-base font-semibold text-foreground">{tx("No events match these filters", "Keine Events passen zu diesen Filtern")}</p>

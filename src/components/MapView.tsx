@@ -2,7 +2,7 @@ import L, { type Layer, type Path, type PathOptions } from "leaflet";
 import { useEffect, useMemo, useState } from "react";
 import type { Feature, FeatureCollection, MultiPolygon, Polygon } from "geojson";
 import { Circle, CircleMarker, GeoJSON, MapContainer, Marker, Popup, TileLayer, useMap } from "react-leaflet";
-import { Info, Layers, MapPinned, Navigation, Search } from "lucide-react";
+import { Info, Navigation, Search } from "lucide-react";
 import districtBoundariesUrl from "../data/districts.geojson?url";
 import mapSpots from "../data/mapSpots.json";
 import type { DistrictMatch } from "../types/District";
@@ -55,14 +55,6 @@ type UserLocation = {
 
 type LocationStatus = "idle" | "locating" | "found" | "error";
 
-type Landmark = {
-  description: LocalizedText;
-  icon: string;
-  label: string;
-  latitude: number;
-  longitude: number;
-};
-
 type LocalizedText = {
   de: string;
   en: string;
@@ -91,8 +83,6 @@ type LocalSpotTemplate = {
   longitude: number;
 };
 
-type TopBoundaryCount = 3 | 5 | 10;
-
 const emptyDistrictBoundaries: DistrictBoundaryCollection = {
   type: "FeatureCollection",
   features: [],
@@ -100,80 +90,12 @@ const emptyDistrictBoundaries: DistrictBoundaryCollection = {
 
 const hamburgAltstadtCenter: [number, number] = [53.55062, 9.9955];
 const databaseMapSpots = mapSpots as MapSpot[];
-const topBoundaryOptions: TopBoundaryCount[] = [3, 5, 10];
-
-const permanentLandmarks: Landmark[] = [
-  {
-    description: { en: "Hamburg city hall at Rathausmarkt", de: "Hamburger Rathaus am Rathausmarkt" },
-    icon: "rathaus.png",
-    label: "Hamburg Rathaus",
-    latitude: 53.55009,
-    longitude: 9.991636,
-  },
-  {
-    description: { en: "Harbor and cultural landmark", de: "Hafen- und Kulturmarke" },
-    icon: "elbphilharmonie.png",
-    label: "Elbphilharmonie",
-    latitude: 53.541328,
-    longitude: 9.984355,
-  },
-  {
-    description: { en: "Hamburg Airport HAM", de: "Flughafen Hamburg HAM" },
-    icon: "flughafen.png",
-    label: "Flughafen HAM",
-    latitude: 53.630402,
-    longitude: 9.98823,
-  },
-  {
-    description: { en: "University of Hamburg main campus", de: "Hauptcampus der Universität Hamburg" },
-    icon: "university.png",
-    label: "Universität Hamburg",
-    latitude: 53.5668,
-    longitude: 9.9837,
-  },
-  {
-    description: { en: "HAW Hamburg central Berliner Tor campus", de: "Zentraler Campus Berliner Tor der HAW Hamburg" },
-    icon: "university.png",
-    label: "HAW Hamburg",
-    latitude: 53.556278,
-    longitude: 10.021972,
-  },
-  {
-    description: { en: "TU Hamburg campus in Harburg", de: "TU Hamburg Campus in Harburg" },
-    icon: "university.png",
-    label: "TU Hamburg",
-    latitude: 53.46097,
-    longitude: 9.96993,
-  },
-  {
-    description: { en: "Main rail and HVV interchange", de: "Zentraler Bahn- und HVV-Knoten" },
-    icon: "hbf.jpg",
-    label: "Hauptbahnhof",
-    latitude: 53.552723,
-    longitude: 10.006697,
-  },
-];
 
 const legendItems: Array<{ label: LocalizedText; color: string }> = [
-  { label: { en: "Top 3 district matches", de: "Top-3-Stadtteile nach Passung" }, color: "#16a34a" },
-  { label: { en: "80%+ profile fit", de: "80%+ Profilpassung" }, color: "#0ea5e9" },
-  { label: { en: "70-79% profile fit", de: "70-79% Profilpassung" }, color: "#f59e0b" },
-  { label: { en: "Below 70% profile fit", de: "Unter 70% Profilpassung" }, color: "#f97316" },
-  { label: { en: "Not in selected top set", de: "Nicht in der gewählten Top-Auswahl" }, color: "#cbd5e1" },
-];
-
-const iconLegendItems: Array<{ icon: string; label: LocalizedText }> = [
-  { icon: "rathaus.png", label: { en: "Rathaus", de: "Rathaus" } },
-  { icon: "elbphilharmonie.png", label: { en: "Elbphilharmonie", de: "Elbphilharmonie" } },
-  { icon: "flughafen.png", label: { en: "Airport", de: "Flughafen" } },
-  { icon: "hbf.jpg", label: { en: "Main station", de: "Hauptbahnhof" } },
-  { icon: "university.png", label: { en: "University", de: "Hochschule" } },
-  { icon: "bus-stop.jpeg", label: { en: "Transit stop", de: "ÖPNV-Halt" } },
-  { icon: "cafe.png", label: { en: "Cafe", de: "Café" } },
-  { icon: "bar.png", label: { en: "Bar", de: "Bar" } },
-  { icon: "kita.png", label: { en: "Daycare / playground", de: "Kita / Spielplatz" } },
-  { icon: "school.png", label: { en: "School", de: "Schule" } },
-  { icon: "library.png", label: { en: "Library / green point", de: "Bibliothek / Grünpunkt" } },
+  { label: { en: "Top district", de: "Top-Stadtteil" }, color: "#0f172a" },
+  { label: { en: "Good match", de: "Gute Passung" }, color: "#64748b" },
+  { label: { en: "Selected district", de: "Ausgewählt" }, color: "#111827" },
+  { label: { en: "Other districts", de: "Weitere Stadtteile" }, color: "#d1d5db" },
 ];
 
 const iconEmojiMap: Record<string, string> = {
@@ -212,10 +134,10 @@ function normalizeDistrictName(value: string) {
 }
 
 function getBoundaryColor(score: number, isTopMatch: boolean) {
-  if (isTopMatch) return "#16a34a";
-  if (score >= 80) return "#0ea5e9";
-  if (score >= 70) return "#f59e0b";
-  return "#f97316";
+  if (isTopMatch) return "#0f172a";
+  if (score >= 80) return "#475569";
+  if (score >= 70) return "#94a3b8";
+  return "#cbd5e1";
 }
 
 function getBoundaryStyle(feature?: DistrictBoundaryFeature): PathOptions {
@@ -224,24 +146,24 @@ function getBoundaryStyle(feature?: DistrictBoundaryFeature): PathOptions {
 
   if (!hasMatch || !feature?.properties?.isHighlighted) {
     return {
-      color: "#cbd5e1",
-      fillColor: "#e2e8f0",
-      fillOpacity: 0.13,
-      opacity: 0.85,
-      weight: 0.7,
+      color: "#d1d5db",
+      fillColor: "#f8fafc",
+      fillOpacity: 0.36,
+      opacity: 0.78,
+      weight: 0.65,
     };
   }
 
   const score = feature.properties?.matchScore ?? 0;
   const isTopMatch = Boolean(feature?.properties?.isTopMatch);
-  const color = isFocused ? "#e11d48" : getBoundaryColor(score, isTopMatch);
+  const color = isFocused ? "#111827" : getBoundaryColor(score, isTopMatch);
 
   return {
     color,
     fillColor: color,
-    fillOpacity: isFocused ? 0.52 : isTopMatch ? 0.44 : 0.3,
+    fillOpacity: isFocused ? 0.34 : isTopMatch ? 0.24 : 0.18,
     opacity: 0.95,
-    weight: isFocused ? 2.8 : isTopMatch ? 2 : 1.25,
+    weight: isFocused ? 2.6 : isTopMatch ? 1.8 : 1.1,
   };
 }
 
@@ -303,7 +225,7 @@ function createBoundaryPopup(feature: DistrictBoundaryFeature, language: Languag
     : language === "de"
       ? "Bewertet, außerhalb der aktuellen Top-Auswahl"
       : "Scored, outside the current top set";
-  const statusColor = properties.isFocused ? "#e11d48" : properties.isHighlighted ? "#16a34a" : "#64748b";
+  const statusColor = properties.isFocused ? "#111827" : properties.isHighlighted ? "#475569" : "#64748b";
   const metrics = [
     typeof properties.rentPerSqm === "number" &&
     (properties.sourceSummary?.includes("Miet-Check") || properties.dataQuality === "placeholder")
@@ -981,14 +903,13 @@ export function MapView({
   savedDistrictIds,
 }: MapViewProps) {
   const { language, tx } = useI18n();
-  const [topBoundaryCount, setTopBoundaryCount] = useState<TopBoundaryCount>(3);
   const [locationStatus, setLocationStatus] = useState<LocationStatus>("idle");
   const [locationMessage, setLocationMessage] = useState("");
   const [query, setQuery] = useState("");
   const [selectedMapDistrict, setSelectedMapDistrict] = useState<SelectedMapDistrict | null>(null);
   const [userLocation, setUserLocation] = useState<UserLocation | null>(null);
   const { boundaries: rawDistrictBoundaries, hasError: boundaryLoadError } = useDistrictBoundaries();
-  const highlightedRankLimit = topBoundaryCount;
+  const highlightedRankLimit = 3;
   const boundaryCollection = useMemo(
     () => buildBoundaryCollection(rawDistrictBoundaries, matches, highlightedRankLimit, savedDistrictIds, focusedDistrictId),
     [focusedDistrictId, highlightedRankLimit, matches, rawDistrictBoundaries, savedDistrictIds],
@@ -999,9 +920,6 @@ export function MapView({
       .map((feature) => feature.properties?.districtId)
       .filter((districtId): districtId is string => Boolean(districtId)),
   );
-  const highlightedBoundaryCount = boundaryCollection.features.filter(
-    (feature) => feature.properties?.isHighlighted,
-  ).length;
   const missingDistricts = matches.filter((match) => !matchedDistrictIds.has(match.district.id));
   const boundaryLayerKey = boundaryCollection.features
     .map(
@@ -1017,10 +935,6 @@ export function MapView({
   const filteredMatches = query.trim()
     ? matches.filter((match) => match.district.name.toLowerCase().includes(query.trim().toLowerCase())).slice(0, 8)
     : [];
-  const selectedMatch = selectedMapDistrict
-    ? matches.find((match) => normalizeDistrictName(match.district.name) === normalizeDistrictName(selectedMapDistrict.name))
-    : undefined;
-
   useEffect(() => {
     if (!focusedDistrictId) return;
 
@@ -1073,33 +987,7 @@ export function MapView({
 
   return (
     <section className="grid gap-4">
-      <p className="text-sm text-muted-foreground">
-        {tx(
-          "Explore your top Hamburg matches on the map. District borders stay visible and highlighted areas follow your current priorities.",
-          "Erkunde deine besten Hamburg-Matches auf der Karte. Stadtteilgrenzen bleiben sichtbar und Markierungen folgen deinen aktuellen Prioritäten.",
-        )}
-      </p>
-
-      <div className="inline-flex w-fit items-center gap-1 rounded-full border border-border bg-card p-1 text-xs shadow-card">
-        {topBoundaryOptions.map((option) => {
-          const isActive = topBoundaryCount === option;
-
-          return (
-            <button
-              aria-pressed={isActive}
-              className={[
-                "rounded-full px-3 py-1 font-medium transition",
-                isActive ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted",
-              ].join(" ")}
-              key={option}
-              onClick={() => setTopBoundaryCount(option)}
-              type="button"
-            >
-              {tx("Top", "Top")} {option}
-            </button>
-          );
-        })}
-      </div>
+      <p className="text-sm text-muted-foreground">{tx("Your top districts at a glance.", "Deine Top-Stadtteile auf einen Blick.")}</p>
 
       <div className="relative">
         <div className="flex items-center gap-2 rounded-full border border-border bg-card px-3 py-2 shadow-card">
@@ -1135,34 +1023,7 @@ export function MapView({
       </div>
 
       <section className="overflow-hidden rounded-3xl border border-border bg-card shadow-card">
-      <div className="grid gap-4 p-4 md:grid-cols-[1fr_auto] md:items-start">
-        <div className="flex items-start gap-3">
-          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground shadow-soft">
-            <MapPinned aria-hidden="true" className="h-5 w-5" />
-          </span>
-          <div>
-            <h2 className="font-display text-base font-semibold">{tx("Map view", "Kartenansicht")}</h2>
-            <p className="mt-1 text-sm leading-6 text-muted-foreground">
-              {tx(
-                "Every Hamburg district from the GeoJSON is shown as its own border. Permanent landmarks stay visible, and clicking a district opens its match details.",
-                "Jeder Hamburger Stadtteil aus dem GeoJSON wird als eigene Fläche gezeigt. Wichtige Orte bleiben sichtbar, und ein Klick auf einen Stadtteil öffnet die Passungsdetails.",
-              )}
-            </p>
-          </div>
-        </div>
-
-        <div className="inline-flex items-center gap-2 rounded-full bg-muted px-3 py-1.5 text-xs font-medium text-muted-foreground">
-          <Layers aria-hidden="true" className="h-4 w-4 text-slate-500" />
-          {isLoadingBoundaries
-            ? tx("Loading borders", "Grenzen laden")
-            : tx(
-                `${boundaryCollection.features.length} borders / ${highlightedBoundaryCount} highlighted`,
-                `${boundaryCollection.features.length} Grenzen / ${highlightedBoundaryCount} hervorgehoben`,
-              )}
-        </div>
-      </div>
-
-      <div className="px-3 pb-3 md:px-4 md:pb-4">
+      <div className="p-3 md:p-4">
         <div className="relative overflow-hidden rounded-[1.35rem]">
           <MapContainer
             center={hamburgAltstadtCenter}
@@ -1172,8 +1033,8 @@ export function MapView({
             zoom={11}
           >
             <TileLayer
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
+              url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
             />
             <GeoJSON
               data={boundaryCollection}
@@ -1190,20 +1051,6 @@ export function MapView({
               }
               style={(feature) => getBoundaryStyle(feature as DistrictBoundaryFeature)}
             />
-            {permanentLandmarks.map((landmark) => (
-              <Marker
-                icon={createEmojiMapIcon(getEmojiForIcon(landmark.icon), 38)}
-                key={landmark.label}
-                position={[landmark.latitude, landmark.longitude]}
-                title={landmark.label}
-              >
-                <Popup>
-                  <strong>{landmark.label}</strong>
-                  <br />
-                  {localize(landmark.description, language)}
-                </Popup>
-              </Marker>
-            ))}
             {localSpots.map((spot) => (
               <Marker
                 icon={createEmojiMapIcon(spot.emoji ?? getEmojiForIcon(spot.icon), 29)}
@@ -1293,90 +1140,70 @@ export function MapView({
         <p className="mt-2 flex items-start gap-1.5 text-xs text-muted-foreground">
           <Info aria-hidden="true" className="mt-0.5 h-3.5 w-3.5 shrink-0" />
           {tx(
-            "Tap a district to reveal local prototype spots and open its details.",
-            "Tippe auf einen Stadtteil, um lokale Demo-Orte und Details zu sehen.",
+            "Click a district to see bars, schools, parks and more.",
+            "Klicke auf einen Stadtteil, um Bars, Schulen, Parks & mehr zu sehen.",
           )}
         </p>
 
         <div className="mt-4 space-y-2">
           <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            {tx("Top", "Top")} {topBoundaryCount}
+            {tx("Top", "Top")} 3
           </h3>
-          {matches.slice(0, topBoundaryCount).map((match, index) => {
+          {matches.slice(0, 3).map((match, index) => {
             const isSelected =
               selectedMapDistrict &&
               normalizeDistrictName(selectedMapDistrict.name) === normalizeDistrictName(match.district.name);
 
             return (
-              <button
+              <article
                 className={[
-                  "flex w-full items-center gap-3 rounded-2xl border p-3 text-left transition",
+                  "grid grid-cols-[1fr_auto] items-center gap-3 rounded-2xl border p-3 transition",
                   isSelected ? "border-primary bg-primary-soft" : "border-border bg-card",
                 ].join(" ")}
                 key={match.district.id}
-                onClick={() =>
-                  setSelectedMapDistrict({
-                    latitude: match.district.latitude,
-                    longitude: match.district.longitude,
-                    name: match.district.name,
-                  })
-                }
-                type="button"
               >
-                <span className="grid h-7 w-7 place-items-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
-                  {index + 1}
-                </span>
-                <span className="flex-1 font-medium">{match.district.name}</span>
-                <span className="text-sm font-semibold tabular-nums">{match.score}%</span>
-              </button>
+                <button
+                  className="flex min-w-0 items-center gap-3 text-left"
+                  onClick={() =>
+                    setSelectedMapDistrict({
+                      latitude: match.district.latitude,
+                      longitude: match.district.longitude,
+                      name: match.district.name,
+                    })
+                  }
+                  type="button"
+                >
+                  <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
+                    {index + 1}
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate font-medium">{match.district.name}</span>
+                    <span className="text-xs font-semibold text-muted-foreground tabular-nums">{match.score}% Match</span>
+                  </span>
+                </button>
+                <button
+                  className="rounded-full bg-background px-3 py-1.5 text-xs font-semibold text-foreground shadow-sm"
+                  onClick={() => onOpenDetails(match.district.id)}
+                  type="button"
+                >
+                  {tx("Details", "Details")}
+                </button>
+              </article>
             );
           })}
         </div>
 
-        {selectedMatch && (
-          <button
-            className="mt-3 block w-full rounded-2xl bg-primary py-3 text-center text-sm font-semibold text-primary-foreground shadow-soft"
-            onClick={() => onOpenDetails(selectedMatch.district.id)}
-            type="button"
-          >
-            {tx("View details", "Details ansehen")}
-          </button>
-        )}
-
-        <div className="mt-3 grid gap-3">
-          <div>
-            <p className="mb-2 text-xs font-black uppercase tracking-wide text-slate-500">
-              {tx("District match colors", "Farben der Stadtteil-Passung")}
-            </p>
-            <div className="flex flex-wrap gap-2">
-              {legendItems.map((item) => (
-                <span
-                  className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-black text-slate-600"
-                  key={item.label.en}
-                >
-                  <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: item.color }} />
-                  {localize(item.label, language)}
-                </span>
-              ))}
-            </div>
-          </div>
-          <div>
-            <p className="mb-2 text-xs font-black uppercase tracking-wide text-slate-500">
-              {tx("Map icons", "Karten-Icons")}
-            </p>
-            <div className="flex flex-wrap gap-2">
-              {iconLegendItems.map((item) => (
-                <span
-                  className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-black text-slate-600"
-                  key={item.icon}
-                >
-                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white shadow-sm ring-1 ring-slate-200">
-                    {getEmojiForIcon(item.icon)}
-                  </span>
-                  {localize(item.label, language)}
-                </span>
-              ))}
-            </div>
+        <div className="mt-4 rounded-2xl border border-border bg-background p-3">
+          <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            {tx("Legend", "Legende")}
+          </p>
+          <div className="grid grid-cols-2 gap-2 text-xs font-medium text-muted-foreground">
+            {legendItems.map((item) => (
+              <span className="inline-flex items-center gap-2" key={item.label.en}>
+                <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: item.color }} />
+                {localize(item.label, language)}
+              </span>
+            ))}
           </div>
         </div>
 
