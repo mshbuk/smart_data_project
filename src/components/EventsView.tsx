@@ -613,16 +613,13 @@ export function EventsView() {
     <section className="mx-auto grid max-w-xl gap-4">
       <div className="grid gap-4">
         <div className="flex items-start justify-between gap-4">
-          <div>
-            <h1 className="font-display text-2xl font-bold text-foreground">Events</h1>
-            <div className="mt-3 inline-flex rounded-full bg-muted p-1 text-sm font-medium">
-              <button className="rounded-full bg-card px-3 py-1.5 text-foreground shadow-card" type="button">
-                {tx("Discover", "Entdecken")}
-              </button>
-              <button className="rounded-full px-3 py-1.5 text-muted-foreground" type="button">
-                {tx("Saved", "Gespeichert")}
-              </button>
-            </div>
+          <div className="inline-flex rounded-full bg-muted p-1 text-sm font-medium">
+            <button className="rounded-full bg-card px-3 py-1.5 text-foreground shadow-card" type="button">
+              {tx("Discover", "Entdecken")}
+            </button>
+            <button className="rounded-full px-3 py-1.5 text-muted-foreground" type="button">
+              {tx("Saved", "Gespeichert")}
+            </button>
           </div>
           <div className="flex shrink-0 items-center gap-2">
             <select
