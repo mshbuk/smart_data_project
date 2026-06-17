@@ -18,17 +18,18 @@ type ChatPreview = {
 };
 
 const cityEvents = events as CityEvent[];
+const assetUrl = (path: string) => `${import.meta.env.BASE_URL}${path.replace(/^\/+/, "")}`;
 
 const personalChats: ChatPreview[] = [
   {
-    avatarUrl: "/event-avatars/lena.jpg",
+    avatarUrl: assetUrl("event-avatars/lena.jpg"),
     id: "lena",
     kind: "personal",
     name: "Lena M.",
     preview: "Ich bin neu in Hamburg. Wollen wir zum Event zusammen hingehen?",
   },
   {
-    avatarUrl: "/event-avatars/jonas.jpg",
+    avatarUrl: assetUrl("event-avatars/jonas.jpg"),
     id: "jonas",
     kind: "personal",
     name: "Jonas K.",

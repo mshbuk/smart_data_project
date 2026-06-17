@@ -15,7 +15,7 @@
     "sourceLabel": "Methfesselfest – Mit Vergnügen Position beziehen",
     "sourceUrl": "https://www.google.com/maps/place/Else-Rauch-Platz,+20255+Hamburg",
     "mapUrl": "https://www.google.com/maps/place/Else-Rauch-Platz,+20255+Hamburg",
-    "imageUrl": "https://images.pexels.com/photos/1388030/pexels-photo-1388030.jpeg?auto=compress&cs=tinysrgb&w=900",
+    "imageUrl": "/smart_data_project/lovable-assets/ottensen.jpg",
     "attendees": 42,
     "comments": [
       {
@@ -50,7 +50,7 @@
     "sourceLabel": "Schanzenzelt - hamburg.de",
     "sourceUrl": "https://www.hamburg.de/",
     "mapUrl": "https://www.google.com/maps/place/Schanzenzelt,+20357+Hamburg",
-    "imageUrl": "https://images.pexels.com/photos/1190298/pexels-photo-1190298.jpeg?auto=compress&cs=tinysrgb&w=900",
+    "imageUrl": "/smart_data_project/lovable-assets/sternschanze.jpg",
     "attendees": 31,
     "comments": [
       {
@@ -78,7 +78,7 @@
     "sourceLabel": "MS Dockville",
     "sourceUrl": "https://kopfundsteine.shop/category/msdockville",
     "mapUrl": "https://www.google.com/maps/place/Schlengendeich+12,+21107+Hamburg",
-    "imageUrl": "https://images.pexels.com/photos/167636/pexels-photo-167636.jpeg?auto=compress&cs=tinysrgb&w=900",
+    "imageUrl": "/smart_data_project/lovable-assets/hafencity.jpg",
     "attendees": 88,
     "comments": [
       {
@@ -106,7 +106,7 @@
     "sourceLabel": "Isemarkt",
     "sourceUrl": "https://www.google.com/maps/place/Isemarkt/@53.580913,9.9784784,17z",
     "mapUrl": "https://www.google.com/maps/place/Isemarkt/@53.580913,9.9784784,17z",
-    "imageUrl": "https://images.pexels.com/photos/375897/pexels-photo-375897.jpeg?auto=compress&cs=tinysrgb&w=900",
+    "imageUrl": "/smart_data_project/lovable-assets/eppendorf.jpg",
     "attendees": 56,
     "comments": [
       {
@@ -141,7 +141,7 @@
     "sourceLabel": "Kreativhaus Eimsbüttel",
     "sourceUrl": "https://www.kreativhaus-eimsbuettel.de/seite/613574/flohmarkt.html",
     "mapUrl": "https://www.google.com/maps/place/Kreativhaus+Eimsb%C3%BCttel",
-    "imageUrl": "https://images.pexels.com/photos/1381556/pexels-photo-1381556.jpeg?auto=compress&cs=tinysrgb&w=900",
+    "imageUrl": "/smart_data_project/lovable-assets/eimsbuettel-2.jpg",
     "attendees": 27,
     "comments": [
       {
@@ -169,7 +169,7 @@
     "sourceLabel": "Hamburger DOM - hamburg.de",
     "sourceUrl": "https://www.hamburg.de/dom/",
     "mapUrl": "https://www.google.com/maps/place/Heiligengeistfeld,+20359+Hamburg",
-    "imageUrl": "https://images.pexels.com/photos/1388007/pexels-photo-1388007.jpeg?auto=compress&cs=tinysrgb&w=900",
+    "imageUrl": "/smart_data_project/lovable-assets/sternschanze-2.jpg",
     "attendees": 134,
     "comments": [
       {
@@ -197,7 +197,7 @@
     "sourceLabel": "Founders Running Club :: Hamburg | Meetup",
     "sourceUrl": "https://www.meetup.com/",
     "mapUrl": "https://www.google.com/maps/search/Founders+Running+Club+Hamburg",
-    "imageUrl": "https://images.pexels.com/photos/2402777/pexels-photo-2402777.jpeg?auto=compress&cs=tinysrgb&w=900",
+    "imageUrl": "/smart_data_project/lovable-assets/altona-2.jpg",
     "attendees": 24,
     "comments": [
       {
@@ -225,7 +225,7 @@
     "sourceLabel": "ParkSportInsel",
     "sourceUrl": "https://parksportinsel.de/parks/wassermannpark/",
     "mapUrl": "https://www.google.com/maps/place/Bewegungsinsel+Wassermannpark/@53.6451025,9.9151487,17z",
-    "imageUrl": "https://images.pexels.com/photos/3621104/pexels-photo-3621104.jpeg?auto=compress&cs=tinysrgb&w=900",
+    "imageUrl": "/smart_data_project/lovable-assets/winterhude.jpg",
     "attendees": 19,
     "comments": [
       {
@@ -253,7 +253,7 @@
     "sourceLabel": "hella hamburg halbmarathon",
     "sourceUrl": "https://www.hamburg-halbmarathon.de/",
     "mapUrl": "https://www.google.com/maps/search/Hella+Halbmarathon+Hamburg",
-    "imageUrl": "https://images.pexels.com/photos/2526878/pexels-photo-2526878.jpeg?auto=compress&cs=tinysrgb&w=900",
+    "imageUrl": "/smart_data_project/lovable-assets/hafencity-2.jpg",
     "attendees": 47,
     "comments": [
       {
@@ -281,7 +281,7 @@
     "sourceLabel": "Galopp Hamburg",
     "sourceUrl": "https://www.galopp-hamburg.de/rennbahnbesuch/termine",
     "mapUrl": "https://www.google.com/maps/place/Galopprennbahn+Hamburg-Horn/@53.5605608,10.0815319,17z",
-    "imageUrl": "https://images.pexels.com/photos/1996333/pexels-photo-1996333.jpeg?auto=compress&cs=tinysrgb&w=900",
+    "imageUrl": "/smart_data_project/lovable-assets/altona.jpg",
     "attendees": 22,
     "comments": [
       {
@@ -309,7 +309,7 @@
     "sourceLabel": "World Triathlon Hamburg",
     "sourceUrl": "https://hamburg.triathlon.org/",
     "mapUrl": "https://www.google.com/maps/search/World+Triathlon+Hamburg",
-    "imageUrl": "https://images.pexels.com/photos/3756042/pexels-photo-3756042.jpeg?auto=compress&cs=tinysrgb&w=900",
+    "imageUrl": "/smart_data_project/lovable-assets/winterhude-2.jpg",
     "attendees": 64,
     "comments": [
       {

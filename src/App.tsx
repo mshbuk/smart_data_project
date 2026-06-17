@@ -4,14 +4,17 @@ import {
   ArrowLeft,
   BarChart3,
   CalendarDays,
+  Heart,
   Home,
   Map as MapIcon,
   MessageCircle,
+  Share2,
   SlidersHorizontal,
   User,
   type LucideIcon,
 } from "lucide-react";
 import districts from "./data/districts.json";
+import events from "./data/events.json";
 import { AuthGate } from "./components/AuthGate";
 import { CustomQuestionnaire } from "./components/CustomQuestionnaire";
 import { DistrictDetail } from "./components/DistrictDetail";
@@ -23,6 +26,7 @@ import { ProfilePage } from "./components/ProfilePage";
 import { ResultsList } from "./components/ResultsList";
 import { SavedComparison } from "./components/SavedComparison";
 import type { District, Preferences, UserProfile } from "./types/District";
+import type { CityEvent } from "./types/Event";
 import { I18nProvider, translate, type Language } from "./i18n";
 import { calculateDistrictMatches, profileDefaults } from "./utils/scoring";
 
@@ -38,6 +42,7 @@ type PersistedState = {
   flowStep?: FlowStep;
   language?: Language;
   preferences?: Preferences;
+  likedEventIds?: string[];
   savedDistrictIds?: string[];
   selectedProfile?: UserProfile;
   signedUpEventIds?: string[];
@@ -51,6 +56,7 @@ type ViewOption = {
 };
 
 const districtData = districts as District[];
+const cityEvents = events as CityEvent[];
 const districtIds = new Set(districtData.map((district) => district.id));
 const city = "Hamburg";
 const storageKey = "district-finder-state-v2";
@@ -111,6 +117,9 @@ function loadPersistedState(): PersistedState {
       authMode: isAuthGateMode(parsed.authMode) ? parsed.authMode : undefined,
       flowStep: isFlowStep(parsed.flowStep) ? parsed.flowStep : undefined,
       language: isLanguage(parsed.language) ? parsed.language : undefined,
+      likedEventIds: Array.isArray(parsed.likedEventIds)
+        ? parsed.likedEventIds.filter((id): id is string => typeof id === "string")
+        : undefined,
       preferences: isPreferences(parsed.preferences) ? parsed.preferences : undefined,
       savedDistrictIds: Array.isArray(parsed.savedDistrictIds)
         ? parsed.savedDistrictIds.filter((id): id is string => typeof id === "string" && districtIds.has(id))
@@ -148,8 +157,10 @@ function App() {
   const [mapFocusDistrictId, setMapFocusDistrictId] = useState<string | null>(null);
   const [showFullResults, setShowFullResults] = useState(false);
   const [questionnaireBackTarget, setQuestionnaireBackTarget] = useState<QuestionnaireBackTarget>("auth");
+  const [likedEventIds, setLikedEventIds] = useState<string[]>(initialState.likedEventIds ?? []);
   const [signedUpEventIds, setSignedUpEventIds] = useState<string[]>(initialState.signedUpEventIds ?? []);
   const [isGlobalChatOpen, setIsGlobalChatOpen] = useState(false);
+  const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
 
   const matches = useMemo(
     () => calculateDistrictMatches(districtData, preferences, selectedProfile, language),
@@ -159,6 +170,9 @@ function App() {
   const topMatch = matches[0];
   const selectedDetailMatch = selectedDistrictId
     ? matches.find((match) => match.district.id === selectedDistrictId)
+    : undefined;
+  const selectedEvent = selectedEventId
+    ? cityEvents.find((event) => event.id === selectedEventId)
     : undefined;
   const tx = (english: string, german: string) => translate(language, english, german);
 
@@ -175,6 +189,7 @@ function App() {
       authMode,
       flowStep,
       language,
+      likedEventIds,
       preferences,
       savedDistrictIds,
       selectedProfile,
@@ -186,7 +201,7 @@ function App() {
     } catch {
       // Browsers can block storage in private contexts; the app still works for the current session.
     }
-  }, [activeView, authGateCompleted, authMode, flowStep, language, preferences, savedDistrictIds, selectedProfile, signedUpEventIds]);
+  }, [activeView, authGateCompleted, authMode, flowStep, language, likedEventIds, preferences, savedDistrictIds, selectedProfile, signedUpEventIds]);
 
   const toggleSave = (districtId: string) => {
     setSavedDistrictIds((currentIds) =>
@@ -203,8 +218,10 @@ function App() {
     setAuthMode(undefined);
     setSelectedProfile("longTerm");
     setPreferences(profileDefaults.longTerm);
+    setLikedEventIds([]);
     setSavedDistrictIds([]);
     setSignedUpEventIds([]);
+    setSelectedEventId(null);
     setActiveView("results");
     setShowFullResults(false);
     setQuestionnaireBackTarget("auth");
@@ -217,6 +234,7 @@ function App() {
     setSelectedProfile("longTerm");
     setPreferences(profileDefaults.longTerm);
     setSelectedDistrictId(null);
+    setSelectedEventId(null);
     setActiveView("results");
     setShowFullResults(false);
     setQuestionnaireBackTarget("auth");
@@ -227,6 +245,7 @@ function App() {
     setAuthGateCompleted(false);
     setAuthMode(undefined);
     setSelectedDistrictId(null);
+    setSelectedEventId(null);
     setActiveView("results");
     setShowFullResults(false);
     setQuestionnaireBackTarget("auth");
@@ -236,6 +255,7 @@ function App() {
   const leaveQuestionnaire = () => {
     if (questionnaireBackTarget === "recommendations") {
       setSelectedDistrictId(null);
+      setSelectedEventId(null);
       setActiveView("results");
       setFlowStep("recommendations");
       return;
@@ -244,12 +264,14 @@ function App() {
     setAuthGateCompleted(false);
     setAuthMode(undefined);
     setSelectedDistrictId(null);
+    setSelectedEventId(null);
     setActiveView("results");
     setShowFullResults(false);
   };
 
   const openCriteriaEditor = () => {
     setSelectedDistrictId(null);
+    setSelectedEventId(null);
     setActiveView("results");
     setShowFullResults(false);
     setQuestionnaireBackTarget("recommendations");
@@ -258,6 +280,7 @@ function App() {
 
   const finishQuestionnaire = () => {
     setSelectedDistrictId(null);
+    setSelectedEventId(null);
     setActiveView("results");
     setShowFullResults(false);
     setQuestionnaireBackTarget("recommendations");
@@ -267,6 +290,7 @@ function App() {
   const openMapForDistrict = (districtId: string) => {
     setMapFocusDistrictId(districtId);
     setSelectedDistrictId(null);
+    setSelectedEventId(null);
     setActiveView("map");
     setFlowStep("recommendations");
   };
@@ -279,6 +303,30 @@ function App() {
     );
   };
 
+  const toggleEventLike = (eventId: string) => {
+    setLikedEventIds((currentIds) =>
+      currentIds.includes(eventId)
+        ? currentIds.filter((id) => id !== eventId)
+        : [...currentIds, eventId],
+    );
+  };
+
+  const shareSelectedEvent = () => {
+    if (!selectedEvent) return;
+
+    const url = window.location.href;
+    if (navigator.share) {
+      void navigator.share({
+        text: selectedEvent.description,
+        title: selectedEvent.title,
+        url,
+      });
+      return;
+    }
+
+    void navigator.clipboard?.writeText(url);
+  };
+
   const viewOptions: ViewOption[] = [
     { view: "results", label: "Start", icon: Home },
     { view: "map", label: tx("Map", "Karte"), icon: MapIcon },
@@ -289,6 +337,8 @@ function App() {
   const headerTitle =
     flowStep === "questionnaire"
       ? tx("Questions", "Fragen")
+      : selectedEvent
+        ? selectedEvent.title
       : selectedDetailMatch
         ? selectedDetailMatch.district.name
       : activeView === "results"
@@ -300,8 +350,13 @@ function App() {
             : activeView === "saved"
               ? tx("Compare", "Vergleich")
               : tx("Profile", "Profil");
-  const canNavigateBack = flowStep !== "recommendations" || Boolean(selectedDetailMatch);
+  const canNavigateBack = flowStep !== "recommendations" || Boolean(selectedDetailMatch) || Boolean(selectedEvent);
   const navigateBack = () => {
+    if (selectedEvent) {
+      setSelectedEventId(null);
+      return;
+    }
+
     if (selectedDetailMatch) {
       setSelectedDistrictId(null);
       return;
@@ -337,9 +392,13 @@ function App() {
                 </button>
               )}
               <button
-                className="truncate font-display text-lg font-semibold text-foreground"
+                className={[
+                  "truncate font-display font-semibold text-foreground",
+                  selectedEvent ? "text-2xl" : "text-lg",
+                ].join(" ")}
                 onClick={() => {
                   setSelectedDistrictId(null);
+                  setSelectedEventId(null);
                   setActiveView("results");
                   setShowFullResults(false);
                   if (flowStep !== "recommendations") setFlowStep("questionnaire");
@@ -350,7 +409,7 @@ function App() {
               </button>
             </div>
             <div className="flex shrink-0 items-center gap-2">
-            {flowStep === "recommendations" && activeView === "results" && !selectedDetailMatch && (
+            {flowStep === "recommendations" && activeView === "results" && !selectedDetailMatch && !selectedEvent && (
               <button
                 className="inline-flex min-h-9 items-center gap-1 rounded-full border border-border bg-card px-3 text-xs font-semibold text-foreground shadow-card"
                 onClick={openCriteriaEditor}
@@ -360,16 +419,46 @@ function App() {
                 {tx("Adjust answers", "Antworten anpassen")}
               </button>
             )}
+            {selectedEvent ? (
+              <>
+                <button
+                  aria-label={likedEventIds.includes(selectedEvent.id) ? tx("Unlike event", "Event nicht mehr liken") : tx("Like event", "Event liken")}
+                  className="grid h-10 w-10 place-items-center rounded-full text-foreground transition-colors hover:bg-muted"
+                  onClick={() => toggleEventLike(selectedEvent.id)}
+                  type="button"
+                >
+                  <Heart
+                    aria-hidden="true"
+                    className={likedEventIds.includes(selectedEvent.id) ? "h-7 w-7 fill-rose-500 text-rose-500" : "h-7 w-7"}
+                    strokeWidth={2.4}
+                  />
+                </button>
+                <button
+                  aria-label={tx("Share event", "Event teilen")}
+                  className="grid h-10 w-10 place-items-center rounded-full text-foreground transition-colors hover:bg-muted"
+                  onClick={shareSelectedEvent}
+                  type="button"
+                >
+                  <Share2 aria-hidden="true" className="h-7 w-7" strokeWidth={2.4} />
+                </button>
+              </>
+            ) : null}
             <button
               aria-label={tx("Open chats", "Chats öffnen")}
-              className="relative grid h-9 w-9 place-items-center rounded-full border border-border bg-card text-foreground shadow-card"
+              className={[
+                "relative grid place-items-center rounded-full text-foreground transition-colors hover:bg-muted",
+                selectedEvent ? "h-10 w-10" : "h-9 w-9 border border-border bg-card shadow-card",
+              ].join(" ")}
               onClick={() => setIsGlobalChatOpen(true)}
               type="button"
             >
-              <MessageCircle aria-hidden="true" className="h-4 w-4" />
-              {signedUpEventIds.length > 0 && (
-                <span className="absolute -right-1 -top-1 grid h-4 min-w-4 place-items-center rounded-full bg-rose-600 px-1 text-[10px] font-bold leading-none text-white">
-                  {signedUpEventIds.length}
+              <MessageCircle aria-hidden="true" className={selectedEvent ? "h-7 w-7" : "h-4 w-4"} strokeWidth={selectedEvent ? 2.4 : 2} />
+              {(selectedEvent ? Math.max(1, signedUpEventIds.length) : signedUpEventIds.length) > 0 && (
+                <span className={[
+                  "absolute grid place-items-center rounded-full bg-primary px-1 font-bold leading-none text-primary-foreground",
+                  selectedEvent ? "-right-0.5 -top-1 h-5 min-w-5 text-xs" : "-right-1 -top-1 h-4 min-w-4 text-[10px]",
+                ].join(" ")}>
+                  {selectedEvent ? Math.max(1, signedUpEventIds.length) : signedUpEventIds.length}
                 </span>
               )}
             </button>
@@ -464,6 +553,7 @@ function App() {
                             setMapFocusDistrictId(selectedDetailMatch.district.id);
                           }
                           setSelectedDistrictId(null);
+                          if (option.view !== "events") setSelectedEventId(null);
                           setActiveView(option.view);
                           if (option.view === "results") setShowFullResults(false);
                         }}
@@ -529,6 +619,8 @@ function App() {
             {!selectedDetailMatch && activeView === "events" && (
               <EventsView
                 onToggleSignUp={toggleEventSignUp}
+                onSelectEvent={setSelectedEventId}
+                selectedEventId={selectedEventId}
                 signedUpEventIds={signedUpEventIds}
               />
             )}
