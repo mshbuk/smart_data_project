@@ -637,6 +637,7 @@ function App() {
               <ProfilePage
                 city={city}
                 favoriteCount={savedDistrictIds.length}
+                savedEventCount={new Set([...likedEventIds, ...signedUpEventIds]).size}
                 onBack={() => {
                   setActiveView("results");
                   setFlowStep("recommendations");
