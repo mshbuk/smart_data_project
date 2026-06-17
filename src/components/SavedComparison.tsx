@@ -96,8 +96,9 @@ export function SavedComparison({
 }: SavedComparisonProps) {
   const { language, tx } = useI18n();
   const visibleMatches = savedMatches.slice(0, 3);
-  const gridTemplateColumns = `190px repeat(${Math.max(visibleMatches.length, 1)}, minmax(145px, 1fr)) 140px`;
+  const gridTemplateColumns = "86px repeat(3, minmax(64px, 1fr)) 64px";
   const chart = { centerX: 340, centerY: 198, radius: 122 };
+  const bestTotalScore = Math.max(...visibleMatches.map((match) => match.score));
 
   if (savedMatches.length === 0) {
     return (
@@ -248,32 +249,35 @@ export function SavedComparison({
 
       <section className="overflow-hidden rounded-[1.7rem] border border-border bg-card shadow-card">
         <div className="overflow-x-auto">
-          <div className="min-w-[680px]">
+          <div className="min-w-0">
             <div
               className="grid items-center border-b border-border bg-card text-center"
               style={{ gridTemplateColumns }}
             >
               <div />
               {visibleMatches.map((match) => (
-                <div className="flex min-h-16 items-center justify-center gap-2 px-3" key={match.district.id}>
-                  <span className="text-base font-bold text-foreground">{match.district.name}</span>
+                <div className="flex min-h-12 items-center justify-center gap-1 px-1.5" key={match.district.id}>
+                  <span className="truncate text-[11px] font-bold leading-tight text-foreground">{match.district.name}</span>
                   <button
                     aria-label={tx("Remove district", "Stadtteil entfernen")}
                     className="rounded-full p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                     onClick={() => onRemoveDistrict(match.district.id)}
                     type="button"
                   >
-                    <X aria-hidden="true" className="h-4 w-4" />
+                    <X aria-hidden="true" className="h-3.5 w-3.5" />
                   </button>
                 </div>
               ))}
+              {Array.from({ length: Math.max(0, 3 - visibleMatches.length) }).map((_, index) => (
+                <div className="min-h-12" key={`empty-header-${index}`} />
+              ))}
               <button
-                className="inline-flex min-h-16 items-center justify-center gap-2 px-3 text-sm font-semibold text-primary"
+                className="inline-flex min-h-12 items-center justify-center gap-1 px-1 text-[11px] font-semibold leading-tight text-primary"
                 onClick={onFindDistricts}
                 type="button"
               >
-                <Plus aria-hidden="true" className="h-4 w-4" />
-                <span>{tx("Add district", "Stadtteil hinzufügen")}</span>
+                <Plus aria-hidden="true" className="h-3.5 w-3.5" />
+                <span>{tx("Add", "Neu")}</span>
               </button>
             </div>
 
@@ -281,44 +285,66 @@ export function SavedComparison({
               className="grid items-center border-b border-border bg-primary-soft text-primary"
               style={{ gridTemplateColumns }}
             >
-              <div className="px-4 py-4 text-xs font-bold uppercase tracking-[0.12em] text-accent-foreground">
+              <div className="px-2 py-3 text-[10px] font-bold uppercase tracking-[0.1em] text-accent-foreground">
                 Gesamt-Score
               </div>
               {visibleMatches.map((match) => (
-                <div className="px-4 py-4 text-2xl font-bold" key={match.district.id}>
+                <div
+                  className={[
+                    "px-1.5 py-3 text-lg font-bold",
+                    match.score === bestTotalScore ? "text-emerald-600" : "",
+                  ].join(" ")}
+                  key={match.district.id}
+                >
                   {match.score}%
                 </div>
+              ))}
+              {Array.from({ length: Math.max(0, 3 - visibleMatches.length) }).map((_, index) => (
+                <div className="px-1.5 py-3" key={`empty-score-${index}`} />
               ))}
               <div />
             </div>
 
-            {chartAxes.map((metric) => (
-              <div
-                className="grid min-h-16 items-center border-b border-border last:border-b-0"
-                key={metric.key}
-                style={{ gridTemplateColumns }}
-              >
-                <div className="flex items-center gap-2 px-4 py-3 text-base text-foreground">
-                  <span className="decoration-dotted underline underline-offset-4">
-                    {language === "de" ? metric.label.de : metric.label.en}
-                  </span>
-                </div>
-                {visibleMatches.map((match) => {
-                  const value = metric.getValue(match);
-                  const progress = `${Math.max(0, Math.min(value, 10)) * 10}%`;
+            {chartAxes.map((metric) => {
+              const bestValue = Math.max(...visibleMatches.map((match) => metric.getValue(match)));
 
-                  return (
-                    <div className="flex items-center gap-3 px-4 py-3" key={match.district.id}>
-                      <span className="h-2 w-20 overflow-hidden rounded-full bg-muted">
-                        <span className="block h-full rounded-full bg-primary" style={{ width: progress }} />
-                      </span>
-                      <span className="text-base font-bold text-foreground">{metric.getDisplay(match, language)}</span>
-                    </div>
-                  );
-                })}
-                <div />
-              </div>
-            ))}
+              return (
+                <div
+                  className="grid min-h-12 items-center border-b border-border last:border-b-0"
+                  key={metric.key}
+                  style={{ gridTemplateColumns }}
+                >
+                  <div className="flex items-center gap-1 px-2 py-2 text-[11px] leading-tight text-foreground">
+                    <span className="decoration-dotted underline underline-offset-4">
+                      {language === "de" ? metric.label.de : metric.label.en}
+                    </span>
+                  </div>
+                  {visibleMatches.map((match) => {
+                    const value = metric.getValue(match);
+                    const isBest = value === bestValue;
+                    const progress = `${Math.max(0, Math.min(value, 10)) * 10}%`;
+
+                    return (
+                      <div className="grid gap-1 px-1.5 py-2" key={match.district.id}>
+                        <span className={["h-1.5 w-full overflow-hidden rounded-full", isBest ? "bg-emerald-100" : "bg-muted"].join(" ")}>
+                          <span
+                            className={["block h-full rounded-full", isBest ? "bg-emerald-500" : "bg-primary"].join(" ")}
+                            style={{ width: progress }}
+                          />
+                        </span>
+                        <span className={["text-[11px] font-bold leading-none", isBest ? "text-emerald-700" : "text-foreground"].join(" ")}>
+                          {metric.getDisplay(match, language)}
+                        </span>
+                      </div>
+                    );
+                  })}
+                  {Array.from({ length: Math.max(0, 3 - visibleMatches.length) }).map((_, index) => (
+                    <div className="px-1.5 py-2" key={`empty-${metric.key}-${index}`} />
+                  ))}
+                  <div />
+                </div>
+              );
+            })}
           </div>
         </div>
       </section>

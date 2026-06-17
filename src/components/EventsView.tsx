@@ -150,9 +150,9 @@ function createCalendarDownload(event: CityEvent) {
   const ics = [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
-    "PRODID:-//Moin//Hamburg Events//DE",
+    "PRODID:-//Locana//Hamburg Events//DE",
     "BEGIN:VEVENT",
-    `UID:${event.id}@moin.local`,
+    `UID:${event.id}@locana.local`,
     `DTSTAMP:${new Date().toISOString().replace(/[-:]/g, "").split(".")[0]}Z`,
     `DTSTART;VALUE=DATE:${start}`,
     `DTEND;VALUE=DATE:${end}`,
@@ -687,7 +687,7 @@ export function EventsView({
   const addCommunityComment = (eventId: string, message: string) => {
     const comment: EventComment = {
       avatar: userAvatarUrl,
-      bio: tx("Joined from Moin", "Über Moin eingetragen"),
+      bio: tx("Joined from Locana", "Über Locana eingetragen"),
       likes: 0,
       message,
       name: tx("You", "Du"),

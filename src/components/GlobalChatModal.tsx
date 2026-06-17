@@ -99,7 +99,7 @@ export function GlobalChatModal({ onClose, signedUpEventIds }: GlobalChatModalPr
             )}
             <div className="min-w-0">
               <p className="text-xs font-black uppercase tracking-[0.16em] text-slate-400">
-                {activeChat ? activeChat.kind === "event" ? "Event" : "Chat" : "Moin"}
+                {activeChat ? activeChat.kind === "event" ? "Event" : "Chat" : "Locana"}
               </p>
               <h3 className="truncate text-lg font-black text-slate-950">
                 {activeChat?.name ?? tx("Chats", "Chats")}

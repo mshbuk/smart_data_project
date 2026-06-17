@@ -1,6 +1,6 @@
-# Moin
+# Locana
 
-Moin is a mobile-first React prototype for a university Smart Data project. It recommends Hamburg districts based on a selected lifestyle profile, budget, and personal priorities.
+Locana is a mobile-first React prototype for a university Smart Data project. It recommends Hamburg districts based on a selected lifestyle profile, budget, and personal priorities.
 
 The app uses local district data, transparent scoring logic, result cards, district detail views, saved comparisons, German/English UI text, a local Hamburg events module, and a Leaflet map with Hamburg district borders from GeoJSON.
 
@@ -89,7 +89,7 @@ The production site is deployed automatically with GitHub Actions when changes a
 - Lifestyle profile presets for tourist/short stay, family relocation, and long-term living.
 - User-defined setup with a one-question-at-a-time questionnaire, progress bar, previous/next navigation, and branching follow-up questions that adjust criteria from lifestyle answers.
 - Editable priority weights with clear importance labels such as `important` and `very important`.
-- Lovable-inspired white/violet visual direction with the product name `Moin`, image-led recommendation cards, and a five-tab bottom menu: Start, Karte, Events, Vergleich, Profil.
+- Lovable-inspired visual direction with the product name `Locana`, image-led recommendation cards, and a five-tab bottom menu: Start, Karte, Events, Vergleich, Profil.
 - Ranked district recommendations with 10 districts per page.
 - Clickable district image areas that open in-app district detail views.
 - Hamburg-only district photo pool on all 104 district result cards and detail pages instead of non-Hamburg placeholders.

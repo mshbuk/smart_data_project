@@ -264,6 +264,17 @@ export function CustomQuestionnaire({
       setSelectedChips(new Set());
     }
 
+    if (step === 4) {
+      const profileDefaultsForSkip = profileDefaults[selectedProfile === "custom" ? "longTerm" : selectedProfile];
+      onChange({
+        ...preferences,
+        maxRentPerSqm: profileDefaultsForSkip.maxRentPerSqm,
+      });
+      setRentMax(Math.max(700, rentPerSqmToMonthly(profileDefaultsForSkip.maxRentPerSqm)));
+      onNext();
+      return;
+    }
+
     setStep((current) => Math.min(current + 1, totalSteps));
   };
 
@@ -544,7 +555,7 @@ export function CustomQuestionnaire({
         </button>
       </div>
 
-      {(step === 2 || step === 3) && (
+      {(step === 2 || step === 3 || step === 4) && (
         <button
           className="mx-auto mt-3 block text-sm text-muted-foreground underline-offset-4 hover:underline"
           onClick={skip}

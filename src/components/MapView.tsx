@@ -68,7 +68,6 @@ type SelectedMapDistrict = {
 
 type LocalSpot = {
   description: string;
-  emoji?: string;
   icon: string;
   label: string;
   latitude: number;
@@ -90,6 +89,8 @@ const emptyDistrictBoundaries: DistrictBoundaryCollection = {
 
 const hamburgAltstadtCenter: [number, number] = [53.55062, 9.9955];
 const databaseMapSpots = mapSpots as MapSpot[];
+const baseUrl = import.meta.env.BASE_URL;
+const assetUrl = (path: string) => `${baseUrl}${path.replace(/^\/+/, "")}`;
 
 const legendItems: Array<{ label: LocalizedText; color: string }> = [
   { label: { en: "Top district", de: "Top-Stadtteil" }, color: "#0f172a" },
@@ -98,22 +99,45 @@ const legendItems: Array<{ label: LocalizedText; color: string }> = [
   { label: { en: "Other districts", de: "Weitere Stadtteile" }, color: "#d1d5db" },
 ];
 
-const iconEmojiMap: Record<string, string> = {
-  "bar.png": "🍻",
-  "bus-stop.jpeg": "🚌",
-  "cafe.png": "☕",
-  "elbphilharmonie.png": "🎼",
-  "flughafen.png": "✈️",
-  "hbf.jpg": "🚆",
-  "kita.png": "🏫",
-  "library.png": "🌳",
-  "rathaus.png": "🏛️",
-  "school.png": "🎓",
-  "university.png": "🎓",
+const iconAssetMap: Record<string, string> = {
+  bar: "bar.png",
+  "bar.png": "bar.png",
+  "bus-stop.jpeg": "bus-stop.jpeg",
+  cafe: "cafe.png",
+  "cafe.png": "cafe.png",
+  elbphilharmonie: "elbphilharmonie.png",
+  "elbphilharmonie.png": "elbphilharmonie.png",
+  flughafen: "flughafen.png",
+  "flughafen.png": "flughafen.png",
+  hbf: "hbf.jpg",
+  "hbf.jpg": "hbf.jpg",
+  hvv: "bus-stop.jpeg",
+  kita: "kita.png",
+  "kita.png": "kita.png",
+  library: "library.png",
+  "library.png": "library.png",
+  park: "library.png",
+  rathaus: "rathaus.png",
+  "rathaus.png": "rathaus.png",
+  sbahn: "bus-stop.jpeg",
+  school: "school.png",
+  "school.png": "school.png",
+  ubahn: "bus-stop.jpeg",
+  university: "university.png",
+  "university.png": "university.png",
 };
 
-function getEmojiForIcon(icon: string) {
-  return iconEmojiMap[icon] ?? "📍";
+const mapIconLegendItems: Array<{ icon: string; label: LocalizedText }> = [
+  { icon: "cafe.png", label: { en: "Cafes", de: "Cafés" } },
+  { icon: "bar.png", label: { en: "Bars", de: "Bars" } },
+  { icon: "bus-stop.jpeg", label: { en: "Transit", de: "ÖPNV" } },
+  { icon: "school.png", label: { en: "Schools", de: "Schulen" } },
+  { icon: "kita.png", label: { en: "Daycare", de: "Kitas" } },
+  { icon: "library.png", label: { en: "Parks", de: "Parks" } },
+];
+
+function getIconAsset(icon: string) {
+  return iconAssetMap[icon] ?? iconAssetMap[normalizeDistrictName(icon)] ?? "rathaus.png";
 }
 
 function localize(text: LocalizedText, language: Language) {
@@ -148,9 +172,9 @@ function getBoundaryStyle(feature?: DistrictBoundaryFeature): PathOptions {
     return {
       color: "#d1d5db",
       fillColor: "#f8fafc",
-      fillOpacity: 0.36,
-      opacity: 0.78,
-      weight: 0.65,
+      fillOpacity: 0.42,
+      opacity: 0.95,
+      weight: 1,
     };
   }
 
@@ -302,9 +326,11 @@ function createBoundaryPopup(feature: DistrictBoundaryFeature, language: Languag
   `;
 }
 
-function createEmojiMapIcon(emoji: string, size = 34) {
+function createImageMapIcon(icon: string, size = 34) {
+  const src = assetUrl(`map-icons/${getIconAsset(icon)}`);
+
   return L.divIcon({
-    className: "district-finder-map-emoji-icon",
+    className: "district-finder-map-image-icon",
     html: `
       <span style="
         align-items:center;
@@ -313,12 +339,12 @@ function createEmojiMapIcon(emoji: string, size = 34) {
         border-radius:999px;
         box-shadow:0 8px 20px rgba(15,23,42,.22);
         display:flex;
-        font-size:${Math.round(size * 0.54)}px;
         height:${size}px;
         justify-content:center;
+        overflow:hidden;
         width:${size}px;
       ">
-        ${emoji}
+        <img alt="" src="${src}" style="height:${Math.round(size * 0.62)}px;width:${Math.round(size * 0.62)}px;object-fit:contain;" />
       </span>
     `,
     iconAnchor: [size / 2, size / 2],
@@ -336,6 +362,29 @@ function buildSpot(
 ): LocalSpotTemplate {
   return { description, icon, label, latitude, longitude };
 }
+
+const permanentLandmarks: LocalSpotTemplate[] = [
+  buildSpot("Hamburg Rathaus", "rathaus.png", 53.55034, 9.99244, {
+    en: "Central landmark for orientation.",
+    de: "Zentraler Orientierungspunkt.",
+  }),
+  buildSpot("Hamburg Hauptbahnhof", "hbf.jpg", 53.55273, 10.00691, {
+    en: "Main rail station.",
+    de: "Hamburger Hauptbahnhof.",
+  }),
+  buildSpot("Elbphilharmonie", "elbphilharmonie.png", 53.54133, 9.98413, {
+    en: "Waterside cultural landmark.",
+    de: "Kultur-Ort an der Elbe.",
+  }),
+  buildSpot("Universität Hamburg", "university.png", 53.56653, 9.98401, {
+    en: "University anchor.",
+    de: "Hochschul-Anker.",
+  }),
+  buildSpot("Hamburg Airport", "flughafen.png", 53.63039, 9.98823, {
+    en: "Airport connection.",
+    de: "Flughafen-Anbindung.",
+  }),
+];
 
 const exactLocalSpotTemplatesByDistrict: Record<string, LocalSpotTemplate[]> = {
   dulsberg: [
@@ -513,7 +562,6 @@ const exactLocalSpotTemplatesByDistrict: Record<string, LocalSpotTemplate[]> = {
 function localizeSpot(template: LocalSpotTemplate, language: Language): LocalSpot {
   return {
     description: localize(template.description, language),
-    emoji: getEmojiForIcon(template.icon),
     icon: template.icon,
     label: template.label,
     latitude: template.latitude,
@@ -531,7 +579,6 @@ function buildLocalSpots(district: SelectedMapDistrict, language: Language): Loc
   if (databaseSpots.length) {
     return databaseSpots.map((spot) => ({
       description: localize(spot.description, language),
-      emoji: spot.emoji,
       icon: spot.type,
       label: spot.name,
       latitude: spot.latitude,
@@ -549,7 +596,6 @@ function buildLocalSpots(district: SelectedMapDistrict, language: Language): Loc
         language === "de"
           ? "Illustrativer Café-Spot für den Alltag im gewählten Stadtteil."
           : "Illustrative cafe spot for daily life in the selected district.",
-      emoji: "☕",
       icon: "cafe.png",
       label: language === "de" ? `Kiez-Café ${districtSuffix}` : `Neighborhood cafe ${districtSuffix}`,
       latitude: district.latitude + 0.0042,
@@ -560,7 +606,6 @@ function buildLocalSpots(district: SelectedMapDistrict, language: Language): Loc
         language === "de"
           ? "Zweiter Café-Anker, damit das Viertel nicht wie ein einzelner Punkt wirkt."
           : "Second cafe anchor so the district reads less like a single point.",
-      emoji: "☕",
       icon: "cafe.png",
       label: language === "de" ? `Coffee Corner ${districtSuffix}` : `Coffee corner ${districtSuffix}`,
       latitude: district.latitude - 0.0036,
@@ -571,7 +616,6 @@ function buildLocalSpots(district: SelectedMapDistrict, language: Language): Loc
         language === "de"
           ? "Bar oder Abendtreff für lebendigere Viertel."
           : "Bar or evening hangout for livelier districts.",
-      emoji: "🍻",
       icon: "bar.png",
       label: language === "de" ? `Abendtreff ${districtSuffix}` : `Evening spot ${districtSuffix}`,
       latitude: district.latitude + 0.0013,
@@ -582,7 +626,6 @@ function buildLocalSpots(district: SelectedMapDistrict, language: Language): Loc
         language === "de"
           ? "Bibliotheks- oder Lernort als ruhiger Alltagsanker."
           : "Library or study point as a quieter daily-life anchor.",
-      emoji: "🌳",
       icon: "library.png",
       label: language === "de" ? `Bibliothek ${districtSuffix}` : `Library ${districtSuffix}`,
       latitude: district.latitude - 0.0062,
@@ -593,7 +636,6 @@ function buildLocalSpots(district: SelectedMapDistrict, language: Language): Loc
         language === "de"
           ? "ÖPNV-Haltestelle als Orientierung für Wege ohne Auto."
           : "Transit stop marker for car-free movement.",
-      emoji: "🚌",
       icon: "bus-stop.jpeg",
       label: language === "de" ? `ÖPNV-Halt ${districtSuffix}` : `Transit stop ${districtSuffix}`,
       latitude: district.latitude - 0.0045,
@@ -604,7 +646,6 @@ function buildLocalSpots(district: SelectedMapDistrict, language: Language): Loc
         language === "de"
           ? "Zweiter Mobilitätsanker für bessere Orientierung im Stadtteil."
           : "Second mobility anchor for better district orientation.",
-      emoji: "🚌",
       icon: "bus-stop.jpeg",
       label: language === "de" ? `Bus-Halt ${districtSuffix}` : `Bus stop ${districtSuffix}`,
       latitude: district.latitude + 0.0068,
@@ -615,7 +656,6 @@ function buildLocalSpots(district: SelectedMapDistrict, language: Language): Loc
         language === "de"
           ? "Kita-Spot für Familienorientierung."
           : "Daycare marker for family-oriented scanning.",
-      emoji: "🏫",
       icon: "kita.png",
       label: language === "de" ? `Kita ${districtSuffix}` : `Daycare ${districtSuffix}`,
       latitude: district.latitude - 0.0024,
@@ -626,7 +666,6 @@ function buildLocalSpots(district: SelectedMapDistrict, language: Language): Loc
         language === "de"
           ? "Schul-Spot für Familienorientierung."
           : "School marker for family-oriented scanning.",
-      emoji: "🎓",
       icon: "school.png",
       label: language === "de" ? `Schule ${districtSuffix}` : `School ${districtSuffix}`,
       latitude: district.latitude + 0.003,
@@ -637,7 +676,6 @@ function buildLocalSpots(district: SelectedMapDistrict, language: Language): Loc
         language === "de"
           ? "Uni- oder Hochschulanker als Bildungsorientierung."
           : "University marker as an education anchor.",
-      emoji: "🎓",
       icon: "university.png",
       label: language === "de" ? `Hochschule ${districtSuffix}` : `University ${districtSuffix}`,
       latitude: district.latitude + 0.0054,
@@ -648,7 +686,6 @@ function buildLocalSpots(district: SelectedMapDistrict, language: Language): Loc
         language === "de"
           ? "Grünfläche oder kleiner Park als Aufenthaltsort."
           : "Green area or small park as a local outdoor anchor.",
-      emoji: "🌳",
       icon: "library.png",
       label: language === "de" ? `Grünfläche ${districtSuffix}` : `Green space ${districtSuffix}`,
       latitude: district.latitude + 0.0085,
@@ -659,7 +696,6 @@ function buildLocalSpots(district: SelectedMapDistrict, language: Language): Loc
         language === "de"
           ? "Spielplatz oder ruhiger Aufenthaltsort für Familien."
           : "Playground or calm outdoor point for families.",
-      emoji: "🛝",
       icon: "kita.png",
       label: language === "de" ? `Spielplatz ${districtSuffix}` : `Playground ${districtSuffix}`,
       latitude: district.latitude - 0.008,
@@ -670,7 +706,6 @@ function buildLocalSpots(district: SelectedMapDistrict, language: Language): Loc
         language === "de"
           ? "Bar oder Abendtreff für lebendige Viertel."
           : "Bar or evening hangout for livelier districts.",
-      emoji: "🍻",
       icon: "bar.png",
       label: language === "de" ? `Abendtreff ${districtSuffix}` : `Evening spot ${districtSuffix}`,
       latitude: district.latitude - 0.0092,
@@ -1051,9 +1086,27 @@ export function MapView({
               }
               style={(feature) => getBoundaryStyle(feature as DistrictBoundaryFeature)}
             />
+            {permanentLandmarks.map((spot) => {
+              const landmark = localizeSpot(spot, language);
+
+              return (
+                <Marker
+                  icon={createImageMapIcon(landmark.icon, 31)}
+                  key={`landmark-${landmark.label}`}
+                  position={[landmark.latitude, landmark.longitude]}
+                  title={landmark.label}
+                >
+                  <Popup>
+                    <strong>{landmark.label}</strong>
+                    <br />
+                    {landmark.description}
+                  </Popup>
+                </Marker>
+              );
+            })}
             {localSpots.map((spot) => (
               <Marker
-                icon={createEmojiMapIcon(spot.emoji ?? getEmojiForIcon(spot.icon), 29)}
+                icon={createImageMapIcon(spot.icon, 29)}
                 key={`${selectedMapDistrict?.name}-${spot.label}`}
                 position={[spot.latitude, spot.longitude]}
                 title={spot.label}
@@ -1201,6 +1254,18 @@ export function MapView({
             {legendItems.map((item) => (
               <span className="inline-flex items-center gap-2" key={item.label.en}>
                 <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: item.color }} />
+                {localize(item.label, language)}
+              </span>
+            ))}
+            {mapIconLegendItems.map((item) => (
+              <span className="inline-flex items-center gap-2" key={item.label.en}>
+                <span className="grid h-6 w-6 place-items-center rounded-full border border-border bg-card shadow-sm">
+                  <img
+                    alt=""
+                    className="h-4 w-4 object-contain"
+                    src={assetUrl(`map-icons/${getIconAsset(item.icon)}`)}
+                  />
+                </span>
                 {localize(item.label, language)}
               </span>
             ))}
