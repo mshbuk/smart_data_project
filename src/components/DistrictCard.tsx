@@ -75,8 +75,8 @@ export function DistrictCard({ match, isSaved, onToggleSave, onOpenDetails, rank
                 "grid h-9 w-9 shrink-0 place-items-center rounded-full transition-all",
                 "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
                 isSaved
-                  ? "bg-primary-soft text-primary"
-                  : "bg-muted text-muted-foreground hover:bg-primary-soft hover:text-primary",
+                  ? "bg-rose-50 text-rose-600"
+                  : "bg-muted text-muted-foreground hover:bg-rose-50 hover:text-rose-600",
               ].join(" ")}
               onClick={() => onToggleSave(district.id)}
               type="button"

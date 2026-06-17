@@ -1,6 +1,5 @@
 import {
   Baby,
-  BookOpen,
   Briefcase,
   Check,
   GraduationCap,
@@ -12,18 +11,20 @@ import {
   Wind,
   type LucideIcon,
 } from "lucide-react";
-import { useMemo, useState, type ReactNode } from "react";
-import type { Preferences } from "../types/District";
+import { useState, type ReactNode } from "react";
+import type { Preferences, UserProfile } from "../types/District";
 import { useI18n } from "../i18n";
+import { profileDefaults } from "../utils/scoring";
 
 type CustomQuestionnaireProps = {
   preferences: Preferences;
+  selectedProfile: UserProfile;
   onBack: () => void;
   onChange: (preferences: Preferences) => void;
+  onProfileChange: (profile: UserProfile) => void;
   onNext: () => void;
 };
 
-type HamburgKnowledge = "new" | "abit" | "local";
 type PriorityKey = Exclude<keyof Preferences, "maxRentPerSqm">;
 
 type Priority = {
@@ -33,7 +34,44 @@ type Priority = {
   description: { de: string; en: string };
 };
 
+type PersonaOption = {
+  profile: UserProfile;
+  icon: LucideIcon;
+  label: { de: string; en: string };
+  description: { de: string; en: string };
+};
+
 const totalSteps = 4;
+
+const personaOptions: PersonaOption[] = [
+  {
+    profile: "longTerm",
+    icon: Home,
+    label: { de: "Ich ziehe alleine um", en: "I am moving alone" },
+    description: {
+      de: "Für Studierende, Berufseinsteiger und alle, die langfristig in Hamburg wohnen möchten.",
+      en: "For students, young professionals, and anyone planning to live in Hamburg long term.",
+    },
+  },
+  {
+    profile: "family",
+    icon: Baby,
+    label: { de: "Wir ziehen als Familie um", en: "We are moving as a family" },
+    description: {
+      de: "Füllt Sicherheit, Ruhe, Grünflächen, Schulen und Kitas stärker vor.",
+      en: "Prefills safety, calm, green space, schools, and daycare as stronger priorities.",
+    },
+  },
+  {
+    profile: "tourist",
+    icon: Briefcase,
+    label: { de: "Ich bin als Tourist hier", en: "I am visiting as a tourist" },
+    description: {
+      de: "Legt mehr Gewicht auf ÖPNV, Nachtleben und lebendige Stadtteile.",
+      en: "Prioritizes transit, nightlife, and lively neighborhoods.",
+    },
+  },
+];
 
 const priorities: Priority[] = [
   {
@@ -123,23 +161,31 @@ function FollowUp({ title, question, children }: { title: string; question: stri
   );
 }
 
-export function CustomQuestionnaire({ preferences, onBack, onChange, onNext }: CustomQuestionnaireProps) {
+export function CustomQuestionnaire({
+  preferences,
+  selectedProfile,
+  onBack,
+  onChange,
+  onProfileChange,
+  onNext,
+}: CustomQuestionnaireProps) {
   const { language, tx } = useI18n();
   const [step, setStep] = useState(1);
-  const [knowsHamburg, setKnowsHamburg] = useState<HamburgKnowledge>("new");
   const [rooms, setRooms] = useState(2);
   const [rentMin, setRentMin] = useState(600);
   const [rentMax, setRentMax] = useState(() => Math.max(700, rentPerSqmToMonthly(preferences.maxRentPerSqm)));
   const [selectedChips, setSelectedChips] = useState<Set<string>>(() => new Set());
+  const [preferencesBeforeExtras, setPreferencesBeforeExtras] = useState<Preferences | null>(null);
   const progress = (step / totalSteps) * 100;
-  const strongest = useMemo(
-    () =>
-      priorities
-        .filter((priority) => preferences[priority.key] > 0)
-        .sort((a, b) => preferences[b.key] - preferences[a.key])
-        .slice(0, 3),
-    [preferences],
-  );
+
+  const applyProfile = (profile: UserProfile) => {
+    const defaults = profileDefaults[profile];
+    onProfileChange(profile);
+    onChange(defaults);
+    setRentMax(Math.max(700, rentPerSqmToMonthly(defaults.maxRentPerSqm)));
+    setSelectedChips(new Set());
+    setPreferencesBeforeExtras(null);
+  };
 
   const setPreference = (key: PriorityKey, value: number) => {
     onChange({
@@ -175,7 +221,15 @@ export function CustomQuestionnaire({ preferences, onBack, onChange, onNext }: C
   };
 
   const next = () => {
+    if (step === 1 && selectedProfile === "custom") {
+      applyProfile("longTerm");
+    }
+
     if (step < totalSteps) {
+      if (step === 2) {
+        setPreferencesBeforeExtras(preferences);
+      }
+
       setStep((current) => current + 1);
       return;
     }
@@ -190,6 +244,27 @@ export function CustomQuestionnaire({ preferences, onBack, onChange, onNext }: C
     }
 
     onBack();
+  };
+
+  const skip = () => {
+    if (step === 2) {
+      const profileDefaultsForSkip = profileDefaults[selectedProfile === "custom" ? "longTerm" : selectedProfile];
+      const defaultCriteria = {
+        ...profileDefaultsForSkip,
+        maxRentPerSqm: preferences.maxRentPerSqm,
+      };
+      onChange(defaultCriteria);
+      setPreferencesBeforeExtras(defaultCriteria);
+    }
+
+    if (step === 3) {
+      if (preferencesBeforeExtras) {
+        onChange(preferencesBeforeExtras);
+      }
+      setSelectedChips(new Set());
+    }
+
+    setStep((current) => Math.min(current + 1, totalSteps));
   };
 
   const chipButton = (label: string, updates: Partial<Preferences>) => {
@@ -222,33 +297,17 @@ export function CustomQuestionnaire({ preferences, onBack, onChange, onNext }: C
       {step === 1 && (
         <section>
           <h2 className="font-display text-2xl font-semibold">
-            {tx("How well do you know Hamburg?", "Wie gut kennst du Hamburg?")}
+            {tx("What brings you to Hamburg?", "Wie möchtest du Hamburg nutzen?")}
           </h2>
           <p className="mt-1 text-sm text-muted-foreground">
             {tx(
-              "This helps us frame the recommendations in a way that feels useful.",
-              "Das hilft uns, die Empfehlungen passend für dich einzuordnen.",
+              "Choose the situation that fits best. We will prefill the district criteria for you.",
+              "Wähle die Situation, die am besten passt. Wir füllen die Stadtteil-Kriterien passend vor.",
             )}
           </p>
           <div className="mt-6 space-y-3">
-            {([
-              {
-                key: "new",
-                icon: Briefcase,
-                label: tx("I am new to Hamburg", "Ich bin neu in Hamburg"),
-              },
-              {
-                key: "abit",
-                icon: BookOpen,
-                label: tx("I know a bit", "Ich kenne mich etwas aus"),
-              },
-              {
-                key: "local",
-                icon: Home,
-                label: tx("I live here already", "Ich wohne schon hier"),
-              },
-            ] as const).map(({ key, icon: Icon, label }) => {
-              const active = knowsHamburg === key;
+            {personaOptions.map(({ profile, icon: Icon, label, description }) => {
+              const active = selectedProfile === profile || (selectedProfile === "custom" && profile === "longTerm");
 
               return (
                 <button
@@ -256,8 +315,8 @@ export function CustomQuestionnaire({ preferences, onBack, onChange, onNext }: C
                     "flex w-full items-center gap-3 rounded-2xl border p-4 text-left transition",
                     active ? "border-primary bg-primary-soft" : "border-border bg-card hover:border-primary/40",
                   ].join(" ")}
-                  key={key}
-                  onClick={() => setKnowsHamburg(key)}
+                  key={profile}
+                  onClick={() => applyProfile(profile)}
                   type="button"
                 >
                   <div
@@ -268,7 +327,12 @@ export function CustomQuestionnaire({ preferences, onBack, onChange, onNext }: C
                   >
                     <Icon aria-hidden="true" className="h-5 w-5" />
                   </div>
-                  <span className="flex-1 font-medium">{label}</span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block font-medium">{localized(language, label)}</span>
+                    <span className="mt-0.5 block text-xs leading-snug text-muted-foreground">
+                      {localized(language, description)}
+                    </span>
+                  </span>
                   {active && <Check aria-hidden="true" className="h-5 w-5 text-primary" />}
                 </button>
               );
@@ -280,7 +344,7 @@ export function CustomQuestionnaire({ preferences, onBack, onChange, onNext }: C
       {step === 2 && (
         <section>
           <h2 className="font-display text-2xl font-semibold">
-            {tx("What matters most?", "Was ist dir am wichtigsten?")}
+            {tx("What is especially important to you in a district?", "Was ist dir bei einem Stadtteil besonders wichtig?")}
           </h2>
           <p className="mt-1 text-sm text-muted-foreground">
             {tx(
@@ -460,18 +524,6 @@ export function CustomQuestionnaire({ preferences, onBack, onChange, onNext }: C
             </div>
           </div>
 
-          <div className="mt-4 rounded-2xl border border-border bg-card p-4">
-            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              {tx("Strongest priorities", "Stärkste Prioritäten")}
-            </p>
-            <div className="mt-3 flex flex-wrap gap-2">
-              {strongest.map((priority) => (
-                <span className="rounded-full bg-primary-soft px-3 py-1 text-xs font-medium text-accent-foreground" key={priority.key}>
-                  {localized(language, priority.label)} · {preferences[priority.key]}
-                </span>
-              ))}
-            </div>
-          </div>
         </section>
       )}
 
@@ -492,10 +544,10 @@ export function CustomQuestionnaire({ preferences, onBack, onChange, onNext }: C
         </button>
       </div>
 
-      {step === 1 && (
+      {(step === 2 || step === 3) && (
         <button
           className="mx-auto mt-3 block text-sm text-muted-foreground underline-offset-4 hover:underline"
-          onClick={onNext}
+          onClick={skip}
           type="button"
         >
           {tx("Skip", "Überspringen")}

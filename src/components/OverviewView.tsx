@@ -7,6 +7,8 @@ type OverviewViewProps = {
   onOpenDetails: (districtId: string) => void;
   onShowAllResults: () => void;
   onStartFinder: () => void;
+  onToggleSave: (districtId: string) => void;
+  savedDistrictIds: string[];
 };
 
 function formatRent(value: number, language: "de" | "en") {
@@ -16,7 +18,14 @@ function formatRent(value: number, language: "de" | "en") {
   }).format(value);
 }
 
-export function OverviewView({ matches, onOpenDetails, onShowAllResults, onStartFinder }: OverviewViewProps) {
+export function OverviewView({
+  matches,
+  onOpenDetails,
+  onShowAllResults,
+  onStartFinder,
+  onToggleSave,
+  savedDistrictIds,
+}: OverviewViewProps) {
   const { language, tx } = useI18n();
   const visibleMatches = matches.slice(0, 3);
 
@@ -43,18 +52,22 @@ export function OverviewView({ matches, onOpenDetails, onShowAllResults, onStart
         {visibleMatches.map((match, index) => {
           const { district } = match;
           const isTop = index === 0;
+          const isSaved = savedDistrictIds.includes(district.id);
 
           return (
             <li key={district.id}>
-              <button
+              <article
                 className={[
                   "block w-full overflow-hidden rounded-3xl bg-card text-left shadow-card transition hover:shadow-lg",
                   isTop ? "border-4 border-warning" : "border border-border",
                 ].join(" ")}
-                onClick={() => onOpenDetails(district.id)}
-                type="button"
               >
-                <div className="relative aspect-[16/10] w-full overflow-hidden bg-muted">
+                <button
+                  aria-label={tx(`Open ${district.name} details`, `${district.name} Details öffnen`)}
+                  className="relative block aspect-[16/10] w-full overflow-hidden bg-muted text-left"
+                  onClick={() => onOpenDetails(district.id)}
+                  type="button"
+                >
                   {district.imageUrl ? (
                     <img
                       alt={district.name}
@@ -78,14 +91,29 @@ export function OverviewView({ matches, onOpenDetails, onShowAllResults, onStart
                     <p className="text-[10px] font-medium uppercase tracking-wider opacity-80">Match</p>
                     <p className="-mt-0.5 font-display text-lg font-bold leading-tight tabular-nums">{match.score}%</p>
                   </div>
-                </div>
+                </button>
 
                 <div className="p-4">
                   <div className="mb-2 flex items-start justify-between gap-2">
                     <h3 className="font-display text-xl font-bold">{district.name}</h3>
-                    <span className="grid h-9 w-9 place-items-center rounded-full bg-muted">
-                      <Heart aria-hidden="true" className="h-4 w-4 text-muted-foreground" />
-                    </span>
+                    <button
+                      aria-label={
+                        isSaved
+                          ? tx(`Remove ${district.name} from saved districts`, `${district.name} aus Favoriten entfernen`)
+                          : tx(`Save ${district.name}`, `${district.name} favorisieren`)
+                      }
+                      className={[
+                        "grid h-9 w-9 shrink-0 place-items-center rounded-full transition-all",
+                        "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
+                        isSaved
+                          ? "bg-rose-50 text-rose-600"
+                          : "bg-muted text-muted-foreground hover:bg-rose-50 hover:text-rose-600",
+                      ].join(" ")}
+                      onClick={() => onToggleSave(district.id)}
+                      type="button"
+                    >
+                      <Heart aria-hidden="true" className={isSaved ? "h-4 w-4 fill-current" : "h-4 w-4"} />
+                    </button>
                   </div>
                   <p className="text-sm leading-snug text-muted-foreground">
                     {(match.strengths[0] ?? district.shortDescription).replace(/\.$/, "")}.
@@ -102,11 +130,15 @@ export function OverviewView({ matches, onOpenDetails, onShowAllResults, onStart
                     </span>
                   </div>
 
-                  <span className="mt-4 block rounded-2xl bg-gradient-primary py-3 text-center text-sm font-semibold text-primary-foreground shadow-soft">
+                  <button
+                    className="mt-4 block w-full rounded-2xl bg-gradient-primary py-3 text-center text-sm font-semibold text-primary-foreground shadow-soft"
+                    onClick={() => onOpenDetails(district.id)}
+                    type="button"
+                  >
                     {tx("Full view", "Vollständige Ansicht")}
-                  </span>
+                  </button>
                 </div>
-              </button>
+              </article>
             </li>
           );
         })}

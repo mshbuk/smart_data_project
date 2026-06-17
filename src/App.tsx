@@ -139,6 +139,7 @@ function App() {
   const [flowStep, setFlowStep] = useState<FlowStep>(initialState.flowStep === "recommendations" ? "recommendations" : "questionnaire");
   const [language, setLanguage] = useState<Language>(initialState.language ?? "de");
   const [selectedDistrictId, setSelectedDistrictId] = useState<string | null>(null);
+  const [mapFocusDistrictId, setMapFocusDistrictId] = useState<string | null>(null);
   const [showFullResults, setShowFullResults] = useState(false);
   const [questionnaireBackTarget, setQuestionnaireBackTarget] = useState<QuestionnaireBackTarget>("auth");
 
@@ -203,8 +204,8 @@ function App() {
   const handleAuthContinue = (mode: AuthGateMode) => {
     setAuthMode(mode);
     setAuthGateCompleted(true);
-    setSelectedProfile("custom");
-    setPreferences(profileDefaults.custom);
+    setSelectedProfile("longTerm");
+    setPreferences(profileDefaults.longTerm);
     setSelectedDistrictId(null);
     setActiveView("results");
     setShowFullResults(false);
@@ -246,7 +247,6 @@ function App() {
   };
 
   const finishQuestionnaire = () => {
-    setSelectedProfile("custom");
     setSelectedDistrictId(null);
     setActiveView("results");
     setShowFullResults(false);
@@ -254,8 +254,15 @@ function App() {
     setFlowStep("recommendations");
   };
 
+  const openMapForDistrict = (districtId: string) => {
+    setMapFocusDistrictId(districtId);
+    setSelectedDistrictId(null);
+    setActiveView("map");
+    setFlowStep("recommendations");
+  };
+
   const viewOptions: ViewOption[] = [
-    { view: "results", label: tx("Overview", "Übersicht"), icon: Home },
+    { view: "results", label: "Start", icon: Home },
     { view: "map", label: tx("Map", "Karte"), icon: MapIcon },
     { view: "events", label: "Events", icon: CalendarDays },
     { view: "saved", label: tx("Compare", "Vergleich"), icon: BarChart3 },
@@ -264,8 +271,10 @@ function App() {
   const headerTitle =
     flowStep === "questionnaire"
       ? tx("Questions", "Fragen")
+      : selectedDetailMatch
+        ? selectedDetailMatch.district.name
       : activeView === "results"
-        ? tx("Results", "Ergebnisse")
+        ? tx("Your top districts", "Deine Top-Stadtteile")
         : activeView === "map"
           ? tx("Map", "Karte")
           : activeView === "events"
@@ -273,8 +282,13 @@ function App() {
             : activeView === "saved"
               ? tx("Compare", "Vergleich")
               : tx("Profile", "Profil");
-  const canNavigateBack = flowStep !== "recommendations";
+  const canNavigateBack = flowStep !== "recommendations" || Boolean(selectedDetailMatch);
   const navigateBack = () => {
+    if (selectedDetailMatch) {
+      setSelectedDistrictId(null);
+      return;
+    }
+
     if (flowStep === "questionnaire") {
       leaveQuestionnaire();
     }
@@ -291,8 +305,7 @@ function App() {
   return (
     <I18nProvider language={language} setLanguage={setLanguage}>
     <main className="min-h-screen bg-background pb-24 font-sans text-foreground antialiased">
-      {!selectedDetailMatch && (
-        <header className="sticky top-0 z-[1300] border-b border-border bg-background/85 backdrop-blur-md">
+      <header className="sticky top-0 z-[1300] border-b border-border bg-background/85 backdrop-blur-md">
           <div className="mx-auto flex min-h-[3.5rem] w-full max-w-xl items-center justify-between gap-3 px-4 py-3">
             <div className="flex min-w-0 items-center gap-2">
               {canNavigateBack && (
@@ -318,18 +331,17 @@ function App() {
                 {headerTitle}
               </button>
             </div>
-            <button
-              aria-label={tx("Open profile", "Profil öffnen")}
-              className="grid h-9 w-9 place-items-center rounded-full bg-primary-soft text-sm font-black text-primary transition-colors hover:bg-accent"
-              onClick={() => {
-                setSelectedDistrictId(null);
-                setActiveView("profile");
-                setFlowStep("recommendations");
-              }}
-              type="button"
-            >
-              {authMode === "guest" ? "G" : "M"}
-            </button>
+            <div className="flex shrink-0 items-center gap-2">
+            {flowStep === "recommendations" && activeView === "results" && !selectedDetailMatch && (
+              <button
+                className="inline-flex min-h-9 items-center gap-1 rounded-full border border-border bg-card px-3 text-xs font-semibold text-foreground shadow-card"
+                onClick={openCriteriaEditor}
+                type="button"
+              >
+                <SlidersHorizontal aria-hidden="true" className="h-3.5 w-3.5" />
+                {tx("Adjust answers", "Antworten anpassen")}
+              </button>
+            )}
             <div className="grid grid-cols-2 rounded-full border border-border bg-card p-0.5 text-[11px] font-semibold shadow-card">
               {(["de", "en"] as const).map((option) => (
                 <button
@@ -346,23 +358,25 @@ function App() {
                 </button>
               ))}
             </div>
+            </div>
           </div>
         </header>
-      )}
 
-      <div className={selectedDetailMatch ? "mx-auto w-full max-w-xl" : "mx-auto w-full max-w-xl px-4 pb-24 pt-4"}>
+      <div className={["mx-auto w-full max-w-xl pb-24 pt-4", selectedDetailMatch ? "" : "px-4"].join(" ")}>
         {flowStep === "questionnaire" && (
           <CustomQuestionnaire
             onBack={leaveQuestionnaire}
             onChange={setPreferences}
             onNext={finishQuestionnaire}
+            onProfileChange={setSelectedProfile}
             preferences={preferences}
+            selectedProfile={selectedProfile}
           />
         )}
 
         {flowStep === "recommendations" && (
           <>
-            {activeView === "results" && showFullResults && (
+            {activeView === "results" && showFullResults && !selectedDetailMatch && (
             <section className="mb-4 px-1">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
@@ -389,21 +403,13 @@ function App() {
                       <SlidersHorizontal aria-hidden="true" className="h-4 w-4 text-slate-950" />
                       {tx("Adjust answers", "Antworten anpassen")}
                     </button>
-                    <button
-                      className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full moin-gradient-primary px-4 text-sm font-black text-white shadow-lg shadow-slate-950/15 transition-transform hover:-translate-y-0.5"
-                      onClick={openCriteriaEditor}
-                      type="button"
-                    >
-                      <User aria-hidden="true" className="h-4 w-4" />
-                      {tx("Change answers", "Antworten ändern")}
-                    </button>
                   </div>
                 )}
               </div>
             </section>
             )}
 
-            {!selectedDetailMatch && (
+            {flowStep === "recommendations" && (
               <nav
                 aria-label={tx("Recommendation views", "Empfehlungsansichten")}
                 className="fixed inset-x-0 bottom-0 z-[1200] mx-auto max-w-xl border-t border-border bg-background/95 px-2 pt-1.5 pb-[max(0.5rem,env(safe-area-inset-bottom))] backdrop-blur-md"
@@ -423,6 +429,9 @@ function App() {
                         ].join(" ")}
                         key={option.view}
                         onClick={() => {
+                          if (selectedDetailMatch && option.view === "map") {
+                            setMapFocusDistrictId(selectedDetailMatch.district.id);
+                          }
                           setSelectedDistrictId(null);
                           setActiveView(option.view);
                           if (option.view === "results") setShowFullResults(false);
@@ -453,6 +462,7 @@ function App() {
                 isSaved={savedDistrictIds.includes(selectedDetailMatch.district.id)}
                 match={selectedDetailMatch}
                 onBack={() => setSelectedDistrictId(null)}
+                onOpenMap={openMapForDistrict}
                 onToggleSave={toggleSave}
                 preferences={preferences}
               />
@@ -465,6 +475,8 @@ function App() {
                 onStartFinder={() => {
                   openCriteriaEditor();
                 }}
+                onToggleSave={toggleSave}
+                savedDistrictIds={savedDistrictIds}
               />
             )}
             {!selectedDetailMatch && activeView === "results" && showFullResults && (
@@ -488,6 +500,7 @@ function App() {
             )}
             {!selectedDetailMatch && activeView === "map" && (
               <MapView
+                focusedDistrictId={mapFocusDistrictId}
                 matches={matches}
                 onOpenDetails={setSelectedDistrictId}
                 onToggleSave={toggleSave}

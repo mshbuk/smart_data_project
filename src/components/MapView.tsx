@@ -10,6 +10,7 @@ import type { MapSpot } from "../types/Event";
 import { useI18n, type Language } from "../i18n";
 
 type MapViewProps = {
+  focusedDistrictId?: string | null;
   matches: DistrictMatch[];
   onOpenDetails: (districtId: string) => void;
   onToggleSave: (districtId: string) => void;
@@ -22,6 +23,7 @@ type BoundaryProperties = {
   dataQuality?: string;
   districtId?: string;
   districtName?: string;
+  isFocused?: boolean;
   isHighlighted?: boolean;
   isSaved?: boolean;
   isTopMatch?: boolean;
@@ -155,7 +157,7 @@ const permanentLandmarks: Landmark[] = [
 const legendItems: Array<{ label: LocalizedText; color: string }> = [
   { label: { en: "Top 3 district matches", de: "Top-3-Stadtteile nach Passung" }, color: "#16a34a" },
   { label: { en: "80%+ profile fit", de: "80%+ Profilpassung" }, color: "#0ea5e9" },
-  { label: { en: "70-79% profile fit", de: "70-79% Profilpassung" }, color: "#7c3aed" },
+  { label: { en: "70-79% profile fit", de: "70-79% Profilpassung" }, color: "#f59e0b" },
   { label: { en: "Below 70% profile fit", de: "Unter 70% Profilpassung" }, color: "#f97316" },
   { label: { en: "Not in selected top set", de: "Nicht in der gewählten Top-Auswahl" }, color: "#cbd5e1" },
 ];
@@ -212,12 +214,13 @@ function normalizeDistrictName(value: string) {
 function getBoundaryColor(score: number, isTopMatch: boolean) {
   if (isTopMatch) return "#16a34a";
   if (score >= 80) return "#0ea5e9";
-  if (score >= 70) return "#7c3aed";
+  if (score >= 70) return "#f59e0b";
   return "#f97316";
 }
 
 function getBoundaryStyle(feature?: DistrictBoundaryFeature): PathOptions {
   const hasMatch = typeof feature?.properties?.matchScore === "number";
+  const isFocused = Boolean(feature?.properties?.isFocused);
 
   if (!hasMatch || !feature?.properties?.isHighlighted) {
     return {
@@ -231,14 +234,14 @@ function getBoundaryStyle(feature?: DistrictBoundaryFeature): PathOptions {
 
   const score = feature.properties?.matchScore ?? 0;
   const isTopMatch = Boolean(feature?.properties?.isTopMatch);
-  const color = getBoundaryColor(score, isTopMatch);
+  const color = isFocused ? "#e11d48" : getBoundaryColor(score, isTopMatch);
 
   return {
     color,
     fillColor: color,
-    fillOpacity: isTopMatch ? 0.44 : 0.3,
+    fillOpacity: isFocused ? 0.52 : isTopMatch ? 0.44 : 0.3,
     opacity: 0.95,
-    weight: isTopMatch ? 2 : 1.25,
+    weight: isFocused ? 2.8 : isTopMatch ? 2 : 1.25,
   };
 }
 
@@ -290,13 +293,17 @@ function createBoundaryPopup(feature: DistrictBoundaryFeature, language: Languag
   const districtId = properties.districtId;
   const rank = properties.rank ? `#${properties.rank}` : language === "de" ? "Empfohlen" : "Recommended";
   const statusText = properties.isHighlighted
-    ? language === "de"
+    ? properties.isFocused
+      ? language === "de"
+        ? "Ausgewählter Stadtteil"
+        : "Selected district"
+      : language === "de"
       ? "In der aktuellen Top-Auswahl sichtbar"
       : "Shown in current top set"
     : language === "de"
       ? "Bewertet, außerhalb der aktuellen Top-Auswahl"
       : "Scored, outside the current top set";
-  const statusColor = properties.isHighlighted ? "#16a34a" : "#64748b";
+  const statusColor = properties.isFocused ? "#e11d48" : properties.isHighlighted ? "#16a34a" : "#64748b";
   const metrics = [
     typeof properties.rentPerSqm === "number" &&
     (properties.sourceSummary?.includes("Miet-Check") || properties.dataQuality === "placeholder")
@@ -814,6 +821,7 @@ function buildBoundaryCollection(
   matches: DistrictMatch[],
   highlightedRankLimit: number,
   savedDistrictIds: string[],
+  focusedDistrictId: string | null,
 ): DistrictBoundaryCollection {
   const lookup = new Map<string, BoundaryMatch>();
   const savedDistrictIdSet = new Set(savedDistrictIds);
@@ -841,7 +849,8 @@ function buildBoundaryCollection(
     }
 
     const { match, rank } = boundaryMatch;
-    const isHighlighted = rank <= highlightedRankLimit;
+    const isFocused = match.district.id === focusedDistrictId;
+    const isHighlighted = rank <= highlightedRankLimit || isFocused;
 
     return {
       ...feature,
@@ -851,9 +860,10 @@ function buildBoundaryCollection(
         districtName: match.district.name,
         crimeCases2024: match.district.crimeCases2024,
         dataQuality: match.district.dataQuality,
+        isFocused,
         isHighlighted,
         isSaved: savedDistrictIdSet.has(match.district.id),
-        isTopMatch: isHighlighted && rank <= 3,
+        isTopMatch: rank <= 3,
         latitude: match.district.latitude,
         longitude: match.district.longitude,
         missingSources: match.district.missingSources,
@@ -920,6 +930,20 @@ function FocusUserLocation({ location }: { location: UserLocation | null }) {
   return null;
 }
 
+function FocusSelectedDistrict({ district }: { district: SelectedMapDistrict | null }) {
+  const map = useMap();
+
+  useEffect(() => {
+    if (!district) return;
+
+    map.setView([district.latitude, district.longitude], Math.max(map.getZoom(), 12), {
+      animate: true,
+    });
+  }, [district, map]);
+
+  return null;
+}
+
 function CloseMapPopupsOnLanguageChange({ language }: { language: Language }) {
   const map = useMap();
 
@@ -949,7 +973,13 @@ function TranslatedZoomControl({ language }: { language: Language }) {
   return null;
 }
 
-export function MapView({ matches, onOpenDetails, onToggleSave, savedDistrictIds }: MapViewProps) {
+export function MapView({
+  focusedDistrictId = null,
+  matches,
+  onOpenDetails,
+  onToggleSave,
+  savedDistrictIds,
+}: MapViewProps) {
   const { language, tx } = useI18n();
   const [topBoundaryCount, setTopBoundaryCount] = useState<TopBoundaryCount>(3);
   const [locationStatus, setLocationStatus] = useState<LocationStatus>("idle");
@@ -960,8 +990,8 @@ export function MapView({ matches, onOpenDetails, onToggleSave, savedDistrictIds
   const { boundaries: rawDistrictBoundaries, hasError: boundaryLoadError } = useDistrictBoundaries();
   const highlightedRankLimit = topBoundaryCount;
   const boundaryCollection = useMemo(
-    () => buildBoundaryCollection(rawDistrictBoundaries, matches, highlightedRankLimit, savedDistrictIds),
-    [highlightedRankLimit, matches, rawDistrictBoundaries, savedDistrictIds],
+    () => buildBoundaryCollection(rawDistrictBoundaries, matches, highlightedRankLimit, savedDistrictIds, focusedDistrictId),
+    [focusedDistrictId, highlightedRankLimit, matches, rawDistrictBoundaries, savedDistrictIds],
   );
   const isLoadingBoundaries = rawDistrictBoundaries.features.length === 0 && !boundaryLoadError;
   const matchedDistrictIds = new Set(
@@ -976,10 +1006,10 @@ export function MapView({ matches, onOpenDetails, onToggleSave, savedDistrictIds
   const boundaryLayerKey = boundaryCollection.features
     .map(
       (feature) =>
-        `${feature.properties?.districtId}:${feature.properties?.matchScore}:${feature.properties?.isHighlighted}:${feature.properties?.Stadtteil}`,
+        `${feature.properties?.districtId}:${feature.properties?.matchScore}:${feature.properties?.isHighlighted}:${feature.properties?.isFocused}:${feature.properties?.Stadtteil}`,
     )
     .join("|")
-    .concat(`:${language}:${savedDistrictIds.join(",")}`);
+    .concat(`:${language}:${focusedDistrictId ?? ""}:${savedDistrictIds.join(",")}`);
   const localSpots = useMemo(
     () => (selectedMapDistrict ? buildLocalSpots(selectedMapDistrict, language) : []),
     [language, selectedMapDistrict],
@@ -990,6 +1020,19 @@ export function MapView({ matches, onOpenDetails, onToggleSave, savedDistrictIds
   const selectedMatch = selectedMapDistrict
     ? matches.find((match) => normalizeDistrictName(match.district.name) === normalizeDistrictName(selectedMapDistrict.name))
     : undefined;
+
+  useEffect(() => {
+    if (!focusedDistrictId) return;
+
+    const focusedMatch = matches.find((match) => match.district.id === focusedDistrictId);
+    if (!focusedMatch) return;
+
+    setSelectedMapDistrict({
+      latitude: focusedMatch.district.latitude,
+      longitude: focusedMatch.district.longitude,
+      name: focusedMatch.district.name,
+    });
+  }, [focusedDistrictId, matches]);
 
   const findCurrentLocation = () => {
     if (!navigator.geolocation) {
@@ -1206,6 +1249,7 @@ export function MapView({ matches, onOpenDetails, onToggleSave, savedDistrictIds
               </>
             )}
             <FocusUserLocation location={userLocation} />
+            <FocusSelectedDistrict district={selectedMapDistrict} />
             <CloseMapPopupsOnLanguageChange language={language} />
             <TranslatedZoomControl language={language} />
           </MapContainer>
