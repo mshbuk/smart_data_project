@@ -612,6 +612,7 @@ function App() {
               <SavedComparison
                 onEditCriteria={openCriteriaEditor}
                 onFindDistricts={() => setActiveView("results")}
+                onRemoveDistrict={toggleSave}
                 preferences={preferences}
                 savedMatches={savedMatches}
               />

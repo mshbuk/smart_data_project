@@ -1,4 +1,4 @@
-import { Plus, X } from "lucide-react";
+import { Plus, SlidersHorizontal, X } from "lucide-react";
 import type { DistrictMatch, Preferences } from "../types/District";
 import { formatScore } from "../utils/districtInsights";
 import { useI18n } from "../i18n";
@@ -8,6 +8,7 @@ type SavedComparisonProps = {
   savedMatches: DistrictMatch[];
   onEditCriteria: () => void;
   onFindDistricts: () => void;
+  onRemoveDistrict: (districtId: string) => void;
 };
 
 type CompareMetric = {
@@ -67,40 +68,74 @@ function polygonPoints(match: DistrictMatch, radius: number, centerX: number, ce
     .join(" ");
 }
 
+function criteriaValue(axisKey: string, preferences: Preferences) {
+  if (axisKey === "safety") return preferences.safety * 2;
+  if (axisKey === "transport") return preferences.publicTransport * 2;
+  if (axisKey === "green") return preferences.green * 2;
+  if (axisKey === "rent") return Math.max(0, Math.min(10, 10 - (preferences.maxRentPerSqm - 10) / 1.6));
+  return 0;
+}
+
+function criteriaPolygonPoints(preferences: Preferences, radius: number, centerX: number, centerY: number) {
+  return chartAxes
+    .map((axis, axisIndex) => {
+      const point = axisPoint(axisIndex, criteriaValue(axis.key, preferences), radius, centerX, centerY);
+      return `${point.x},${point.y}`;
+    })
+    .join(" ");
+}
+
 const chartColors = ["#ef2b2d", "#2f63ee", "#6b3cf2"];
 
-export function SavedComparison({ savedMatches, onFindDistricts }: SavedComparisonProps) {
+export function SavedComparison({
+  preferences,
+  savedMatches,
+  onEditCriteria,
+  onFindDistricts,
+  onRemoveDistrict,
+}: SavedComparisonProps) {
   const { language, tx } = useI18n();
   const visibleMatches = savedMatches.slice(0, 3);
-  const gridTemplateColumns = `210px repeat(${Math.max(visibleMatches.length, 1)}, minmax(160px, 1fr)) 150px`;
+  const gridTemplateColumns = `190px repeat(${Math.max(visibleMatches.length, 1)}, minmax(145px, 1fr)) 140px`;
+  const chart = { centerX: 340, centerY: 198, radius: 122 };
 
   if (savedMatches.length === 0) {
     return (
-      <section className="-mx-4 -mt-4 grid gap-7 border-t border-border px-4 py-6">
-        <div className="flex items-center justify-between gap-4">
-          <p className="text-xl leading-7 text-muted-foreground">
+      <section className="-mx-4 -mt-4 grid gap-5 border-t border-border px-4 py-5">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <p className="text-base leading-6 text-muted-foreground">
             {tx("Compare districts by your criteria.", "Vergleiche Stadtteile nach deinen Kriterien.")}
           </p>
-          <button
-            className="inline-flex min-h-12 shrink-0 items-center justify-center gap-2 rounded-full bg-primary px-5 text-base font-bold text-primary-foreground shadow-soft"
-            onClick={onFindDistricts}
-            type="button"
-          >
-            <Plus aria-hidden="true" className="h-5 w-5" />
-            {tx("Add district", "Stadtteil hinzufügen")}
-          </button>
+          <div className="flex shrink-0 flex-wrap gap-2">
+            <button
+              className="inline-flex min-h-10 items-center justify-center gap-1.5 rounded-full border border-border bg-card px-3 text-sm font-semibold text-foreground shadow-card"
+              onClick={onEditCriteria}
+              type="button"
+            >
+              <SlidersHorizontal aria-hidden="true" className="h-4 w-4" />
+              {tx("Adjust criteria", "Kriterien anpassen")}
+            </button>
+            <button
+              className="inline-flex min-h-10 items-center justify-center gap-1.5 rounded-full bg-primary px-4 text-sm font-bold text-primary-foreground shadow-soft"
+              onClick={onFindDistricts}
+              type="button"
+            >
+              <Plus aria-hidden="true" className="h-4 w-4" />
+              {tx("Add district", "Stadtteil hinzufügen")}
+            </button>
+          </div>
         </div>
 
-        <section className="rounded-[2rem] border border-border bg-card p-8 text-center shadow-card">
-          <p className="text-lg font-semibold text-muted-foreground">
+        <section className="rounded-[1.5rem] border border-border bg-card p-6 text-center shadow-card">
+          <p className="text-base font-semibold text-muted-foreground">
             {tx("No saved districts yet", "Noch keine Stadtteile gespeichert")}
           </p>
           <button
-            className="mt-5 inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-primary px-5 text-base font-bold text-primary-foreground"
+            className="mt-5 inline-flex min-h-10 items-center justify-center gap-2 rounded-full bg-primary px-4 text-sm font-bold text-primary-foreground"
             onClick={onFindDistricts}
             type="button"
           >
-            <Plus aria-hidden="true" className="h-5 w-5" />
+            <Plus aria-hidden="true" className="h-4 w-4" />
             {tx("Add district", "Stadtteil hinzufügen")}
           </button>
         </section>
@@ -109,32 +144,42 @@ export function SavedComparison({ savedMatches, onFindDistricts }: SavedComparis
   }
 
   return (
-    <section className="-mx-4 -mt-4 grid gap-7 border-t border-border px-4 py-6">
-      <div className="flex items-center justify-between gap-4">
-        <p className="text-xl leading-7 text-muted-foreground">
+    <section className="-mx-4 -mt-4 grid gap-5 border-t border-border px-4 py-5">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <p className="text-base leading-6 text-muted-foreground">
           {tx("Compare districts by your criteria.", "Vergleiche Stadtteile nach deinen Kriterien.")}
         </p>
-        <button
-          className="inline-flex min-h-12 shrink-0 items-center justify-center gap-2 rounded-full bg-primary px-5 text-base font-bold text-primary-foreground shadow-soft"
-          onClick={onFindDistricts}
-          type="button"
-        >
-          <Plus aria-hidden="true" className="h-5 w-5" />
-          {tx("Add district", "Stadtteil hinzufügen")}
-        </button>
+        <div className="flex shrink-0 flex-wrap gap-2">
+          <button
+            className="inline-flex min-h-10 items-center justify-center gap-1.5 rounded-full border border-border bg-card px-3 text-sm font-semibold text-foreground shadow-card"
+            onClick={onEditCriteria}
+            type="button"
+          >
+            <SlidersHorizontal aria-hidden="true" className="h-4 w-4" />
+            {tx("Adjust criteria", "Kriterien anpassen")}
+          </button>
+          <button
+            className="inline-flex min-h-10 items-center justify-center gap-1.5 rounded-full bg-primary px-4 text-sm font-bold text-primary-foreground shadow-soft"
+            onClick={onFindDistricts}
+            type="button"
+          >
+            <Plus aria-hidden="true" className="h-4 w-4" />
+            {tx("Add district", "Stadtteil hinzufügen")}
+          </button>
+        </div>
       </div>
 
-      <section className="rounded-[2rem] border border-border bg-card px-5 py-7 shadow-card">
-        <p className="text-sm font-bold uppercase tracking-[0.12em] text-muted-foreground">Profil-Vergleich</p>
+      <section className="rounded-[1.7rem] border border-border bg-card px-5 py-6 shadow-card">
+        <p className="text-xs font-bold uppercase tracking-[0.12em] text-muted-foreground">Profil-Vergleich</p>
 
-        <svg aria-hidden="true" className="mt-4 h-auto w-full" viewBox="0 0 620 330">
+        <svg aria-hidden="true" className="mt-2 h-auto w-full" viewBox="0 0 680 390">
           {[0.25, 0.5, 0.75, 1].map((scale) => (
             <polygon
               fill="none"
               key={scale}
               points={chartAxes
                 .map((_, axisIndex) => {
-                  const point = axisPoint(axisIndex, scale * 10, 96, 310, 168);
+                  const point = axisPoint(axisIndex, scale * 10, chart.radius, chart.centerX, chart.centerY);
                   return `${point.x},${point.y}`;
                 })
                 .join(" ")}
@@ -143,14 +188,14 @@ export function SavedComparison({ savedMatches, onFindDistricts }: SavedComparis
             />
           ))}
           {chartAxes.map((axis, axisIndex) => {
-            const axisEnd = axisPoint(axisIndex, 10, 96, 310, 168);
-            const labelPoint = axisPoint(axisIndex, 12.5, 96, 310, 168);
+            const axisEnd = axisPoint(axisIndex, 10, chart.radius, chart.centerX, chart.centerY);
+            const labelPoint = axisPoint(axisIndex, 12.15, chart.radius, chart.centerX, chart.centerY);
             const align = axisIndex === 1 ? "start" : axisIndex === 3 ? "end" : "middle";
 
             return (
               <g key={axis.key}>
-                <line stroke="#cfd4dd" strokeWidth="1.3" x1="310" x2={axisEnd.x} y1="168" y2={axisEnd.y} />
-                <text fill="#5f6470" fontSize="16" fontWeight="500" textAnchor={align} x={labelPoint.x} y={labelPoint.y + 6}>
+                <line stroke="#cfd4dd" strokeWidth="1.3" x1={chart.centerX} x2={axisEnd.x} y1={chart.centerY} y2={axisEnd.y} />
+                <text fill="#5f6470" fontSize="15" fontWeight="500" textAnchor={align} x={labelPoint.x} y={labelPoint.y + 6}>
                   {language === "de" ? axis.label.de : axis.label.en}
                 </text>
               </g>
@@ -164,13 +209,21 @@ export function SavedComparison({ savedMatches, onFindDistricts }: SavedComparis
                 fill={color}
                 fillOpacity="0.16"
                 key={match.district.id}
-                points={polygonPoints(match, 96, 310, 168)}
+                points={polygonPoints(match, chart.radius, chart.centerX, chart.centerY)}
                 stroke={color}
                 strokeWidth="2"
               />
             );
           })}
-          <g transform="translate(210 304)">
+          <polygon
+            fill="#6b3cf2"
+            fillOpacity="0.08"
+            points={criteriaPolygonPoints(preferences, chart.radius, chart.centerX, chart.centerY)}
+            stroke="#6b3cf2"
+            strokeDasharray="8 6"
+            strokeWidth="3"
+          />
+          <g transform="translate(180 356)">
             {visibleMatches.map((match, index) => {
               const color = chartColors[index % chartColors.length];
 
@@ -183,30 +236,43 @@ export function SavedComparison({ savedMatches, onFindDistricts }: SavedComparis
                 </g>
               );
             })}
+            <g transform={`translate(${visibleMatches.length * 132} 0)`}>
+              <rect fill="#6b3cf2" height="12" width="16" x="0" y="-10" />
+              <text fill="#6b3cf2" fontSize="15" fontWeight="600" x="22" y="1">
+                {tx("My criteria", "Meine Kriterien")}
+              </text>
+            </g>
           </g>
         </svg>
       </section>
 
-      <section className="overflow-hidden rounded-[2rem] border border-border bg-card shadow-card">
+      <section className="overflow-hidden rounded-[1.7rem] border border-border bg-card shadow-card">
         <div className="overflow-x-auto">
-          <div className="min-w-[720px]">
+          <div className="min-w-[680px]">
             <div
               className="grid items-center border-b border-border bg-card text-center"
               style={{ gridTemplateColumns }}
             >
               <div />
               {visibleMatches.map((match) => (
-                <div className="flex min-h-20 items-center justify-center gap-3 px-4" key={match.district.id}>
-                  <span className="text-lg font-bold text-foreground">{match.district.name}</span>
-                  <X aria-hidden="true" className="h-5 w-5 text-muted-foreground" />
+                <div className="flex min-h-16 items-center justify-center gap-2 px-3" key={match.district.id}>
+                  <span className="text-base font-bold text-foreground">{match.district.name}</span>
+                  <button
+                    aria-label={tx("Remove district", "Stadtteil entfernen")}
+                    className="rounded-full p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                    onClick={() => onRemoveDistrict(match.district.id)}
+                    type="button"
+                  >
+                    <X aria-hidden="true" className="h-4 w-4" />
+                  </button>
                 </div>
               ))}
               <button
-                className="inline-flex min-h-20 items-center justify-center gap-3 px-4 text-base font-semibold text-primary"
+                className="inline-flex min-h-16 items-center justify-center gap-2 px-3 text-sm font-semibold text-primary"
                 onClick={onFindDistricts}
                 type="button"
               >
-                <Plus aria-hidden="true" className="h-5 w-5" />
+                <Plus aria-hidden="true" className="h-4 w-4" />
                 <span>{tx("Add district", "Stadtteil hinzufügen")}</span>
               </button>
             </div>
@@ -215,11 +281,11 @@ export function SavedComparison({ savedMatches, onFindDistricts }: SavedComparis
               className="grid items-center border-b border-border bg-primary-soft text-primary"
               style={{ gridTemplateColumns }}
             >
-              <div className="px-4 py-5 text-sm font-bold uppercase tracking-[0.12em] text-accent-foreground">
+              <div className="px-4 py-4 text-xs font-bold uppercase tracking-[0.12em] text-accent-foreground">
                 Gesamt-Score
               </div>
               {visibleMatches.map((match) => (
-                <div className="px-4 py-5 text-3xl font-bold" key={match.district.id}>
+                <div className="px-4 py-4 text-2xl font-bold" key={match.district.id}>
                   {match.score}%
                 </div>
               ))}
@@ -228,26 +294,25 @@ export function SavedComparison({ savedMatches, onFindDistricts }: SavedComparis
 
             {chartAxes.map((metric) => (
               <div
-                className="grid min-h-20 items-center border-b border-border last:border-b-0"
+                className="grid min-h-16 items-center border-b border-border last:border-b-0"
                 key={metric.key}
                 style={{ gridTemplateColumns }}
               >
-                <div className="flex items-center gap-3 px-4 py-4 text-lg text-foreground">
+                <div className="flex items-center gap-2 px-4 py-3 text-base text-foreground">
                   <span className="decoration-dotted underline underline-offset-4">
                     {language === "de" ? metric.label.de : metric.label.en}
                   </span>
-                  <X aria-hidden="true" className="h-4 w-4 text-muted-foreground" />
                 </div>
                 {visibleMatches.map((match) => {
                   const value = metric.getValue(match);
                   const progress = `${Math.max(0, Math.min(value, 10)) * 10}%`;
 
                   return (
-                    <div className="flex items-center gap-4 px-4 py-4" key={match.district.id}>
-                      <span className="h-2 w-24 overflow-hidden rounded-full bg-muted">
+                    <div className="flex items-center gap-3 px-4 py-3" key={match.district.id}>
+                      <span className="h-2 w-20 overflow-hidden rounded-full bg-muted">
                         <span className="block h-full rounded-full bg-primary" style={{ width: progress }} />
                       </span>
-                      <span className="text-lg font-bold text-foreground">{metric.getDisplay(match, language)}</span>
+                      <span className="text-base font-bold text-foreground">{metric.getDisplay(match, language)}</span>
                     </div>
                   );
                 })}
