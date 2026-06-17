@@ -2,7 +2,7 @@ import L, { type Layer, type Path, type PathOptions } from "leaflet";
 import { useEffect, useMemo, useState } from "react";
 import type { Feature, FeatureCollection, MultiPolygon, Polygon } from "geojson";
 import { Circle, CircleMarker, GeoJSON, MapContainer, Marker, Popup, TileLayer, useMap } from "react-leaflet";
-import { Layers, MapPinned, Navigation } from "lucide-react";
+import { Info, Layers, MapPinned, Navigation, Search } from "lucide-react";
 import districtBoundariesUrl from "../data/districts.geojson?url";
 import mapSpots from "../data/mapSpots.json";
 import type { DistrictMatch } from "../types/District";
@@ -89,7 +89,7 @@ type LocalSpotTemplate = {
   longitude: number;
 };
 
-type TopBoundaryCount = 10 | 25 | 50 | "all";
+type TopBoundaryCount = 3 | 5 | 10;
 
 const emptyDistrictBoundaries: DistrictBoundaryCollection = {
   type: "FeatureCollection",
@@ -98,7 +98,7 @@ const emptyDistrictBoundaries: DistrictBoundaryCollection = {
 
 const hamburgAltstadtCenter: [number, number] = [53.55062, 9.9955];
 const databaseMapSpots = mapSpots as MapSpot[];
-const topBoundaryOptions: TopBoundaryCount[] = [10, 25, 50, "all"];
+const topBoundaryOptions: TopBoundaryCount[] = [3, 5, 10];
 
 const permanentLandmarks: Landmark[] = [
   {
@@ -951,13 +951,14 @@ function TranslatedZoomControl({ language }: { language: Language }) {
 
 export function MapView({ matches, onOpenDetails, onToggleSave, savedDistrictIds }: MapViewProps) {
   const { language, tx } = useI18n();
-  const [topBoundaryCount, setTopBoundaryCount] = useState<TopBoundaryCount>(25);
+  const [topBoundaryCount, setTopBoundaryCount] = useState<TopBoundaryCount>(3);
   const [locationStatus, setLocationStatus] = useState<LocationStatus>("idle");
   const [locationMessage, setLocationMessage] = useState("");
+  const [query, setQuery] = useState("");
   const [selectedMapDistrict, setSelectedMapDistrict] = useState<SelectedMapDistrict | null>(null);
   const [userLocation, setUserLocation] = useState<UserLocation | null>(null);
   const { boundaries: rawDistrictBoundaries, hasError: boundaryLoadError } = useDistrictBoundaries();
-  const highlightedRankLimit = topBoundaryCount === "all" ? Number.POSITIVE_INFINITY : topBoundaryCount;
+  const highlightedRankLimit = topBoundaryCount;
   const boundaryCollection = useMemo(
     () => buildBoundaryCollection(rawDistrictBoundaries, matches, highlightedRankLimit, savedDistrictIds),
     [highlightedRankLimit, matches, rawDistrictBoundaries, savedDistrictIds],
@@ -983,6 +984,12 @@ export function MapView({ matches, onOpenDetails, onToggleSave, savedDistrictIds
     () => (selectedMapDistrict ? buildLocalSpots(selectedMapDistrict, language) : []),
     [language, selectedMapDistrict],
   );
+  const filteredMatches = query.trim()
+    ? matches.filter((match) => match.district.name.toLowerCase().includes(query.trim().toLowerCase())).slice(0, 8)
+    : [];
+  const selectedMatch = selectedMapDistrict
+    ? matches.find((match) => normalizeDistrictName(match.district.name) === normalizeDistrictName(selectedMapDistrict.name))
+    : undefined;
 
   const findCurrentLocation = () => {
     if (!navigator.geolocation) {
@@ -1022,72 +1029,77 @@ export function MapView({ matches, onOpenDetails, onToggleSave, savedDistrictIds
   };
 
   return (
-    <section className="grid gap-7">
-      <div className="rounded-[2rem] border border-slate-200 bg-white p-7 shadow-sm">
-        <h2 className="text-2xl font-black text-slate-950">{tx("How the map works", "So funktioniert die Karte")}</h2>
-        <div className="mt-6 grid gap-5">
-          {[
-            [tx("Top districts", "Top Stadtteile"), tx("Based on your priorities", "Basierend auf deinen Prioritäten"), "#10b981"],
-            [tx("Explore map", "Karte erkunden"), tx("Discover landmarks and factors", "Sehenswürdigkeiten & Faktoren entdecken"), "#0f172a"],
-            [tx("Choose district", "Stadtteil wählen"), tx("Details and ratings at a glance", "Details & Bewertungen im Überblick"), "#0ea5e9"],
-            [tx("Find apartments", "Wohnungen finden"), tx("Continue to partner platforms", "Weiter zu Partnerplattformen"), "#334155"],
-          ].map(([title, copy, color], index) => (
-            <div className="grid grid-cols-[3rem_1fr] gap-4" key={title}>
-              <span
-                className="grid h-10 w-10 place-items-center rounded-full text-lg font-black text-white"
-                style={{ backgroundColor: color }}
-              >
-                {index + 1}
-              </span>
-              <span>
-                <span className="block text-lg font-black text-slate-950">{title}</span>
-                <span className="block text-base font-medium leading-tight text-slate-500">{copy}</span>
-              </span>
-            </div>
-          ))}
-        </div>
-      </div>
+    <section className="grid gap-4">
+      <p className="text-sm text-muted-foreground">
+        {tx(
+          "Explore your top Hamburg matches on the map. District borders stay visible and highlighted areas follow your current priorities.",
+          "Erkunde deine besten Hamburg-Matches auf der Karte. Stadtteilgrenzen bleiben sichtbar und Markierungen folgen deinen aktuellen Prioritäten.",
+        )}
+      </p>
 
-      <div className="rounded-[2rem] border border-slate-200 bg-white p-7 shadow-sm">
-        <h2 className="text-2xl font-black text-slate-950">📍 {tx("Your top districts", "Deine Top Stadtteile")}</h2>
-        <div className="mt-6 grid gap-4">
-          {matches.slice(0, 3).map((match, index) => (
+      <div className="inline-flex w-fit items-center gap-1 rounded-full border border-border bg-card p-1 text-xs shadow-card">
+        {topBoundaryOptions.map((option) => {
+          const isActive = topBoundaryCount === option;
+
+          return (
             <button
+              aria-pressed={isActive}
               className={[
-                "grid min-h-16 grid-cols-[3.5rem_1fr_auto] items-center gap-4 rounded-[1.55rem] border px-5 text-left transition-colors",
-                index === 0 ? "border-emerald-200 bg-emerald-50" : "border-slate-200 bg-white hover:bg-slate-50",
+                "rounded-full px-3 py-1 font-medium transition",
+                isActive ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted",
               ].join(" ")}
-              key={match.district.id}
-              onClick={() => onOpenDetails(match.district.id)}
+              key={option}
+              onClick={() => setTopBoundaryCount(option)}
               type="button"
             >
-              <span
-                className={[
-                  "grid h-10 w-10 place-items-center rounded-full text-lg font-black text-white",
-                  index === 0 ? "bg-emerald-500" : index === 1 ? "bg-slate-500" : "bg-amber-500",
-                ].join(" ")}
-              >
-                {index + 1}
-              </span>
-              <span>
-                <span className="block text-2xl font-black text-slate-950">{match.district.name}</span>
-                <span className="block text-base font-medium text-slate-500">{match.score}% Match</span>
-              </span>
-              <span className="text-2xl font-black text-slate-950">{match.score}%</span>
+              {tx("Top", "Top")} {option}
             </button>
-          ))}
-        </div>
+          );
+        })}
       </div>
 
-      <section className="overflow-hidden rounded-[1.6rem] border border-white/80 bg-white shadow-[0_18px_45px_rgba(15,23,42,0.08)]">
-      <div className="grid gap-4 p-4 md:grid-cols-[1fr_auto] md:items-start md:p-5">
+      <div className="relative">
+        <div className="flex items-center gap-2 rounded-full border border-border bg-card px-3 py-2 shadow-card">
+          <Search aria-hidden="true" className="h-4 w-4 text-muted-foreground" />
+          <input
+            className="min-w-0 flex-1 bg-transparent text-sm outline-none"
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder={tx("Search district...", "Stadtteil suchen...")}
+            value={query}
+          />
+        </div>
+        {filteredMatches.length > 0 && (
+          <div className="absolute left-0 right-0 top-full z-[1000] mt-1 overflow-hidden rounded-2xl border border-border bg-card shadow-card">
+            {filteredMatches.map((match) => (
+              <button
+                className="block w-full px-4 py-2 text-left text-sm hover:bg-muted"
+                key={match.district.id}
+                onClick={() => {
+                  setSelectedMapDistrict({
+                    latitude: match.district.latitude,
+                    longitude: match.district.longitude,
+                    name: match.district.name,
+                  });
+                  setQuery("");
+                }}
+                type="button"
+              >
+                {match.district.name}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <section className="overflow-hidden rounded-3xl border border-border bg-card shadow-card">
+      <div className="grid gap-4 p-4 md:grid-cols-[1fr_auto] md:items-start">
         <div className="flex items-start gap-3">
-          <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-slate-950 text-white shadow-lg shadow-slate-950/15">
+          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground shadow-soft">
             <MapPinned aria-hidden="true" className="h-5 w-5" />
           </span>
           <div>
-            <h2 className="text-lg font-black text-slate-950">{tx("Map view", "Kartenansicht")}</h2>
-            <p className="mt-1 text-sm leading-6 text-slate-600">
+            <h2 className="font-display text-base font-semibold">{tx("Map view", "Kartenansicht")}</h2>
+            <p className="mt-1 text-sm leading-6 text-muted-foreground">
               {tx(
                 "Every Hamburg district from the GeoJSON is shown as its own border. Permanent landmarks stay visible, and clicking a district opens its match details.",
                 "Jeder Hamburger Stadtteil aus dem GeoJSON wird als eigene Fläche gezeigt. Wichtige Orte bleiben sichtbar, und ein Klick auf einen Stadtteil öffnet die Passungsdetails.",
@@ -1096,7 +1108,7 @@ export function MapView({ matches, onOpenDetails, onToggleSave, savedDistrictIds
           </div>
         </div>
 
-        <div className="inline-flex items-center gap-2 rounded-2xl bg-slate-100 px-3 py-2 text-xs font-black text-slate-600">
+        <div className="inline-flex items-center gap-2 rounded-full bg-muted px-3 py-1.5 text-xs font-medium text-muted-foreground">
           <Layers aria-hidden="true" className="h-4 w-4 text-slate-500" />
           {isLoadingBoundaries
             ? tx("Loading borders", "Grenzen laden")
@@ -1107,34 +1119,11 @@ export function MapView({ matches, onOpenDetails, onToggleSave, savedDistrictIds
         </div>
       </div>
 
-      <div className="px-3 pb-3 md:px-5 md:pb-5">
-        <div className="mb-3 flex flex-wrap items-center gap-2">
-          <span className="text-xs font-black uppercase tracking-wide text-slate-500">{tx("Show top", "Top anzeigen")}</span>
-          {topBoundaryOptions.map((option) => {
-            const isActive = topBoundaryCount === option;
-            const label = option === "all" ? tx("All", "Alle") : String(option);
-
-            return (
-              <button
-                aria-pressed={isActive}
-                className={[
-                  "min-h-10 rounded-2xl px-4 text-sm font-black transition-colors",
-                  isActive ? "bg-slate-950 text-white shadow-lg shadow-slate-950/15" : "bg-slate-100 text-slate-600 hover:bg-slate-200",
-                ].join(" ")}
-                key={option}
-                onClick={() => setTopBoundaryCount(option)}
-                type="button"
-              >
-                {label}
-              </button>
-            );
-          })}
-        </div>
-
+      <div className="px-3 pb-3 md:px-4 md:pb-4">
         <div className="relative overflow-hidden rounded-[1.35rem]">
           <MapContainer
             center={hamburgAltstadtCenter}
-            className="h-[70vh] max-h-[560px] min-h-[430px] w-full"
+            className="h-[420px] w-full"
             scrollWheelZoom={false}
             zoomControl={false}
             zoom={11}
@@ -1256,6 +1245,59 @@ export function MapView({ matches, onOpenDetails, onToggleSave, savedDistrictIds
             </div>
           )}
         </div>
+
+        <p className="mt-2 flex items-start gap-1.5 text-xs text-muted-foreground">
+          <Info aria-hidden="true" className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+          {tx(
+            "Tap a district to reveal local prototype spots and open its details.",
+            "Tippe auf einen Stadtteil, um lokale Demo-Orte und Details zu sehen.",
+          )}
+        </p>
+
+        <div className="mt-4 space-y-2">
+          <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            {tx("Top", "Top")} {topBoundaryCount}
+          </h3>
+          {matches.slice(0, topBoundaryCount).map((match, index) => {
+            const isSelected =
+              selectedMapDistrict &&
+              normalizeDistrictName(selectedMapDistrict.name) === normalizeDistrictName(match.district.name);
+
+            return (
+              <button
+                className={[
+                  "flex w-full items-center gap-3 rounded-2xl border p-3 text-left transition",
+                  isSelected ? "border-primary bg-primary-soft" : "border-border bg-card",
+                ].join(" ")}
+                key={match.district.id}
+                onClick={() =>
+                  setSelectedMapDistrict({
+                    latitude: match.district.latitude,
+                    longitude: match.district.longitude,
+                    name: match.district.name,
+                  })
+                }
+                type="button"
+              >
+                <span className="grid h-7 w-7 place-items-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
+                  {index + 1}
+                </span>
+                <span className="flex-1 font-medium">{match.district.name}</span>
+                <span className="text-sm font-semibold tabular-nums">{match.score}%</span>
+              </button>
+            );
+          })}
+        </div>
+
+        {selectedMatch && (
+          <button
+            className="mt-3 block w-full rounded-2xl bg-primary py-3 text-center text-sm font-semibold text-primary-foreground shadow-soft"
+            onClick={() => onOpenDetails(selectedMatch.district.id)}
+            type="button"
+          >
+            {tx("View details", "Details ansehen")}
+          </button>
+        )}
 
         <div className="mt-3 grid gap-3">
           <div>

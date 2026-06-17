@@ -1,4 +1,4 @@
-import { Heart, Info } from "lucide-react";
+import { Heart, Trophy } from "lucide-react";
 import type { DistrictMatch } from "../types/District";
 import { useI18n } from "../i18n";
 
@@ -10,46 +10,27 @@ type DistrictCardProps = {
   rank: number;
 };
 
-function getScoreTone(score: number, tx: (english: string, german: string) => string) {
-  if (score >= 85) {
-    return {
-      label: tx("Strong match", "Starke Passung"),
-      badge: "bg-emerald-500 text-white shadow-emerald-500/25",
-      accent: "border-emerald-200 bg-emerald-50 text-emerald-700",
-    };
-  }
-
-  if (score >= 75) {
-    return {
-      label: tx("Good match", "Gute Passung"),
-      badge: "bg-sky-500 text-white shadow-sky-500/25",
-      accent: "border-sky-200 bg-sky-50 text-sky-700",
-    };
-  }
-
-  return {
-    label: tx("Potential fit", "Mögliche Passung"),
-    badge: "bg-orange-500 text-white shadow-orange-500/25",
-    accent: "border-orange-200 bg-orange-50 text-orange-700",
-  };
-}
-
 export function DistrictCard({ match, isSaved, onToggleSave, onOpenDetails, rank }: DistrictCardProps) {
   const { language, tx } = useI18n();
   const { district } = match;
-  const tone = getScoreTone(match.score, tx);
   const rentFormatter = new Intl.NumberFormat(language === "de" ? "de-DE" : "en-US", {
     maximumFractionDigits: 2,
     minimumFractionDigits: 0,
   });
   const shortReason = match.strengths[0] ?? district.shortDescription;
+  const isTop = rank === 1;
 
   return (
-    <article className="overflow-hidden rounded-[1.6rem] border border-slate-200 bg-white moin-card-shadow transition-transform duration-200 hover:-translate-y-0.5">
+    <article
+      className={[
+        "overflow-hidden rounded-3xl bg-card shadow-card transition hover:shadow-lg",
+        isTop ? "border-4 border-warning" : "border border-border",
+      ].join(" ")}
+    >
       <div className="grid">
         <button
           aria-label={tx(`Open ${district.name} details`, `${district.name} Details öffnen`)}
-          className="group relative min-h-[230px] overflow-hidden bg-slate-200 text-left sm:min-h-[280px]"
+          className="group relative aspect-[16/10] w-full overflow-hidden bg-muted text-left"
           onClick={() => onOpenDetails?.(district.id)}
           type="button"
         >
@@ -61,27 +42,28 @@ export function DistrictCard({ match, isSaved, onToggleSave, onOpenDetails, rank
               src={district.imageUrl}
             />
           ) : (
-            <div className="absolute inset-0 bg-gradient-to-br from-slate-200 via-sky-100 to-slate-200" />
+            <div className="absolute inset-0 bg-muted" />
           )}
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/65 via-slate-950/15 to-transparent" />
-          <div className="absolute left-4 top-4 rounded-2xl bg-white/90 px-3 py-2 text-sm font-black text-slate-950 shadow-lg backdrop-blur">
+          {isTop && (
+            <span className="absolute left-3 top-3 flex items-center gap-1.5 rounded-full bg-warning px-3 py-1.5 text-xs font-bold text-foreground shadow">
+              <Trophy aria-hidden="true" className="h-3.5 w-3.5" />
+              {tx("Top pick", "Top-Empfehlung")}
+            </span>
+          )}
+          <span className={`absolute ${isTop ? "left-3 top-14" : "left-3 top-3"} font-display text-3xl font-extrabold text-white drop-shadow-md`}>
             #{rank}
-          </div>
-          <div className="absolute right-4 top-4 grid h-14 w-14 place-items-center rounded-full bg-slate-500/75 text-center text-white shadow-lg backdrop-blur">
-            <span className="block text-xl leading-none">{match.score}%</span>
-            <span className="mt-1 block text-[0.68rem] uppercase tracking-wide">Match</span>
-          </div>
-          <span className="absolute bottom-4 right-4 inline-flex items-center gap-2 rounded-2xl bg-white/90 px-3 py-2 text-xs font-black text-slate-800 opacity-100 shadow-lg backdrop-blur transition-colors group-hover:bg-slate-950 group-hover:text-white">
-            <Info aria-hidden="true" className="h-4 w-4" />
-            {tx("Details", "Details")}
           </span>
+          <div className="absolute right-3 top-3 rounded-2xl bg-black/35 px-3 py-1.5 text-right text-white backdrop-blur-md">
+            <p className="text-[10px] font-medium uppercase tracking-wider opacity-80">Match</p>
+            <p className="-mt-0.5 font-display text-lg font-bold leading-tight tabular-nums">{match.score}%</p>
+          </div>
         </button>
 
-        <div className="p-4 md:p-5">
-          <div className="flex items-start justify-between gap-3">
+        <div className="p-4">
+          <div className="mb-2 flex items-start justify-between gap-2">
             <div className="min-w-0">
-              <h3 className="mt-1 text-2xl font-black leading-tight text-slate-950">{district.name}</h3>
-              <p className="mt-3 text-base leading-6 text-slate-500">{shortReason}</p>
+              <h3 className="font-display text-xl font-bold text-foreground">{district.name}</h3>
+              <p className="mt-2 text-sm leading-snug text-muted-foreground">{shortReason}</p>
             </div>
             <button
               aria-label={
@@ -90,11 +72,11 @@ export function DistrictCard({ match, isSaved, onToggleSave, onOpenDetails, rank
                   : tx(`Save ${district.name}`, `${district.name} speichern`)
               }
               className={[
-                "grid h-11 w-11 shrink-0 place-items-center rounded-full border transition-all",
-                "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-950",
+                "grid h-9 w-9 shrink-0 place-items-center rounded-full transition-all",
+                "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
                 isSaved
-                  ? "border-rose-200 bg-rose-50 text-rose-500"
-                  : "border-slate-200 bg-slate-50 text-slate-400 hover:border-rose-200 hover:bg-rose-50 hover:text-rose-500",
+                  ? "bg-primary-soft text-primary"
+                  : "bg-muted text-muted-foreground hover:bg-primary-soft hover:text-primary",
               ].join(" ")}
               onClick={() => onToggleSave(district.id)}
               type="button"
@@ -103,25 +85,24 @@ export function DistrictCard({ match, isSaved, onToggleSave, onOpenDetails, rank
             </button>
           </div>
 
-          <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
-            <div className="flex flex-wrap gap-2">
+          <div className="mt-3 flex flex-wrap gap-1.5">
               {match.highlights.slice(0, 3).map((highlight) => (
-                <span className={`rounded-full border px-3 py-1.5 text-xs font-bold ${tone.accent}`} key={highlight}>
-                  {highlight}
+                <span className="rounded-full bg-primary-soft px-2.5 py-1 text-xs font-medium text-accent-foreground" key={highlight}>
+                  ✓ {highlight}
                 </span>
               ))}
-              <span className="rounded-full bg-emerald-100 px-3 py-1.5 text-xs font-black text-emerald-700">
+              <span className="rounded-full bg-success/15 px-2.5 py-1 text-xs font-medium text-success">
                 Ø {rentFormatter.format(district.rentPerSqm)} €/m²
               </span>
-            </div>
+          </div>
+
             <button
-              className="inline-flex min-h-11 w-full items-center justify-center rounded-full moin-gradient-primary px-5 text-sm font-black text-white shadow-lg shadow-slate-950/15 transition-transform hover:-translate-y-0.5"
+              className="mt-4 block w-full rounded-2xl bg-gradient-primary py-3 text-center text-sm font-semibold text-primary-foreground shadow-soft"
               onClick={() => onOpenDetails?.(district.id)}
               type="button"
             >
               {tx("Full view", "Vollständige Ansicht")}
             </button>
-          </div>
         </div>
       </div>
     </article>

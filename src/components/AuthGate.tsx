@@ -16,13 +16,13 @@ export function AuthGate({ onContinue }: AuthGateProps) {
   const isRegister = screen === "register";
 
   const languageSwitch = (
-    <div className="grid grid-cols-2 rounded-full border border-slate-200 bg-white/90 p-1 text-sm font-bold shadow-sm backdrop-blur">
+    <div className="grid grid-cols-2 rounded-full border border-border bg-card/90 p-0.5 text-[11px] font-semibold shadow-card backdrop-blur">
       {(["de", "en"] as const).map((option) => (
         <button
           aria-pressed={language === option}
           className={[
-            "rounded-full px-4 py-2 transition-colors",
-            language === option ? "bg-slate-950 text-white shadow-sm" : "text-slate-600 hover:bg-slate-100",
+            "rounded-full px-2.5 py-1 transition-colors",
+            language === option ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:bg-muted",
           ].join(" ")}
           key={option}
           onClick={() => setLanguage(option)}
@@ -37,49 +37,49 @@ export function AuthGate({ onContinue }: AuthGateProps) {
   if (screen === "landing") {
     return (
       <main
-        className="min-h-screen bg-slate-950 bg-cover bg-center font-sans text-white antialiased"
+        className="min-h-screen bg-foreground bg-cover bg-center font-sans text-white antialiased"
         style={{
-          backgroundImage: `var(--moin-gradient-hero), url("${import.meta.env.BASE_URL}hamburg-harbor.png")`,
+          backgroundImage: `var(--gradient-hero), url("${import.meta.env.BASE_URL}lovable-assets/hamburg-hero.jpg")`,
         }}
       >
-        <section className="mx-auto flex min-h-screen w-full max-w-[760px] flex-col justify-between px-6 py-8">
+        <section className="mx-auto flex min-h-screen w-full max-w-xl flex-col justify-between px-6 pb-10 pt-4">
           <div className="flex justify-end">{languageSwitch}</div>
 
           <div className="pb-10">
-            <div className="inline-flex items-center gap-2 rounded-full bg-black/35 px-3 py-1.5 text-xs font-bold uppercase tracking-[0.12em] backdrop-blur">
-              <span className="h-2 w-2 rounded-full bg-white" />
+            <div className="inline-flex w-fit items-center gap-1.5 rounded-full bg-white/15 px-3 py-1 text-xs font-medium uppercase tracking-wider text-white backdrop-blur">
+              <span className="h-1.5 w-1.5 rounded-full bg-white" />
               Hamburg Finder
             </div>
-            <h1 className="mt-6 max-w-[680px] text-5xl font-black leading-[0.98] md:text-7xl">
+            <h1 className="mt-4 font-display text-4xl font-bold leading-tight text-white">
               {tx(
                 "Find the Hamburg district that fits you.",
                 "Finde den Hamburger Stadtteil, der zu dir passt.",
               )}
             </h1>
-            <p className="mt-5 max-w-[620px] text-xl font-medium leading-8 text-white/88">
+            <p className="mt-3 text-base text-white/80">
               {tx(
                 "We compare districts with data and your priorities for better decisions.",
                 "Wir vergleichen Stadtteile mit Daten und deinen Prioritäten für bessere Entscheidungen.",
               )}
             </p>
 
-            <div className="mt-10 grid gap-4">
+            <div className="mt-8 flex flex-col gap-2.5">
               <button
-                className="min-h-16 rounded-full bg-white px-6 text-lg font-black text-slate-950 shadow-2xl shadow-slate-950/30 transition-transform hover:-translate-y-0.5 hover:bg-slate-100"
+                className="rounded-2xl bg-primary px-5 py-3.5 text-center text-sm font-semibold text-primary-foreground shadow-soft transition hover:opacity-95"
                 onClick={() => setScreen("register")}
                 type="button"
               >
                 {tx("Register for free", "Kostenlos registrieren")}
               </button>
               <button
-                className="min-h-16 rounded-full border border-white/55 bg-black/25 px-6 text-lg font-black text-white backdrop-blur transition-colors hover:bg-black/35"
+                className="rounded-2xl border border-white/30 bg-white/10 px-5 py-3.5 text-center text-sm font-semibold text-white backdrop-blur transition hover:bg-white/20"
                 onClick={() => setScreen("login")}
                 type="button"
               >
                 {tx("Log in", "Anmelden")}
               </button>
               <button
-                className="min-h-12 rounded-full px-6 text-lg font-bold text-white/82 transition-colors hover:text-white"
+                className="rounded-2xl px-5 py-3 text-center text-sm font-medium text-white/80 underline-offset-4 hover:underline"
                 onClick={() => onContinue("guest")}
                 type="button"
               >
@@ -93,31 +93,31 @@ export function AuthGate({ onContinue }: AuthGateProps) {
   }
 
   return (
-    <main className="min-h-screen bg-[var(--moin-background)] font-sans text-slate-950 antialiased">
-      <header className="border-b border-slate-200 bg-[var(--moin-background)]/95 backdrop-blur">
-        <div className="mx-auto flex min-h-[7rem] w-full max-w-[760px] items-center justify-between gap-3 px-6">
+    <main className="min-h-screen bg-background font-sans text-foreground antialiased">
+      <header className="sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur-md">
+        <div className="mx-auto flex min-h-[3.5rem] w-full max-w-xl items-center justify-between gap-3 px-4 py-3">
           <button
-            className="inline-flex items-center gap-3 text-2xl font-black text-slate-950"
+            className="-ml-1 inline-flex items-center gap-2 rounded-full p-1.5 font-display text-lg font-semibold text-foreground hover:bg-muted"
             onClick={() => setScreen("landing")}
             type="button"
           >
-            <ArrowLeft aria-hidden="true" className="h-7 w-7" />
+            <ArrowLeft aria-hidden="true" className="h-5 w-5" />
             {isRegister ? tx("Register", "Registrieren") : tx("Log in", "Anmelden")}
           </button>
-          <div className="flex items-center gap-4">
-            <MessageCircle aria-hidden="true" className="h-8 w-8 text-slate-950" strokeWidth={2.2} />
+          <div className="flex items-center gap-2">
+            <MessageCircle aria-hidden="true" className="h-5 w-5 text-foreground" strokeWidth={2.2} />
             {languageSwitch}
           </div>
         </div>
       </header>
 
-      <section className="mx-auto w-full max-w-[760px] px-8 py-16">
+      <section className="mx-auto w-full max-w-xl px-4 py-10">
         <div className="mx-auto grid max-w-[520px] gap-7">
           {isRegister && (
             <label className="grid gap-2 text-base font-bold text-slate-600">
               {tx("Name", "Name")}
               <input
-                className="min-h-16 rounded-[1.6rem] border border-slate-200 bg-white px-5 text-xl font-medium text-slate-950 outline-none transition focus:border-slate-400 focus:ring-4 focus:ring-slate-200"
+                className="min-h-12 rounded-xl border border-border bg-card px-3 py-2.5 text-sm outline-none focus:border-primary"
                 placeholder={tx("First name", "Vorname")}
                 type="text"
               />
@@ -126,7 +126,7 @@ export function AuthGate({ onContinue }: AuthGateProps) {
           <label className="grid gap-2 text-base font-bold text-slate-600">
             E-Mail
             <input
-              className="min-h-16 rounded-[1.6rem] border border-slate-200 bg-white px-5 text-xl font-medium text-slate-950 outline-none transition focus:border-slate-400 focus:ring-4 focus:ring-slate-200"
+              className="min-h-12 rounded-xl border border-border bg-card px-3 py-2.5 text-sm outline-none focus:border-primary"
               placeholder="name@beispiel.de"
               type="email"
             />
@@ -134,24 +134,24 @@ export function AuthGate({ onContinue }: AuthGateProps) {
           <label className="grid gap-2 text-base font-bold text-slate-600">
             {tx("Password", "Passwort")}
             <input
-              className="min-h-16 rounded-[1.6rem] border border-slate-200 bg-white px-5 text-xl font-medium text-slate-950 outline-none transition focus:border-slate-400 focus:ring-4 focus:ring-slate-200"
+              className="min-h-12 rounded-xl border border-border bg-card px-3 py-2.5 text-sm outline-none focus:border-primary"
               placeholder="••••••••"
               type="password"
             />
           </label>
 
           <button
-            className="mt-2 min-h-16 rounded-full bg-slate-950 px-6 text-lg font-black text-white shadow-xl shadow-slate-950/15 transition-transform hover:-translate-y-0.5 hover:bg-slate-800"
+            className="mt-2 rounded-2xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground shadow-soft transition hover:opacity-95"
             onClick={() => onContinue(isRegister ? "register" : "login")}
             type="button"
           >
             {isRegister ? tx("Register", "Registrieren") : tx("Log in", "Anmelden")}
           </button>
 
-          <p className="text-center text-lg font-medium text-slate-500">
+          <p className="text-center text-sm text-muted-foreground">
             {isRegister ? tx("Already have an account?", "Schon ein Konto?") : tx("No account yet?", "Noch kein Konto?")}{" "}
             <button
-              className="font-black text-slate-950 underline decoration-rose-400 decoration-2 underline-offset-4"
+              className="font-medium text-primary"
               onClick={() => setScreen(isRegister ? "login" : "register")}
               type="button"
             >
