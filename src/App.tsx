@@ -2,7 +2,6 @@ import "leaflet/dist/leaflet.css";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   ArrowLeft,
-  ArrowRight,
   BarChart3,
   CalendarDays,
   Home,
@@ -18,19 +17,17 @@ import { DistrictDetail } from "./components/DistrictDetail";
 import { EventsView } from "./components/EventsView";
 import { MapView } from "./components/MapView";
 import { OverviewView } from "./components/OverviewView";
-import { PreferenceForm } from "./components/PreferenceForm";
 import { ProfilePage } from "./components/ProfilePage";
-import { ProfileSelector } from "./components/ProfileSelector";
 import { ResultsList } from "./components/ResultsList";
 import { SavedComparison } from "./components/SavedComparison";
-import { WelcomeIntro } from "./components/WelcomeIntro";
 import type { District, Preferences, UserProfile } from "./types/District";
 import { I18nProvider, translate, type Language } from "./i18n";
 import { calculateDistrictMatches, profileDefaults } from "./utils/scoring";
 
 type ActiveView = "results" | "map" | "events" | "saved" | "profile";
 type AuthGateMode = "guest" | "login" | "register";
-type FlowStep = "welcome" | "profile" | "questionnaire" | "criteria" | "recommendations";
+type FlowStep = "questionnaire" | "recommendations";
+type QuestionnaireBackTarget = "auth" | "recommendations";
 
 type PersistedState = {
   activeView?: ActiveView;
@@ -57,7 +54,7 @@ const storageKey = "district-finder-state-v2";
 const userProfiles: UserProfile[] = ["tourist", "family", "longTerm", "custom"];
 const activeViews: ActiveView[] = ["results", "map", "events", "saved", "profile"];
 const authGateModes: AuthGateMode[] = ["guest", "login", "register"];
-const flowSteps: FlowStep[] = ["welcome", "profile", "questionnaire", "criteria", "recommendations"];
+const flowSteps: FlowStep[] = ["questionnaire", "recommendations"];
 const languages: Language[] = ["de", "en"];
 const preferenceKeys: Array<keyof Preferences> = [
   "maxRentPerSqm",
@@ -139,12 +136,11 @@ function App() {
   const [preferences, setPreferences] = useState<Preferences>(initialState.preferences ?? profileDefaults.longTerm);
   const [savedDistrictIds, setSavedDistrictIds] = useState<string[]>(initialState.savedDistrictIds ?? []);
   const [activeView, setActiveView] = useState<ActiveView>(initialState.activeView ?? "results");
-  const [flowStep, setFlowStep] = useState<FlowStep>(initialState.flowStep ?? "profile");
+  const [flowStep, setFlowStep] = useState<FlowStep>(initialState.flowStep === "recommendations" ? "recommendations" : "questionnaire");
   const [language, setLanguage] = useState<Language>(initialState.language ?? "de");
   const [selectedDistrictId, setSelectedDistrictId] = useState<string | null>(null);
   const [showFullResults, setShowFullResults] = useState(false);
-  const [criteriaEditSignal, setCriteriaEditSignal] = useState(0);
-  const criteriaPanelRef = useRef<HTMLDivElement | null>(null);
+  const [questionnaireBackTarget, setQuestionnaireBackTarget] = useState<QuestionnaireBackTarget>("auth");
 
   const matches = useMemo(
     () => calculateDistrictMatches(districtData, preferences, selectedProfile, language),
@@ -182,13 +178,6 @@ function App() {
     }
   }, [activeView, authGateCompleted, authMode, flowStep, language, preferences, savedDistrictIds, selectedProfile]);
 
-  const handleProfileSelect = (profile: UserProfile) => {
-    setSelectedProfile(profile);
-    setPreferences(profileDefaults[profile]);
-    setSelectedDistrictId(null);
-    setFlowStep(profile === "custom" ? "questionnaire" : "criteria");
-  };
-
   const toggleSave = (districtId: string) => {
     setSavedDistrictIds((currentIds) =>
       currentIds.includes(districtId)
@@ -206,15 +195,21 @@ function App() {
     setPreferences(profileDefaults.longTerm);
     setSavedDistrictIds([]);
     setActiveView("results");
-    setFlowStep("profile");
+    setShowFullResults(false);
+    setQuestionnaireBackTarget("auth");
+    setFlowStep("questionnaire");
   };
 
   const handleAuthContinue = (mode: AuthGateMode) => {
     setAuthMode(mode);
     setAuthGateCompleted(true);
+    setSelectedProfile("custom");
+    setPreferences(profileDefaults.custom);
     setSelectedDistrictId(null);
     setActiveView("results");
-    setFlowStep("welcome");
+    setShowFullResults(false);
+    setQuestionnaireBackTarget("auth");
+    setFlowStep("questionnaire");
   };
 
   const handleLogout = () => {
@@ -222,33 +217,41 @@ function App() {
     setAuthMode(undefined);
     setSelectedDistrictId(null);
     setActiveView("results");
-    setFlowStep("welcome");
+    setShowFullResults(false);
+    setQuestionnaireBackTarget("auth");
+    setFlowStep("questionnaire");
   };
 
-  const handleWelcomeBack = () => {
+  const leaveQuestionnaire = () => {
+    if (questionnaireBackTarget === "recommendations") {
+      setSelectedDistrictId(null);
+      setActiveView("results");
+      setFlowStep("recommendations");
+      return;
+    }
+
     setAuthGateCompleted(false);
     setAuthMode(undefined);
     setSelectedDistrictId(null);
     setActiveView("results");
-    setFlowStep("welcome");
-  };
-
-  const handleWelcomeStart = () => {
-    setSelectedDistrictId(null);
-    setActiveView("results");
     setShowFullResults(false);
-    setFlowStep("profile");
   };
 
   const openCriteriaEditor = () => {
     setSelectedDistrictId(null);
     setActiveView("results");
     setShowFullResults(false);
-    setFlowStep("criteria");
-    setCriteriaEditSignal((currentSignal) => currentSignal + 1);
-    window.requestAnimationFrame(() => {
-      criteriaPanelRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-    });
+    setQuestionnaireBackTarget("recommendations");
+    setFlowStep("questionnaire");
+  };
+
+  const finishQuestionnaire = () => {
+    setSelectedProfile("custom");
+    setSelectedDistrictId(null);
+    setActiveView("results");
+    setShowFullResults(false);
+    setQuestionnaireBackTarget("recommendations");
+    setFlowStep("recommendations");
   };
 
   const viewOptions: ViewOption[] = [
@@ -258,6 +261,24 @@ function App() {
     { view: "saved", label: tx("Compare", "Vergleich"), icon: BarChart3 },
     { view: "profile", label: tx("Profile", "Profil"), icon: User },
   ];
+  const headerTitle =
+    flowStep === "questionnaire"
+      ? tx("Questions", "Fragen")
+      : activeView === "results"
+        ? tx("Results", "Ergebnisse")
+        : activeView === "map"
+          ? tx("Map", "Karte")
+          : activeView === "events"
+            ? "Events"
+            : activeView === "saved"
+              ? tx("Compare", "Vergleich")
+              : tx("Profile", "Profil");
+  const canNavigateBack = flowStep !== "recommendations";
+  const navigateBack = () => {
+    if (flowStep === "questionnaire") {
+      leaveQuestionnaire();
+    }
+  };
 
   if (!authGateCompleted) {
     return (
@@ -269,25 +290,37 @@ function App() {
 
   return (
     <I18nProvider language={language} setLanguage={setLanguage}>
-    <main className="min-h-screen bg-[var(--moin-background)] pb-24 font-sans text-slate-950 antialiased">
+    <main className="min-h-screen bg-background pb-24 font-sans text-foreground antialiased">
       {!selectedDetailMatch && (
-        <header className="sticky top-0 z-[1300] border-b border-slate-200 bg-[var(--moin-background)]/95 backdrop-blur-xl">
-          <div className="mx-auto flex min-h-[6.4rem] w-full max-w-[760px] items-center justify-between gap-4 px-5">
-            <button
-              className="text-left text-[2rem] font-black leading-none tracking-[-0.04em] text-slate-950"
-              onClick={() => {
-                setSelectedDistrictId(null);
-                setActiveView("results");
-                setShowFullResults(false);
-                if (flowStep !== "recommendations") setFlowStep("welcome");
-              }}
-              type="button"
-            >
-              moin<span className="text-rose-500">.</span>
-            </button>
+        <header className="sticky top-0 z-[1300] border-b border-border bg-background/85 backdrop-blur-md">
+          <div className="mx-auto flex min-h-[3.5rem] w-full max-w-xl items-center justify-between gap-3 px-4 py-3">
+            <div className="flex min-w-0 items-center gap-2">
+              {canNavigateBack && (
+                <button
+                  aria-label={tx("Back", "Zurück")}
+                  className="-ml-1 rounded-full p-1.5 transition-colors hover:bg-muted"
+                  onClick={navigateBack}
+                  type="button"
+                >
+                  <ArrowLeft aria-hidden="true" className="h-5 w-5" />
+                </button>
+              )}
+              <button
+                className="truncate font-display text-lg font-semibold text-foreground"
+                onClick={() => {
+                  setSelectedDistrictId(null);
+                  setActiveView("results");
+                  setShowFullResults(false);
+                  if (flowStep !== "recommendations") setFlowStep("questionnaire");
+                }}
+                type="button"
+              >
+                {headerTitle}
+              </button>
+            </div>
             <button
               aria-label={tx("Open profile", "Profil öffnen")}
-              className="grid h-16 w-16 place-items-center rounded-full border-[5px] border-white bg-slate-200 text-base font-black text-slate-600 shadow-[0_0_0_1px_rgba(203,213,225,0.8),0_12px_28px_rgba(15,23,42,0.08)]"
+              className="grid h-9 w-9 place-items-center rounded-full bg-primary-soft text-sm font-black text-primary transition-colors hover:bg-accent"
               onClick={() => {
                 setSelectedDistrictId(null);
                 setActiveView("profile");
@@ -295,79 +328,36 @@ function App() {
               }}
               type="button"
             >
-              G
+              {authMode === "guest" ? "G" : "M"}
             </button>
+            <div className="grid grid-cols-2 rounded-full border border-border bg-card p-0.5 text-[11px] font-semibold shadow-card">
+              {(["de", "en"] as const).map((option) => (
+                <button
+                  aria-pressed={language === option}
+                  className={[
+                    "rounded-full px-2.5 py-1 transition-colors",
+                    language === option ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted",
+                  ].join(" ")}
+                  key={option}
+                  onClick={() => setLanguage(option)}
+                  type="button"
+                >
+                  {option.toUpperCase()}
+                </button>
+              ))}
+            </div>
           </div>
         </header>
       )}
 
-      <div className="mx-auto w-full max-w-[760px] px-4 py-6">
-        {flowStep === "welcome" && (
-          <WelcomeIntro onBack={handleWelcomeBack} onStart={handleWelcomeStart} />
-        )}
-
-        {flowStep === "profile" && (
-          <ProfileSelector onSelect={handleProfileSelect} selectedProfile={selectedProfile} />
-        )}
-
+      <div className={selectedDetailMatch ? "mx-auto w-full max-w-xl" : "mx-auto w-full max-w-xl px-4 pb-24 pt-4"}>
         {flowStep === "questionnaire" && (
           <CustomQuestionnaire
-            onBack={() => setFlowStep("profile")}
+            onBack={leaveQuestionnaire}
             onChange={setPreferences}
-            onNext={() => setFlowStep("criteria")}
+            onNext={finishQuestionnaire}
             preferences={preferences}
           />
-        )}
-
-        {flowStep === "criteria" && (
-          <section className="grid gap-4" ref={criteriaPanelRef}>
-            <div className="rounded-[1.6rem] border border-white/80 bg-white/95 p-5 shadow-[0_18px_45px_rgba(15,23,42,0.08)] md:p-6">
-              <p className="text-xs font-black uppercase tracking-wide text-slate-950">{tx("Criteria review", "Kriterien prüfen")}</p>
-              <h2 className="mt-1 text-3xl font-black leading-tight text-slate-950">{tx("These are your criteria", "Das sind deine Kriterien")}</h2>
-              <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
-                {tx(
-                  "These weights come from your selected profile or questionnaire answers. If something feels off, adjust it here before seeing your recommendations.",
-                  "Diese Gewichtungen kommen aus deinem Profil oder deinen Antworten. Wenn etwas nicht passt, kannst du es hier vor den Empfehlungen anpassen.",
-                )}
-              </p>
-            </div>
-
-            <PreferenceForm
-              defaultExpanded
-              expandSignal={criteriaEditSignal}
-              onChange={setPreferences}
-              preferences={preferences}
-            />
-
-            <div className="sticky bottom-4 z-20 grid gap-2 rounded-[1.35rem] border border-white/80 bg-white/95 p-3 shadow-[0_18px_50px_rgba(15,23,42,0.16)] backdrop-blur md:grid-cols-[auto_1fr_auto] md:items-center">
-              <button
-                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-slate-100 px-4 text-sm font-black text-slate-700 transition-colors hover:bg-slate-200"
-                onClick={() => setFlowStep(selectedProfile === "custom" ? "questionnaire" : "profile")}
-                type="button"
-              >
-                <ArrowLeft aria-hidden="true" className="h-4 w-4" />
-                {tx("Back", "Zurück")}
-              </button>
-              <p className="text-center text-sm font-bold text-slate-600">
-                {tx(
-                  "You can come back and edit these later from the recommendations page.",
-                  "Du kannst diese Kriterien später auf der Empfehlungsseite erneut bearbeiten.",
-                )}
-              </p>
-              <button
-                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-slate-950 px-5 text-sm font-black text-white shadow-lg shadow-slate-950/15 transition-colors hover:bg-slate-800"
-                onClick={() => {
-                  setSelectedDistrictId(null);
-                  setActiveView("results");
-                  setFlowStep("recommendations");
-                }}
-                type="button"
-              >
-                {tx("See recommendations", "Empfehlungen anzeigen")}
-                <ArrowRight aria-hidden="true" className="h-4 w-4" />
-              </button>
-            </div>
-          </section>
         )}
 
         {flowStep === "recommendations" && (
@@ -401,15 +391,11 @@ function App() {
                     </button>
                     <button
                       className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full moin-gradient-primary px-4 text-sm font-black text-white shadow-lg shadow-slate-950/15 transition-transform hover:-translate-y-0.5"
-                      onClick={() => {
-                        setSelectedDistrictId(null);
-                        setFlowStep("profile");
-                        setShowFullResults(false);
-                      }}
+                      onClick={openCriteriaEditor}
                       type="button"
                     >
                       <User aria-hidden="true" className="h-4 w-4" />
-                      {tx("Change profile", "Profil ändern")}
+                      {tx("Change answers", "Antworten ändern")}
                     </button>
                   </div>
                 )}
@@ -420,9 +406,9 @@ function App() {
             {!selectedDetailMatch && (
               <nav
                 aria-label={tx("Recommendation views", "Empfehlungsansichten")}
-                className="fixed inset-x-3 bottom-3 z-[1200] mx-auto max-w-[620px] rounded-[2.4rem] border border-slate-200 bg-white/95 p-2.5 shadow-[0_16px_42px_rgba(15,23,42,0.14)] backdrop-blur-xl"
+                className="fixed inset-x-0 bottom-0 z-[1200] mx-auto max-w-xl border-t border-border bg-background/95 px-2 pt-1.5 pb-[max(0.5rem,env(safe-area-inset-bottom))] backdrop-blur-md"
               >
-                <div className="grid grid-cols-5 gap-1">
+                <div className="flex items-stretch justify-around">
                   {viewOptions.map((option) => {
                     const Icon = option.icon;
                     const isActive = activeView === option.view;
@@ -431,9 +417,9 @@ function App() {
                       <button
                         aria-pressed={isActive}
                         className={[
-                          "relative flex min-h-[4.45rem] flex-col items-center justify-center gap-1.5 rounded-[1.55rem] px-0.5 text-[0.62rem] font-black uppercase transition-colors sm:min-h-[4.9rem] sm:px-2 sm:text-xs",
-                          "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-950",
-                          isActive ? "text-slate-950" : "text-slate-500 hover:bg-slate-100 hover:text-slate-800",
+                          "relative flex flex-1 flex-col items-center justify-center gap-0.5 rounded-lg px-1 py-1.5 text-[11px] font-medium transition-colors",
+                          "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
+                          isActive ? "text-primary" : "text-muted-foreground hover:text-foreground",
                         ].join(" ")}
                         key={option.view}
                         onClick={() => {
@@ -443,7 +429,7 @@ function App() {
                         }}
                         type="button"
                       >
-                        <Icon aria-hidden="true" className="h-5 w-5 sm:h-6 sm:w-6" strokeWidth={2.4} />
+                        <Icon aria-hidden="true" className={["h-5 w-5", isActive ? "" : "opacity-80"].join(" ")} strokeWidth={isActive ? 2.4 : 1.8} />
                         <span className="max-w-full truncate leading-none">{option.label}</span>
                         {typeof option.count === "number" && (
                           <span
@@ -477,9 +463,7 @@ function App() {
                 onOpenDetails={setSelectedDistrictId}
                 onShowAllResults={() => setShowFullResults(true)}
                 onStartFinder={() => {
-                  setSelectedDistrictId(null);
-                  setFlowStep("profile");
-                  setShowFullResults(false);
+                  openCriteriaEditor();
                 }}
               />
             )}
@@ -521,9 +505,7 @@ function App() {
                 onClearLocalData={clearLocalData}
                 onEditCriteria={openCriteriaEditor}
                 onChangeProfile={() => {
-                  setSelectedDistrictId(null);
-                  setActiveView("results");
-                  setFlowStep("profile");
+                  openCriteriaEditor();
                 }}
                 onLogout={handleLogout}
                 onOpenComparison={() => setActiveView("saved")}

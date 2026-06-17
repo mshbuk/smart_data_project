@@ -37,7 +37,7 @@ export function ResultsList({ matches, savedDistrictIds, onOpenDetails, onToggle
   };
 
   return (
-    <section className="mx-auto grid w-full max-w-[760px] gap-4">
+    <section className="mx-auto grid w-full max-w-xl gap-5">
       {visibleMatches.map((match, index) => (
         <DistrictCard
           isSaved={savedDistrictIds.includes(match.district.id)}
@@ -51,22 +51,22 @@ export function ResultsList({ matches, savedDistrictIds, onOpenDetails, onToggle
 
       <nav
         aria-label={tx("District match pages", "Stadtteil-Trefferseiten")}
-        className="rounded-[1.4rem] border border-white/80 bg-white p-3 shadow-[0_18px_45px_rgba(15,23,42,0.08)]"
+        className="rounded-2xl border border-border bg-card p-3 shadow-card"
       >
         <div className="grid gap-3 md:grid-cols-[1fr_auto] md:items-center">
           <p className="text-sm font-bold text-slate-600">
             {tx("Showing", "Zeige")}{" "}
-            <span className="font-black text-slate-950">
+            <span className="font-semibold text-foreground">
               {matches.length === 0 ? 0 : firstMatchIndex + 1}-{lastMatchIndex}
             </span>{" "}
-            {tx("of", "von")} <span className="font-black text-slate-950">{matches.length}</span>
+            {tx("of", "von")} <span className="font-semibold text-foreground">{matches.length}</span>
             <span className="hidden sm:inline"> {tx("district matches", "Stadtteil-Treffern")}</span>
           </p>
 
-          <div className="flex items-center justify-between gap-2 rounded-2xl bg-slate-50 p-1 lg:hidden">
+          <div className="flex items-center justify-between gap-2 rounded-full bg-muted p-1 lg:hidden">
             <button
               aria-label={tx("Previous district matches page", "Vorherige Trefferseite")}
-              className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-white text-slate-600 shadow-sm shadow-slate-950/5 transition-colors hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-40"
+              className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-card text-muted-foreground shadow-card transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-40"
               disabled={currentPage === 1}
               onClick={() => goToPage(currentPage - 1)}
               type="button"
@@ -74,13 +74,13 @@ export function ResultsList({ matches, savedDistrictIds, onOpenDetails, onToggle
               <ChevronLeft aria-hidden="true" className="h-5 w-5" />
             </button>
 
-            <span className="min-w-0 px-2 text-center text-sm font-black text-slate-700">
-              {tx("Page", "Seite")} <span className="text-slate-950">{currentPage}</span> {tx("of", "von")} {totalPages}
+            <span className="min-w-0 px-2 text-center text-sm font-semibold text-muted-foreground">
+              {tx("Page", "Seite")} <span className="text-foreground">{currentPage}</span> {tx("of", "von")} {totalPages}
             </span>
 
             <button
               aria-label={tx("Next district matches page", "Nächste Trefferseite")}
-              className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-white text-slate-600 shadow-sm shadow-slate-950/5 transition-colors hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-40"
+              className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-card text-muted-foreground shadow-card transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-40"
               disabled={currentPage === totalPages}
               onClick={() => goToPage(currentPage + 1)}
               type="button"

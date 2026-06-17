@@ -72,83 +72,85 @@ export function ProfilePage({
     .slice(0, 3);
 
   return (
-    <section className="mx-auto grid max-w-[760px] gap-9 px-2 pb-8 pt-8">
-      <div className="grid grid-cols-[8rem_1fr] items-center gap-8">
-        <span className="grid h-32 w-32 place-items-center rounded-full bg-slate-950 text-5xl font-black text-white">
+    <section className="mx-auto grid max-w-xl gap-5 pb-4">
+      <div className="rounded-2xl border border-border bg-card p-4 shadow-card">
+      <div className="flex items-center gap-3">
+        <span className="grid h-12 w-12 place-items-center rounded-full bg-primary-soft text-lg font-bold text-primary">
           G
         </span>
-        <div>
-          <h1 className="text-[2.65rem] font-black leading-none tracking-[-0.05em] text-slate-950">
+        <div className="flex-1">
+          <h1 className="font-display text-base font-semibold text-foreground">
             {tx("Guest", "Gast")}
           </h1>
-          <p className="mt-4 text-[1.7rem] font-medium leading-tight tracking-[-0.03em] text-slate-500">
+          <p className="text-xs text-muted-foreground">
             {tx("Save your progress", "Speichere deinen Fortschritt")}
           </p>
         </div>
       </div>
 
-      <div className="grid gap-4">
+      <div className="mt-3 grid gap-2">
         <button
-          className="inline-flex min-h-[6.25rem] items-center justify-between rounded-[2rem] bg-slate-950 px-8 text-[1.7rem] font-black tracking-[-0.04em] text-white shadow-[0_18px_34px_rgba(15,23,42,0.16)] transition-colors hover:bg-slate-800"
+          className="inline-flex items-center justify-between rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground shadow-soft transition hover:opacity-95"
           type="button"
         >
-          <span className="inline-flex items-center gap-5">
-            <Mail aria-hidden="true" className="h-7 w-7" />
+          <span className="inline-flex items-center gap-2">
+            <Mail aria-hidden="true" className="h-4 w-4" />
             {tx("Sign in with email", "Per E-Mail anmelden")}
           </span>
-          <ChevronRight aria-hidden="true" className="h-8 w-8" />
+          <ChevronRight aria-hidden="true" className="h-4 w-4" />
         </button>
 
         <button
-          className="inline-flex min-h-[6.25rem] items-center justify-between rounded-[2rem] border border-slate-200 bg-white px-8 text-[1.7rem] font-black tracking-[-0.04em] text-slate-950 shadow-sm transition-colors hover:bg-slate-50"
+          className="inline-flex items-center justify-between rounded-xl border border-border bg-card px-4 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-muted"
           type="button"
         >
-          <span className="inline-flex items-center gap-5">
-            <Sparkles aria-hidden="true" className="h-8 w-8 text-rose-500" />
+          <span className="inline-flex items-center gap-2">
+            <Sparkles aria-hidden="true" className="h-4 w-4 text-primary" />
             {tx("Get magic link", "Magic Link erhalten")}
           </span>
-          <ChevronRight aria-hidden="true" className="h-8 w-8" />
+          <ChevronRight aria-hidden="true" className="h-4 w-4" />
         </button>
+      </div>
       </div>
 
       <section className="grid gap-5">
         <div className="flex items-center justify-between gap-4">
-          <h2 className="text-2xl font-black uppercase tracking-[0.18em] text-slate-400">
+          <h2 className="font-display text-sm font-semibold text-foreground">
             {tx("Your preferences", "Deine Präferenzen")}
           </h2>
           <button
-            className="inline-flex items-center gap-2 text-xl font-black text-sky-500"
+            className="inline-flex items-center gap-1 text-sm font-medium text-primary"
             onClick={onEditCriteria}
             type="button"
           >
-            <RefreshCw aria-hidden="true" className="h-5 w-5" />
+            <RefreshCw aria-hidden="true" className="h-4 w-4" />
             {tx("Edit", "Bearbeiten")}
           </button>
         </div>
 
-        <div className="rounded-[2.1rem] border-2 border-dashed border-slate-300 bg-white/55 p-8 text-center">
-          <p className="text-[1.55rem] font-medium leading-tight text-slate-500">
+        <div className="rounded-2xl border border-dashed border-border bg-muted/40 p-4 text-center">
+          <p className="text-sm text-muted-foreground">
             {tx("Current setup", "Aktuelle Auswahl")}:{" "}
-            <span className="font-black text-slate-950">{localizedProfileLabels[selectedProfile]}</span>
+            <span className="font-semibold text-foreground">{localizedProfileLabels[selectedProfile]}</span>
           </p>
-          <div className="mt-6 flex flex-wrap justify-center gap-2">
+          <div className="mt-3 flex flex-wrap justify-center gap-2">
             {strongestPreferences.map((row) => (
-              <span className="rounded-full bg-slate-100 px-4 py-2 text-sm font-black text-slate-600" key={row.key}>
+              <span className="rounded-full bg-card px-3 py-1 text-xs font-medium text-muted-foreground" key={row.key}>
                 {tx(row.label, labelByEnglish[row.label] ?? row.label)} {preferences[row.key]}/5
               </span>
             ))}
           </div>
-          <div className="mt-8 grid justify-items-center gap-3">
+          <div className="mt-4 grid justify-items-center gap-2">
             <button
-              className="inline-flex min-h-16 items-center justify-center gap-3 rounded-full bg-slate-950 px-9 text-xl font-black text-white transition-colors hover:bg-slate-800"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-soft"
               onClick={onEditCriteria}
               type="button"
             >
               {tx("Start quiz", "Quiz starten")}
-              <ChevronRight aria-hidden="true" className="h-6 w-6" />
+              <ChevronRight aria-hidden="true" className="h-4 w-4" />
             </button>
             <button
-              className="text-base font-black text-sky-500"
+              className="text-sm font-medium text-primary"
               onClick={onChangeProfile}
               type="button"
             >
@@ -160,42 +162,42 @@ export function ProfilePage({
 
       <div className="grid grid-cols-2 gap-4">
         <button
-          className="rounded-[1.8rem] border border-slate-200 bg-white p-7 text-left shadow-sm transition-colors hover:bg-slate-50"
+          className="rounded-2xl border border-border bg-card p-3 text-left shadow-card transition-colors hover:bg-muted/40"
           onClick={onBack}
           type="button"
         >
-          <p className="text-xl font-black uppercase tracking-[0.14em] text-slate-400">Matches</p>
-          <p className="mt-4 text-[1.55rem] font-black leading-tight text-slate-950">
+          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Matches</p>
+          <p className="mt-2 text-sm font-medium text-foreground">
             {tx("View results", "Ergebnisse ansehen")}
           </p>
         </button>
         <button
-          className="rounded-[1.8rem] border border-slate-200 bg-white p-7 text-left shadow-sm transition-colors hover:bg-slate-50"
+          className="rounded-2xl border border-border bg-card p-3 text-left shadow-card transition-colors hover:bg-muted/40"
           onClick={onOpenComparison}
           type="button"
         >
-          <p className="text-xl font-black uppercase tracking-[0.14em] text-slate-400">{tx("Compare", "Vergleich")}</p>
-          <p className="mt-4 text-[1.55rem] font-black leading-tight text-slate-950">
-            {tx("Change profile", "Profil ändern")}
+          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{tx("Compare", "Vergleich")}</p>
+          <p className="mt-2 text-sm font-medium text-foreground">
+            {favoriteCount} {tx("saved", "gespeichert")}
           </p>
         </button>
       </div>
 
-      <section className="grid gap-3 rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
+      <section className="grid gap-3 rounded-2xl border border-border bg-card p-4 shadow-card">
         <div className="grid grid-cols-2 gap-3">
-          <div className="rounded-[1.4rem] bg-slate-50 p-4">
-            <Heart aria-hidden="true" className="h-5 w-5 text-slate-500" />
-            <p className="mt-3 text-sm font-black uppercase text-slate-400">{tx("Favorites", "Favoriten")}</p>
-            <p className="text-2xl font-black text-slate-950">{favoriteCount}</p>
+          <div className="rounded-xl bg-muted p-3">
+            <Heart aria-hidden="true" className="h-4 w-4 text-muted-foreground" />
+            <p className="mt-2 text-xs font-semibold uppercase text-muted-foreground">{tx("Favorites", "Favoriten")}</p>
+            <p className="font-display text-xl font-bold text-foreground">{favoriteCount}</p>
           </div>
-          <div className="rounded-[1.4rem] bg-slate-50 p-4">
-            <MapPin aria-hidden="true" className="h-5 w-5 text-slate-500" />
-            <p className="mt-3 text-sm font-black uppercase text-slate-400">{tx("City", "Stadt")}</p>
-            <p className="text-2xl font-black text-slate-950">{city}</p>
+          <div className="rounded-xl bg-muted p-3">
+            <MapPin aria-hidden="true" className="h-4 w-4 text-muted-foreground" />
+            <p className="mt-2 text-xs font-semibold uppercase text-muted-foreground">{tx("City", "Stadt")}</p>
+            <p className="font-display text-xl font-bold text-foreground">{city}</p>
           </div>
         </div>
-        <div className="rounded-[1.4rem] bg-slate-50 p-4 text-sm leading-6 text-slate-600">
-          <ShieldCheck aria-hidden="true" className="mb-3 h-5 w-5 text-slate-500" />
+        <div className="rounded-xl bg-muted p-3 text-sm leading-6 text-muted-foreground">
+          <ShieldCheck aria-hidden="true" className="mb-2 h-4 w-4 text-muted-foreground" />
           {tx(
             "This demo stores preferences and saved districts locally in this browser.",
             "Diese Demo speichert Präferenzen und gespeicherte Stadtteile lokal in diesem Browser.",
@@ -203,35 +205,35 @@ export function ProfilePage({
         </div>
         <div className="grid gap-3">
           <button
-            className="inline-flex min-h-13 items-center justify-center gap-3 rounded-full border border-slate-200 bg-white px-5 text-base font-black text-slate-800 transition-colors hover:bg-slate-50"
+            className="inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-card px-4 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-muted"
             onClick={onClearLocalData}
             type="button"
           >
-            <Eraser aria-hidden="true" className="h-5 w-5" />
+            <Eraser aria-hidden="true" className="h-4 w-4" />
             {tx("Clear local data", "Lokale Daten löschen")}
           </button>
           <button
-            className="inline-flex min-h-13 items-center justify-center gap-3 rounded-full bg-slate-950 px-5 text-base font-black text-white transition-colors hover:bg-slate-800"
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground shadow-soft transition hover:opacity-95"
             onClick={onLogout}
             type="button"
           >
-            <LogOut aria-hidden="true" className="h-5 w-5" />
+            <LogOut aria-hidden="true" className="h-4 w-4" />
             {tx("Log out", "Abmelden")}
           </button>
         </div>
       </section>
 
-      <section className="grid gap-3 rounded-[2rem] border border-slate-200 bg-white p-6 text-sm leading-6 text-slate-600 shadow-sm">
+      <section className="grid gap-3 rounded-2xl border border-border bg-card p-4 text-sm leading-6 text-muted-foreground shadow-card">
         <p>
-          <Database aria-hidden="true" className="mb-2 h-5 w-5 text-slate-500" />
-          <strong className="text-slate-950">Datenschutz:</strong>{" "}
+          <Database aria-hidden="true" className="mb-2 h-4 w-4 text-muted-foreground" />
+          <strong className="text-foreground">Datenschutz:</strong>{" "}
           {tx(
             "No personal data is sent to a server in this prototype.",
             "In diesem Prototyp werden keine personenbezogenen Daten an einen Server gesendet.",
           )}
         </p>
         <p>
-          <strong className="text-slate-950">Impressum:</strong>{" "}
+          <strong className="text-foreground">Impressum:</strong>{" "}
           {tx(
             "University Smart Data prototype for Hamburg district recommendations.",
             "Universitärer Smart-Data-Prototyp für Hamburger Stadtteilempfehlungen.",

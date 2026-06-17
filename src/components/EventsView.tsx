@@ -428,7 +428,7 @@ function EventDetail({
   const reviews = getEventReviews(event);
 
   return (
-    <section className="mx-auto grid max-w-[760px] gap-4">
+    <section className="mx-auto grid max-w-xl gap-4">
       <div className="flex items-center justify-between gap-3">
         <button
           className="inline-flex min-h-11 items-center gap-2 rounded-2xl bg-white px-4 text-sm font-black text-slate-700 shadow-sm shadow-slate-950/5 transition-colors hover:bg-slate-50"
@@ -456,7 +456,7 @@ function EventDetail({
         </div>
       </div>
 
-      <article className="overflow-hidden rounded-[1.8rem] border border-slate-200 bg-white shadow-[0_18px_48px_rgba(15,23,42,0.08)]">
+      <article className="overflow-hidden rounded-2xl border border-border bg-card shadow-card">
         <img alt="" className="h-[250px] w-full object-cover sm:h-[320px]" src={event.imageUrl} />
         <div className="grid gap-4 p-5">
           <div>
@@ -514,7 +514,7 @@ function EventDetail({
         </div>
       </article>
 
-      <section className="rounded-[1.8rem] border border-slate-200 bg-white p-5 shadow-[0_18px_48px_rgba(15,23,42,0.08)]">
+      <section className="rounded-2xl border border-border bg-card p-4 shadow-card">
         <h3 className="text-xl font-black text-slate-950">Community</h3>
         <p className="mt-2 text-sm font-bold text-slate-500">
           {attendees} {tx("people interested", "Personen interessiert")}
@@ -537,7 +537,7 @@ function EventDetail({
         <h4 className="mt-6 text-lg font-black text-slate-950">{tx("Reviews", "Bewertungen")}</h4>
         <div className="mt-3 grid gap-3">
           {reviews.map((comment) => (
-            <article className="rounded-[1.35rem] border border-slate-200 bg-white p-4" key={comment.name}>
+            <article className="rounded-2xl border border-border bg-card p-3" key={comment.name}>
               <div className="flex justify-between gap-3">
                 <div className="flex gap-3">
                   <span className="grid h-11 w-11 place-items-center rounded-full bg-slate-50 text-2xl">{comment.avatar}</span>
@@ -610,23 +610,20 @@ export function EventsView() {
   }
 
   return (
-    <section className="mx-auto grid max-w-[820px] gap-6 px-1">
+    <section className="mx-auto grid max-w-xl gap-4">
       <div className="grid gap-4">
         <div className="flex items-start justify-between gap-4">
-          <div>
-            <h1 className="text-[2.75rem] font-black leading-none tracking-[-0.06em] text-slate-950">Events</h1>
-            <div className="mt-5 flex gap-7 text-xl font-black">
-              <button className="border-b-4 border-slate-950 pb-3 text-slate-950" type="button">
-                {tx("Discover", "Entdecken")}
-              </button>
-              <button className="pb-3 text-slate-500" type="button">
-                {tx("Saved", "Gespeichert")}
-              </button>
-            </div>
+          <div className="inline-flex rounded-full bg-muted p-1 text-sm font-medium">
+            <button className="rounded-full bg-card px-3 py-1.5 text-foreground shadow-card" type="button">
+              {tx("Discover", "Entdecken")}
+            </button>
+            <button className="rounded-full px-3 py-1.5 text-muted-foreground" type="button">
+              {tx("Saved", "Gespeichert")}
+            </button>
           </div>
           <div className="flex shrink-0 items-center gap-2">
             <select
-              className="min-h-12 max-w-[11rem] rounded-full border-0 bg-slate-100 px-4 text-sm font-black text-slate-950 outline-none focus:ring-4 focus:ring-slate-200 sm:text-base"
+              className="min-h-9 max-w-[9rem] rounded-full border border-border bg-card px-3 text-xs font-medium text-foreground outline-none focus:border-primary"
               onChange={(event) => setDistrictFilter(event.target.value)}
               value={districtFilter}
             >
@@ -639,27 +636,27 @@ export function EventsView() {
             </select>
             <button
               aria-label={tx("Open event chats", "Event-Chats öffnen")}
-              className="relative grid h-12 w-12 place-items-center rounded-full bg-slate-950 text-white shadow-lg shadow-slate-950/15 transition-colors hover:bg-slate-800"
+              className="relative grid h-10 w-10 place-items-center rounded-full bg-primary text-primary-foreground shadow-soft transition hover:opacity-95"
               onClick={() => setIsChatInboxOpen(true)}
               type="button"
             >
               <MessageCircle aria-hidden="true" className="h-5 w-5" />
-              <span className="absolute -right-1 -top-1 grid h-5 min-w-5 place-items-center rounded-full bg-rose-500 px-1 text-[0.65rem] font-black leading-none text-white">
+              <span className="absolute -right-1 -top-1 grid h-5 min-w-5 place-items-center rounded-full bg-destructive px-1 text-[0.65rem] font-bold leading-none text-destructive-foreground">
                 {Math.max(1, signedUpEventIds.length)}
               </span>
             </button>
           </div>
         </div>
 
-        <div className="flex gap-3 overflow-x-auto border-y border-slate-200 py-3">
+        <div className="flex gap-2 overflow-x-auto hide-scrollbar">
           {dateFilters.map((filter) => (
             <button
               aria-pressed={dateFilter === filter}
               className={[
-                "min-h-12 shrink-0 rounded-full border px-5 text-base font-black transition-colors",
+                "shrink-0 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
                 dateFilter === filter
-                  ? "border-slate-950 bg-slate-950 text-white"
-                  : "border-slate-200 bg-white text-slate-500 hover:bg-slate-50",
+                  ? "border-primary bg-primary text-primary-foreground"
+                  : "border-border bg-card text-muted-foreground hover:bg-muted",
               ].join(" ")}
               key={filter}
               onClick={() => setDateFilter(filter)}
@@ -669,13 +666,13 @@ export function EventsView() {
             </button>
           ))}
         </div>
-        <div className="flex gap-4 overflow-x-auto pb-1">
+        <div className="flex gap-2 overflow-x-auto hide-scrollbar pb-1">
           {categoryFilters.map((filter) => (
             <button
               aria-pressed={category === filter}
               className={[
-                "grid shrink-0 justify-items-center gap-1.5 text-xs font-black uppercase transition-colors",
-                category === filter ? "text-slate-950" : "text-slate-500",
+                "grid shrink-0 justify-items-center gap-1.5 text-[10px] font-semibold uppercase transition-colors",
+                category === filter ? "text-foreground" : "text-muted-foreground",
               ].join(" ")}
               key={filter}
               onClick={() => setCategory(filter)}
@@ -683,10 +680,10 @@ export function EventsView() {
             >
               <span
                 className={[
-                  "grid h-14 w-14 place-items-center rounded-full border text-xl",
+                  "grid h-12 w-12 place-items-center rounded-full border text-lg",
                   category === filter
-                    ? "border-slate-950 bg-slate-950 text-white"
-                    : "border-slate-200 bg-white text-slate-500",
+                    ? "border-primary bg-primary text-primary-foreground"
+                    : "border-border bg-card text-muted-foreground",
                 ].join(" ")}
               >
                 {filter === "all" ? "✦" : categoryEmoji[filter]}
@@ -695,8 +692,8 @@ export function EventsView() {
             </button>
           ))}
         </div>
-        <label className="flex min-h-14 items-center gap-3 rounded-[1.35rem] bg-slate-100 px-4 text-lg font-medium text-slate-400">
-          <Search aria-hidden="true" className="h-5 w-5 shrink-0 text-slate-500" />
+        <label className="flex min-h-11 items-center gap-2 rounded-full border border-border bg-card px-3 text-sm text-muted-foreground shadow-card">
+          <Search aria-hidden="true" className="h-4 w-4 shrink-0 text-muted-foreground" />
           <input
             className="min-w-0 flex-1 bg-transparent outline-none placeholder:text-slate-400"
             placeholder={tx("Search event or location...", "Event oder Location suchen...")}
@@ -712,12 +709,12 @@ export function EventsView() {
 
             return (
             <button
-              className="grid grid-cols-[6.5rem_1fr_auto] gap-4 rounded-[1.6rem] border border-slate-200 bg-white p-3 text-left shadow-sm transition-transform hover:-translate-y-0.5 hover:shadow-[0_18px_44px_rgba(15,23,42,0.1)]"
+              className="flex items-stretch gap-3 rounded-2xl border border-border bg-card p-3 text-left shadow-card transition hover:border-primary/40"
               key={event.id}
               onClick={() => setSelectedEventId(event.id)}
               type="button"
             >
-              <span className="relative h-24 w-24 overflow-hidden rounded-[1.2rem] bg-slate-200">
+              <span className="relative grid h-20 w-16 flex-shrink-0 place-items-center overflow-hidden rounded-xl bg-muted">
                 <img alt="" className="h-full w-full object-cover" loading="lazy" src={event.imageUrl} />
                 <span className="absolute left-2 top-2 grid min-w-12 rounded-2xl bg-white px-2 py-1 text-center shadow-sm">
                   <span className="text-xs font-black uppercase text-rose-500">{badge.weekday}</span>
@@ -725,18 +722,20 @@ export function EventsView() {
                   <span className="text-xs font-bold uppercase text-slate-500">{badge.month}</span>
                 </span>
               </span>
-              <span className="min-w-0 py-2">
-                <span className="block truncate text-xl font-black leading-tight text-slate-950">{event.title}</span>
-                <span className="mt-2 block text-base font-medium text-slate-500">{event.time}</span>
-                <span className="mt-1 flex items-center gap-1 text-base font-medium text-slate-500">
-                  <MapPin aria-hidden="true" className="h-4 w-4 shrink-0" />
+              <span className="flex min-w-0 flex-1 flex-col justify-between py-0.5">
+                <span>
+                <span className="block text-xs font-medium text-primary">{getFirstDateLabel(event, language)} · {event.time}</span>
+                <span className="block truncate font-display text-sm font-semibold text-foreground">{event.title}</span>
+                <span className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
+                  <MapPin aria-hidden="true" className="h-3 w-3 shrink-0" />
                   <span className="truncate">
                     {event.venue}, {event.district}
                   </span>
                 </span>
+                </span>
                 <span
                   className={[
-                    "mt-2 inline-flex rounded-full px-3 py-1 text-xs font-black",
+                    "mt-2 inline-flex w-fit rounded-full px-2 py-0.5 text-[10px] font-semibold",
                     event.price.toLowerCase().includes("kostenlos")
                       ? "bg-emerald-100 text-emerald-700"
                       : "bg-amber-100 text-amber-950",
@@ -745,14 +744,14 @@ export function EventsView() {
                   {event.price}
                 </span>
               </span>
-              <Bookmark aria-hidden="true" className="mt-4 h-5 w-5 text-slate-500" />
+              <Bookmark aria-hidden="true" className="mt-3 h-4 w-4 text-muted-foreground" />
             </button>
           );
           })
         ) : (
-          <div className="rounded-[1.6rem] border border-slate-200 bg-white p-8 text-center shadow-sm">
-            <p className="text-lg font-black text-slate-950">{tx("No events match these filters", "Keine Events passen zu diesen Filtern")}</p>
-            <p className="mt-2 text-sm font-bold text-slate-500">
+          <div className="rounded-2xl border border-border bg-card p-8 text-center shadow-card">
+            <p className="font-display text-base font-semibold text-foreground">{tx("No events match these filters", "Keine Events passen zu diesen Filtern")}</p>
+            <p className="mt-2 text-sm text-muted-foreground">
               {tx("Try another date, category, or district.", "Probiere ein anderes Datum, eine andere Kategorie oder einen anderen Stadtteil.")}
             </p>
           </div>

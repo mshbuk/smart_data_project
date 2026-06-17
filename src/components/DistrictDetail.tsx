@@ -1,17 +1,14 @@
 import {
   ArrowLeft,
-  BadgeCheck,
-  Building2,
   CheckCircle2,
   ExternalLink,
   Heart,
-  Info,
+  Home,
+  MapPin,
   Share2,
 } from "lucide-react";
 import type { DistrictMatch, Preferences } from "../types/District";
-import {
-  getCriterionInsights,
-} from "../utils/districtInsights";
+import { getCriterionInsights } from "../utils/districtInsights";
 import { useI18n } from "../i18n";
 
 type DistrictDetailProps = {
@@ -58,11 +55,12 @@ export function DistrictDetail({
     .filter((insight) => insight.weight > 0)
     .sort((a, b) => b.weight - a.weight || b.score - a.score);
   const housingSearchLinks = createHousingSearchLinks(district.name);
+  const population = district.population ?? 0;
   const shareDistrict = () => {
     const message =
       language === "de"
-        ? `${district.name} wirkt spannend in Moin.`
-        : `${district.name} looks interesting in Moin.`;
+        ? `${district.name} wirkt spannend im Hamburg Finder.`
+        : `${district.name} looks interesting in Hamburg Finder.`;
 
     if (navigator.share) {
       void navigator.share({
@@ -73,206 +71,189 @@ export function DistrictDetail({
       return;
     }
 
-    window.alert(
-      tx(
-        "Demo share: copy this district name and send it to a friend.",
-        "Demo-Teilen: Kopiere diesen Stadtteilnamen und sende ihn an eine Freundin oder einen Freund.",
-      ),
-    );
+    void navigator.clipboard?.writeText(`${district.name} - ${window.location.href}`);
   };
 
   return (
-    <section className="-mx-4 -mt-6 grid gap-8 pb-6 sm:mx-0 sm:mt-0">
-      <div className="relative min-h-[25rem] overflow-hidden bg-slate-200 sm:rounded-[2rem]">
+    <section className="min-h-screen bg-background pb-24">
+      <div className="relative aspect-[4/3] w-full overflow-hidden bg-muted">
         {district.imageUrl ? (
-          <img alt="" className="absolute inset-0 h-full w-full object-cover" src={district.imageUrl} />
+          <img alt={district.name} className="h-full w-full object-cover" src={district.imageUrl} />
         ) : (
-          <div className="absolute inset-0 bg-gradient-to-br from-sky-100 via-slate-200 to-slate-200" />
+          <div className="h-full w-full bg-muted" />
         )}
-        <div className="absolute inset-x-0 top-0 flex items-center justify-between p-4">
+        <div className="absolute inset-x-0 top-0 flex items-center justify-between p-3">
           <button
             aria-label={tx("Back", "Zurück")}
-            className="grid h-13 w-13 place-items-center rounded-full bg-white text-slate-950 shadow-[0_12px_28px_rgba(15,23,42,0.2)]"
+            className="grid h-10 w-10 place-items-center rounded-full bg-background/85 shadow-card backdrop-blur"
             onClick={onBack}
             type="button"
           >
-            <ArrowLeft aria-hidden="true" className="h-6 w-6" />
+            <ArrowLeft aria-hidden="true" className="h-5 w-5" />
           </button>
-          <div className="flex gap-3">
+          <div className="flex gap-1">
             <button
               aria-label={isSaved ? tx("Remove from saved", "Aus Gespeichert entfernen") : tx("Save district", "Stadtteil speichern")}
-              className="grid h-13 w-13 place-items-center rounded-full bg-white text-slate-950 shadow-[0_12px_28px_rgba(15,23,42,0.2)]"
+              className="grid h-10 w-10 place-items-center rounded-full bg-background/85 shadow-card backdrop-blur"
               onClick={() => onToggleSave(district.id)}
               type="button"
             >
-              <Heart aria-hidden="true" className={isSaved ? "h-6 w-6 fill-rose-500 text-rose-500" : "h-6 w-6"} />
+              <Heart aria-hidden="true" className={isSaved ? "h-5 w-5 fill-primary text-primary" : "h-5 w-5"} />
             </button>
             <button
               aria-label={tx("Share district", "Stadtteil teilen")}
-              className="grid h-13 w-13 place-items-center rounded-full bg-white text-slate-950 shadow-[0_12px_28px_rgba(15,23,42,0.2)]"
+              className="grid h-10 w-10 place-items-center rounded-full bg-background/85 shadow-card backdrop-blur"
               onClick={shareDistrict}
               type="button"
             >
-              <Share2 aria-hidden="true" className="h-6 w-6" />
+              <Share2 aria-hidden="true" className="h-5 w-5" />
             </button>
           </div>
         </div>
       </div>
 
-      <article className="-mt-24 mx-4 grid gap-8 sm:mx-0">
-        <section className="relative rounded-[2.2rem] border border-slate-200 bg-white p-6 shadow-[0_20px_54px_rgba(15,23,42,0.12)]">
-          <div className="grid grid-cols-[1fr_auto] gap-5">
-            <div>
-              <p className="text-lg font-black uppercase tracking-[0.18em] text-rose-500">Hamburg</p>
-              <h1 className="mt-3 text-[2.55rem] font-black leading-none tracking-[-0.06em] text-slate-950">
-                {district.name}
-              </h1>
-              <p className="mt-4 text-xl font-medium leading-tight tracking-[-0.03em] text-slate-500">
-                {district.shortDescription}
-              </p>
-            </div>
-            <div className="text-right">
-              <p className="text-[2.65rem] font-black leading-none tracking-[-0.06em] text-sky-500">{match.score}%</p>
-              <p className="mt-2 text-sm font-black uppercase tracking-wide text-slate-400">Match</p>
-            </div>
-          </div>
-
-          <p className="mt-7 text-[1.25rem] font-medium leading-[1.55] tracking-[-0.03em] text-slate-700">
-            {match.explanation}
-          </p>
-
-          <div className="mt-8 grid grid-cols-3 gap-4">
-            <div className="rounded-[1.45rem] bg-slate-50 p-5">
-              <p className="text-sm font-black uppercase text-slate-400">{tx("Rent", "Miete")}</p>
-              <p className="mt-4 text-lg font-black text-slate-950">
-                {new Intl.NumberFormat(language === "de" ? "de-DE" : "en-US", {
-                  maximumFractionDigits: 1,
-                }).format(district.rentPerSqm)}{" "}
-                €<span className="text-base font-medium text-slate-500">/m²</span>
-              </p>
-            </div>
-            <div className="rounded-[1.45rem] bg-slate-50 p-5">
-              <p className="text-sm font-black uppercase text-slate-400">{tx("Safety", "Sicherheit")}</p>
-              <p className="mt-4 text-lg font-black text-slate-950">
-                {Math.round(district.safetyScore * 10)}
-                <span className="text-base font-medium text-slate-500">/100</span>
-              </p>
-            </div>
-            <div className="rounded-[1.45rem] bg-slate-50 p-5">
-              <p className="text-sm font-black uppercase text-slate-400">ÖPNV</p>
-              <p className="mt-4 text-lg font-black text-slate-950">
-                {Math.round(district.publicTransportScore * 10)}
-                <span className="text-base font-medium text-slate-500">/100</span>
-              </p>
-            </div>
-          </div>
-
-          <div className="mt-8 grid grid-cols-2 gap-4">
-            <button
-              className="inline-flex min-h-13 items-center justify-center gap-3 rounded-full border border-slate-200 bg-white px-4 text-base font-black text-slate-950 transition-colors hover:bg-slate-50"
-              onClick={() => onToggleSave(district.id)}
-              type="button"
-            >
-              <BadgeCheck aria-hidden="true" className="h-6 w-6" />
-              {tx("Compare", "Vergleichen")}
-            </button>
-            <button
-              className="inline-flex min-h-13 items-center justify-center gap-3 rounded-full bg-slate-950 px-4 text-base font-black text-white transition-colors hover:bg-slate-800"
-              onClick={onBack}
-              type="button"
-            >
-              <Info aria-hidden="true" className="h-6 w-6" />
-              {tx("On map", "Auf Karte")}
-            </button>
-          </div>
+      <div className="space-y-5 px-4 pb-24 pt-4">
+        <section>
+          <span className="text-xs font-semibold uppercase tracking-wider text-primary">Hamburg</span>
+          <h1 className="mt-1 font-display text-2xl font-bold">{district.name}</h1>
+          <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{district.shortDescription}</p>
         </section>
 
-        <section className="rounded-[2.2rem] border border-slate-200 bg-white p-6 shadow-sm">
-          <h2 className="text-xl font-black uppercase tracking-[0.18em] text-slate-400">
-            {tx("Fits you because", "Passt zu dir, weil:")}
-          </h2>
-          <div className="mt-8 grid gap-5">
-            {match.strengths.slice(0, 3).map((strength) => (
-              <p className="flex items-center gap-5 text-xl font-medium text-slate-950" key={strength}>
-                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-sky-50 text-sky-500">
-                  <CheckCircle2 aria-hidden="true" className="h-6 w-6" />
-                </span>
+        <section className="rounded-2xl border border-border bg-card p-4 shadow-card">
+          <div className="mb-2 flex items-center justify-between">
+            <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{tx("Match", "Passung")}</span>
+            <span className="font-display text-2xl font-bold text-primary tabular-nums">{match.score}%</span>
+          </div>
+          <div className="h-2 overflow-hidden rounded-full bg-muted">
+            <div className="h-full rounded-full bg-gradient-primary" style={{ width: `${match.score}%` }} />
+          </div>
+          <p className="mt-3 text-sm leading-relaxed">{match.explanation}</p>
+        </section>
+
+        <section>
+          <h3 className="mb-2 font-display text-base font-semibold">{tx("Why it matches", "Warum es passt")}</h3>
+          <ul className="space-y-1.5 text-sm">
+            {match.strengths.slice(0, 4).map((strength) => (
+              <li className="flex gap-2" key={strength}>
+                <CheckCircle2 aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0 text-success" />
                 {strength}
-              </p>
+              </li>
             ))}
+          </ul>
+        </section>
+
+        <section className="grid grid-cols-2 gap-2">
+          <div className="rounded-2xl border border-border bg-card p-3">
+            <p className="text-xs text-muted-foreground">{tx("Average rent", "Ø Miete")}</p>
+            <p className="mt-1 font-display text-lg font-semibold">
+              {district.rentPerSqm.toFixed(2)} €/m²
+            </p>
+            <p className="text-[10px] text-muted-foreground">Miet-Check 2026</p>
+          </div>
+          <div className="rounded-2xl border border-border bg-card p-3">
+            <p className="text-xs text-muted-foreground">{tx("Population", "Einwohner")}</p>
+            <p className="mt-1 font-display text-lg font-semibold">
+              {population ? population.toLocaleString(language === "de" ? "de-DE" : "en-US") : "Demo"}
+            </p>
+            <p className="text-[10px] text-muted-foreground">
+              {district.populationDensity.toLocaleString(language === "de" ? "de-DE" : "en-US")} Einw./km²
+            </p>
           </div>
         </section>
 
-        <section className="rounded-[2.2rem] border border-slate-200 bg-white p-6 shadow-sm">
-          <h2 className="text-xl font-black uppercase tracking-[0.18em] text-slate-400">
-            {tx("Ratings", "Bewertungen")}
-          </h2>
-          <div className="mt-8 grid gap-5">
-            {insights.slice(0, 6).map((insight) => (
-              <div className="grid grid-cols-[1fr_36%_auto] items-center gap-4" key={insight.key}>
-                <span className="text-xl font-medium text-slate-500">{insight.label}</span>
-                <span className="h-3 overflow-hidden rounded-full bg-slate-200">
-                  <span className="block h-full rounded-full bg-slate-950" style={{ width: `${insight.score * 10}%` }} />
+        {district.crimeCases2024 != null && (
+          <section className="rounded-2xl border border-border bg-card p-4">
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Polizeiliche Kriminalstatistik 2024</p>
+            <p className="mt-1 text-sm">
+              <span className="font-display text-lg font-semibold">{district.crimeCases2024.toLocaleString("de-DE")}</span>{" "}
+              <span className="text-muted-foreground">erfasste Fälle</span>
+              {population > 0 && (
+                <span className="text-muted-foreground"> · {((district.crimeCases2024 / population) * 1000).toFixed(1)} / 1.000 Einw.</span>
+              )}
+            </p>
+            <p className="mt-1 text-[11px] text-muted-foreground">Quelle: Polizei Hamburg, PKS Stadtteilatlas 2024.</p>
+          </section>
+        )}
+
+        <section>
+          <h3 className="mb-2 font-display text-base font-semibold">{tx("Facts", "Fakten")}</h3>
+          <div className="space-y-3 rounded-2xl border border-border bg-card p-4">
+            {insights.slice(0, 7).map((insight) => (
+              <div className="grid grid-cols-[1fr_34%_auto] items-center gap-3" key={insight.key}>
+                <span className="text-sm text-muted-foreground">{insight.label}</span>
+                <span className="h-1.5 overflow-hidden rounded-full bg-muted">
+                  <span className="block h-full rounded-full bg-gradient-primary" style={{ width: `${insight.score * 10}%` }} />
                 </span>
-                <span className="text-xl font-black text-slate-950">{Math.round(insight.score * 10)}</span>
+                <span className="text-sm font-semibold tabular-nums">{insight.score.toFixed(1)}/10</span>
               </div>
             ))}
           </div>
         </section>
 
-        <section className="rounded-[2.2rem] border border-slate-200 bg-white p-6 shadow-sm">
-          <h2 className="text-xl font-black uppercase tracking-[0.18em] text-sky-500">{tx("Advantages", "Vorteile")}</h2>
-          <div className="mt-6 grid gap-5">
-            {match.strengths.slice(0, 4).map((strength) => (
-              <p className="flex items-center gap-4 text-xl font-medium text-slate-950" key={strength}>
-                <CheckCircle2 aria-hidden="true" className="h-6 w-6 text-sky-500" />
-                {strength}
-              </p>
-            ))}
+        <section className="grid grid-cols-2 gap-3">
+          <div className="rounded-2xl border border-border bg-card p-3">
+            <p className="mb-1 text-xs font-medium text-success">{tx("Pros", "Vorteile")}</p>
+            <ul className="space-y-1 text-xs">
+              {match.strengths.slice(0, 3).map((strength) => (
+                <li key={strength}>+ {strength}</li>
+              ))}
+            </ul>
+          </div>
+          <div className="rounded-2xl border border-border bg-card p-3">
+            <p className="mb-1 text-xs font-medium text-destructive">{tx("Cons", "Zu beachten")}</p>
+            <ul className="space-y-1 text-xs">
+              {(match.tradeoffs.length ? match.tradeoffs : [tx("Rent level can vary by street.", "Mietniveau kann je nach Lage variieren.")]).slice(0, 3).map((tradeoff) => (
+                <li key={tradeoff}>- {tradeoff}</li>
+              ))}
+            </ul>
           </div>
         </section>
 
-        <section className="rounded-[2.2rem] border border-slate-200 bg-white p-6 shadow-sm">
-          <h2 className="text-xl font-black uppercase tracking-[0.18em] text-rose-500">{tx("Watch out for", "Zu beachten")}</h2>
-          <div className="mt-6 grid gap-5">
-            {(match.tradeoffs.length ? match.tradeoffs : [tx("Rent level may vary by street.", "Mietniveau kann je nach Lage variieren.")]).slice(0, 3).map((tradeoff) => (
-              <p className="flex items-center gap-4 text-xl font-medium text-slate-950" key={tradeoff}>
-                <span className="text-rose-500">×</span>
-                {tradeoff}
-              </p>
-            ))}
-          </div>
-        </section>
-
-        <section className="rounded-[2.2rem] border border-slate-200 bg-slate-50 p-6 shadow-sm">
-          <h2 className="text-xl font-black uppercase tracking-[0.16em] text-slate-700">
-            {tx("Next step", "Nächster Schritt")}
-          </h2>
-          <p className="mt-3 text-base font-medium leading-relaxed text-slate-700">
+        <section className="rounded-2xl bg-primary-soft p-4">
+          <p className="text-xs font-semibold uppercase tracking-wider text-accent-foreground">{tx("Next step", "Nächster Schritt")}</p>
+          <p className="mt-1 text-sm">
             {tx(
-              "We forward you with this district as a filter.",
-              "Wir leiten dich mit diesem Stadtteil als Filter weiter.",
+              `Discover apartment searches filtered for ${district.name}.`,
+              `Entdecke Wohnungssuchen mit ${district.name} als Filter.`,
             )}
           </p>
-          <div className="mt-6 grid gap-3">
+          <div className="mt-3 grid gap-2">
             {housingSearchLinks.map((link) => (
               <a
-                className="inline-flex min-h-13 items-center justify-between rounded-[1.4rem] bg-white px-4 text-base font-black text-slate-950 shadow-sm transition-colors hover:bg-slate-100"
+                className="flex items-center justify-between rounded-2xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground shadow-soft"
                 href={link.url}
                 key={link.label}
                 rel="noreferrer"
                 target="_blank"
               >
-                <span className="inline-flex items-center gap-4">
-                  <Building2 aria-hidden="true" className="h-6 w-6 text-slate-950" />
+                <span className="inline-flex items-center gap-2">
+                  <Home aria-hidden="true" className="h-4 w-4" />
                   {link.label}
                 </span>
-                <ExternalLink aria-hidden="true" className="h-5 w-5 text-slate-500" />
+                <ExternalLink aria-hidden="true" className="h-4 w-4" />
               </a>
             ))}
           </div>
         </section>
-      </article>
+
+        <button
+          className="flex w-full items-center justify-center gap-2 rounded-2xl border border-border bg-card py-3 text-sm font-medium"
+          onClick={onBack}
+          type="button"
+        >
+          <MapPin aria-hidden="true" className="h-4 w-4" />
+          {tx("Back to results", "Zurück zu den Ergebnissen")}
+        </button>
+
+        <section className="rounded-2xl border border-dashed border-border bg-muted/30 p-3 text-[11px] leading-relaxed text-muted-foreground">
+          <p className="font-semibold text-foreground">Datenquellen</p>
+          <p className="mt-1">{district.sourceSummary || "Statistikamt Nord 2024, Polizei Hamburg PKS 2024, Miet-Check 2026."}</p>
+          {district.missingSources?.length ? (
+            <p className="mt-1">Fehlend: {district.missingSources.join(", ")}.</p>
+          ) : null}
+          <p className="mt-1">Datenqualität: <b>{district.dataQuality ?? "demo"}</b>.</p>
+        </section>
+      </div>
     </section>
   );
 }
