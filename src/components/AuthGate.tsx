@@ -114,7 +114,7 @@ export function AuthGate({ onContinue }: AuthGateProps) {
       <section className="mx-auto w-full max-w-xl px-4 py-10">
         <div className="mx-auto grid max-w-[520px] gap-7">
           {isRegister && (
-            <label className="grid gap-2 text-base font-bold text-slate-600">
+            <label className="grid gap-2 text-sm font-semibold text-muted-foreground">
               {tx("Name", "Name")}
               <input
                 className="min-h-12 rounded-xl border border-border bg-card px-3 py-2.5 text-sm outline-none focus:border-primary"
@@ -123,7 +123,7 @@ export function AuthGate({ onContinue }: AuthGateProps) {
               />
             </label>
           )}
-          <label className="grid gap-2 text-base font-bold text-slate-600">
+          <label className="grid gap-2 text-sm font-semibold text-muted-foreground">
             E-Mail
             <input
               className="min-h-12 rounded-xl border border-border bg-card px-3 py-2.5 text-sm outline-none focus:border-primary"
@@ -131,7 +131,7 @@ export function AuthGate({ onContinue }: AuthGateProps) {
               type="email"
             />
           </label>
-          <label className="grid gap-2 text-base font-bold text-slate-600">
+          <label className="grid gap-2 text-sm font-semibold text-muted-foreground">
             {tx("Password", "Passwort")}
             <input
               className="min-h-12 rounded-xl border border-border bg-card px-3 py-2.5 text-sm outline-none focus:border-primary"

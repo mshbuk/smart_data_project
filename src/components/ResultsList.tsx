@@ -54,7 +54,7 @@ export function ResultsList({ matches, savedDistrictIds, onOpenDetails, onToggle
         className="rounded-2xl border border-border bg-card p-3 shadow-card"
       >
         <div className="grid gap-3 md:grid-cols-[1fr_auto] md:items-center">
-          <p className="text-sm font-bold text-slate-600">
+          <p className="text-sm font-semibold text-muted-foreground">
             {tx("Showing", "Zeige")}{" "}
             <span className="font-semibold text-foreground">
               {matches.length === 0 ? 0 : firstMatchIndex + 1}-{lastMatchIndex}
@@ -92,7 +92,7 @@ export function ResultsList({ matches, savedDistrictIds, onOpenDetails, onToggle
           <div className="hidden flex-wrap items-center justify-end gap-2 lg:flex">
             <button
               aria-label={tx("Previous district matches page", "Vorherige Trefferseite")}
-              className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-slate-100 text-slate-600 transition-colors hover:bg-slate-200 disabled:cursor-not-allowed disabled:opacity-40"
+              className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-muted text-muted-foreground transition-colors hover:bg-primary-soft disabled:cursor-not-allowed disabled:opacity-40"
               disabled={currentPage === 1}
               onClick={() => goToPage(currentPage - 1)}
               type="button"
@@ -107,10 +107,10 @@ export function ResultsList({ matches, savedDistrictIds, onOpenDetails, onToggle
                 <button
                   aria-current={isActive ? "page" : undefined}
                   className={[
-                    "h-11 min-w-11 shrink-0 rounded-2xl px-3 text-sm font-black transition-colors",
+                    "h-10 min-w-10 shrink-0 rounded-xl px-3 text-sm font-bold transition-colors",
                     isActive
-                      ? "bg-slate-950 text-white shadow-lg shadow-slate-950/15"
-                      : "bg-slate-100 text-slate-600 hover:bg-slate-200",
+                      ? "bg-primary text-primary-foreground shadow-soft"
+                      : "bg-muted text-muted-foreground hover:bg-primary-soft",
                   ].join(" ")}
                   key={pageNumber}
                   onClick={() => goToPage(pageNumber)}
@@ -123,7 +123,7 @@ export function ResultsList({ matches, savedDistrictIds, onOpenDetails, onToggle
 
             <button
               aria-label={tx("Next district matches page", "Nächste Trefferseite")}
-              className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-slate-100 text-slate-600 transition-colors hover:bg-slate-200 disabled:cursor-not-allowed disabled:opacity-40"
+              className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-muted text-muted-foreground transition-colors hover:bg-primary-soft disabled:cursor-not-allowed disabled:opacity-40"
               disabled={currentPage === totalPages}
               onClick={() => goToPage(currentPage + 1)}
               type="button"

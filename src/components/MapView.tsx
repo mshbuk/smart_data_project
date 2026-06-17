@@ -1071,8 +1071,8 @@ export function MapView({
                   <Circle
                     center={[userLocation.latitude, userLocation.longitude]}
                     pathOptions={{
-                      color: "#0f172a",
-                      fillColor: "#0f172a",
+                      color: "var(--primary)",
+                      fillColor: "var(--primary)",
                       fillOpacity: 0.08,
                       opacity: 0.25,
                       weight: 1,
@@ -1084,7 +1084,7 @@ export function MapView({
                   center={[userLocation.latitude, userLocation.longitude]}
                   pathOptions={{
                     color: "#ffffff",
-                    fillColor: "#0f172a",
+                    fillColor: "var(--primary)",
                     fillOpacity: 1,
                     opacity: 1,
                     weight: 3,
@@ -1102,7 +1102,7 @@ export function MapView({
           </MapContainer>
 
           <button
-            className="absolute bottom-3 left-3 z-[650] inline-flex min-h-12 items-center gap-2 rounded-2xl bg-white/95 px-4 text-sm font-black text-slate-950 shadow-xl shadow-slate-950/20 backdrop-blur transition-colors hover:bg-slate-50 disabled:cursor-wait disabled:opacity-80"
+            className="absolute bottom-3 left-3 z-[650] inline-flex min-h-11 items-center gap-2 rounded-2xl border border-border bg-card/95 px-4 text-sm font-semibold text-foreground shadow-card backdrop-blur transition-colors hover:bg-muted disabled:cursor-wait disabled:opacity-80"
             disabled={locationStatus === "locating"}
             onClick={findCurrentLocation}
             type="button"
@@ -1116,7 +1116,7 @@ export function MapView({
           </button>
 
           {(isLoadingBoundaries || boundaryLoadError) && (
-            <div className="absolute inset-x-3 top-3 z-[500] rounded-2xl border border-white/80 bg-white/95 px-3 py-2 text-xs font-black text-slate-600 shadow-lg shadow-slate-950/10">
+            <div className="absolute inset-x-3 top-3 z-[500] rounded-2xl border border-border bg-card/95 px-3 py-2 text-xs font-semibold text-muted-foreground shadow-card">
               {boundaryLoadError
                 ? tx("District borders could not be loaded.", "Stadtteilgrenzen konnten nicht geladen werden.")
                 : tx("Loading Hamburg district borders...", "Hamburger Stadtteilgrenzen werden geladen...")}
@@ -1126,10 +1126,10 @@ export function MapView({
           {locationMessage && (
             <div
               className={[
-                "absolute inset-x-3 bottom-[4.75rem] z-[650] rounded-2xl border px-3 py-2 text-xs font-black shadow-lg shadow-slate-950/10 md:left-3 md:right-auto md:max-w-[320px]",
+                "absolute inset-x-3 bottom-[4.75rem] z-[650] rounded-2xl border px-3 py-2 text-xs font-semibold shadow-card md:left-3 md:right-auto md:max-w-[320px]",
                 locationStatus === "error"
                   ? "border-amber-200 bg-amber-50/95 text-amber-800"
-                  : "border-slate-200 bg-white/95 text-slate-600",
+                  : "border-border bg-card/95 text-muted-foreground",
               ].join(" ")}
             >
               {locationMessage}

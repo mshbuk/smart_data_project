@@ -500,15 +500,15 @@ function App() {
             <section className="mb-4 px-1">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
-                  <p className="text-base font-medium text-slate-500">
+                  <p className="text-sm font-medium text-muted-foreground">
                     {tx(
                       "Based on your answers",
                       "Basierend auf deinen Antworten",
                     )}
                   </p>
                   {topMatch && (
-                    <p className="mt-1 text-sm font-bold text-slate-600">
-                      {tx("Top match", "Top-Treffer")}: <span className="text-slate-950">{topMatch.district.name}</span> · {topMatch.score}%
+                    <p className="mt-1 text-sm font-semibold text-muted-foreground">
+                      {tx("Top match", "Top-Treffer")}: <span className="text-foreground">{topMatch.district.name}</span> · {topMatch.score}%
                     </p>
                   )}
                 </div>
@@ -516,11 +516,11 @@ function App() {
                 {topMatch && (
                   <div className="flex flex-wrap gap-2">
                     <button
-                      className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-slate-200 bg-white px-4 text-sm font-black text-slate-800 shadow-sm transition-colors hover:bg-slate-50"
+                      className="inline-flex min-h-10 items-center justify-center gap-2 rounded-full border border-border bg-card px-4 text-sm font-semibold text-foreground shadow-card transition-colors hover:bg-muted"
                       onClick={openCriteriaEditor}
                       type="button"
                     >
-                      <SlidersHorizontal aria-hidden="true" className="h-4 w-4 text-slate-950" />
+                      <SlidersHorizontal aria-hidden="true" className="h-4 w-4 text-foreground" />
                       {tx("Adjust answers", "Antworten anpassen")}
                     </button>
                   </div>
@@ -565,7 +565,7 @@ function App() {
                           <span
                             className={[
                               "absolute right-2 top-2 grid h-5 min-w-6 place-items-center rounded-full px-1.5 text-[0.62rem] font-black leading-none sm:static sm:h-auto sm:min-w-6 sm:px-1.5 sm:py-0.5 sm:text-xs",
-                              isActive ? "bg-slate-950 text-white" : "bg-slate-100 text-slate-700",
+                              isActive ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground",
                             ].join(" ")}
                           >
                             {option.count}
