@@ -93,9 +93,9 @@ const baseUrl = import.meta.env.BASE_URL;
 const assetUrl = (path: string) => `${baseUrl}${path.replace(/^\/+/, "")}`;
 
 const legendItems: Array<{ label: LocalizedText; color: string }> = [
-  { label: { en: "Top district", de: "Top-Stadtteil" }, color: "#0f172a" },
-  { label: { en: "Good match", de: "Gute Passung" }, color: "#64748b" },
-  { label: { en: "Selected district", de: "Ausgewählt" }, color: "#111827" },
+  { label: { en: "Top district", de: "Top-Stadtteil" }, color: "#7c3aed" },
+  { label: { en: "Good match", de: "Gute Passung" }, color: "#8b5cf6" },
+  { label: { en: "Selected district", de: "Ausgewählt" }, color: "#ec4899" },
   { label: { en: "Other districts", de: "Weitere Stadtteile" }, color: "#d1d5db" },
 ];
 
@@ -158,9 +158,8 @@ function normalizeDistrictName(value: string) {
 }
 
 function getBoundaryColor(score: number, isTopMatch: boolean) {
-  if (isTopMatch) return "#0f172a";
-  if (score >= 80) return "#475569";
-  if (score >= 70) return "#94a3b8";
+  if (isTopMatch) return "#7c3aed";
+  if (score >= 70) return "#8b5cf6";
   return "#cbd5e1";
 }
 
@@ -180,7 +179,7 @@ function getBoundaryStyle(feature?: DistrictBoundaryFeature): PathOptions {
 
   const score = feature.properties?.matchScore ?? 0;
   const isTopMatch = Boolean(feature?.properties?.isTopMatch);
-  const color = isFocused ? "#111827" : getBoundaryColor(score, isTopMatch);
+  const color = isFocused ? "#ec4899" : getBoundaryColor(score, isTopMatch);
 
   return {
     color,
@@ -211,10 +210,10 @@ function formatNumber(value: number, language: Language) {
 
 function createPopupMetric(label: string, value: string, detail: string) {
   return `
-    <div style="border:1px solid #e2e8f0;border-radius:14px;padding:8px;background:#f8fafc;">
-      <div style="font-size:10px;font-weight:800;text-transform:uppercase;color:#94a3b8;letter-spacing:.04em;">${escapeHtml(label)}</div>
-      <div style="margin-top:2px;font-size:14px;font-weight:900;color:#0f172a;">${escapeHtml(value)}</div>
-      <div style="margin-top:2px;font-size:11px;font-weight:700;color:#64748b;">${escapeHtml(detail)}</div>
+    <div style="border:1px solid #e2e8f0;border-radius:10px;padding:5px 6px;background:#f8fafc;">
+      <div style="font-size:8px;font-weight:800;text-transform:uppercase;color:#94a3b8;letter-spacing:.04em;">${escapeHtml(label)}</div>
+      <div style="margin-top:1px;font-size:12px;font-weight:900;color:#0f172a;">${escapeHtml(value)}</div>
+      <div style="margin-top:1px;font-size:9px;font-weight:700;color:#64748b;">${escapeHtml(detail)}</div>
     </div>
   `;
 }
@@ -227,10 +226,10 @@ function createBoundaryPopup(feature: DistrictBoundaryFeature, language: Languag
 
   if (!hasMatch) {
     return `
-      <div style="min-width:190px;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
-        <div style="font-size:12px;font-weight:800;text-transform:uppercase;color:#64748b;letter-spacing:.04em;">${language === "de" ? "Hamburger Grenze" : "Hamburg boundary"}</div>
-        <strong style="display:block;margin-top:3px;font-size:16px;color:#0f172a;">${escapeHtml(boundaryName)}</strong>
-        <div style="margin-top:6px;line-height:1.45;color:#334155;">${language === "de" ? "Dieser Stadtteil ist in der GeoJSON-Ebene vorhanden, hat aber noch keine Demo-Bewertung." : "This district is available in the GeoJSON layer, but does not have demo scoring data yet."}</div>
+      <div style="max-width:190px;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
+        <div style="font-size:10px;font-weight:800;text-transform:uppercase;color:#64748b;letter-spacing:.04em;">${language === "de" ? "Hamburger Grenze" : "Hamburg boundary"}</div>
+        <strong style="display:block;margin-top:2px;font-size:14px;color:#0f172a;">${escapeHtml(boundaryName)}</strong>
+        <div style="margin-top:5px;line-height:1.35;color:#334155;font-size:11px;">${language === "de" ? "Grenze sichtbar, noch ohne Demo-Bewertung." : "Boundary visible, no demo score yet."}</div>
       </div>
     `;
   }
@@ -249,7 +248,7 @@ function createBoundaryPopup(feature: DistrictBoundaryFeature, language: Languag
     : language === "de"
       ? "Bewertet, außerhalb der aktuellen Top-Auswahl"
       : "Scored, outside the current top set";
-  const statusColor = properties.isFocused ? "#111827" : properties.isHighlighted ? "#475569" : "#64748b";
+  const statusColor = properties.isFocused ? "#ec4899" : properties.isTopMatch ? "#7c3aed" : properties.isHighlighted ? "#8b5cf6" : "#64748b";
   const metrics = [
     typeof properties.rentPerSqm === "number" &&
     (properties.sourceSummary?.includes("Miet-Check") || properties.dataQuality === "placeholder")
@@ -287,23 +286,20 @@ function createBoundaryPopup(feature: DistrictBoundaryFeature, language: Languag
         )
       : null,
   ].filter(Boolean).join("");
-  const missingSources = properties.missingSources?.length
-    ? `<div style="margin-top:8px;border-radius:12px;background:#fffbeb;padding:7px 9px;color:#92400e;font-size:11px;font-weight:800;">${language === "de" ? "Fehlt" : "Missing"}: ${escapeHtml(properties.missingSources.join(", "))}</div>`
-    : "";
   const actions = districtId
     ? `
-      <div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:10px;">
+      <div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:8px;">
         <button
           class="district-map-save-button"
           type="button"
-          style="align-items:center;border:0;border-radius:999px;background:${properties.isSaved ? "#fff1f2" : "#eef2ff"};color:${properties.isSaved ? "#e11d48" : "#0f172a"};cursor:pointer;display:inline-flex;font-size:12px;font-weight:900;gap:5px;padding:7px 10px;"
+          style="align-items:center;border:0;border-radius:999px;background:${properties.isSaved ? "#fff1f2" : "#f3e8ff"};color:${properties.isSaved ? "#e11d48" : "#5b21b6"};cursor:pointer;display:inline-flex;font-size:10px;font-weight:900;gap:4px;padding:6px 8px;"
         >
           ${properties.isSaved ? "♥" : "♡"} ${properties.isSaved ? (language === "de" ? "Gespeichert" : "Saved") : (language === "de" ? "Speichern" : "Save")}
         </button>
         <button
           class="district-map-details-button"
           type="button"
-          style="border:0;border-radius:999px;background:#0f172a;color:#fff;cursor:pointer;font-size:12px;font-weight:900;padding:7px 10px;"
+          style="border:0;border-radius:999px;background:#0f172a;color:#fff;cursor:pointer;font-size:10px;font-weight:900;padding:6px 8px;"
         >
           ${language === "de" ? "Mehr Infos" : "More info"}
         </button>
@@ -312,15 +308,14 @@ function createBoundaryPopup(feature: DistrictBoundaryFeature, language: Languag
     : "";
 
   return `
-    <div style="min-width:230px;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
-      <div style="font-size:12px;font-weight:800;text-transform:uppercase;color:#0f172a;letter-spacing:.04em;">${rank} ${language === "de" ? "Treffer" : "match"}</div>
-      <strong style="display:block;margin-top:3px;font-size:16px;color:#0f172a;">${escapeHtml(districtName)}</strong>
-      <div style="margin-top:7px;display:flex;align-items:center;gap:7px;flex-wrap:wrap;">
-        <span style="border-radius:999px;background:#ecfdf5;color:#16a34a;padding:5px 9px;font-size:12px;font-weight:900;">${score}% ${language === "de" ? "Passung" : "match"}</span>
+    <div style="max-width:205px;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
+      <div style="font-size:10px;font-weight:800;text-transform:uppercase;color:#0f172a;letter-spacing:.04em;">${rank} ${language === "de" ? "Treffer" : "match"}</div>
+      <strong style="display:block;margin-top:2px;font-size:14px;color:#0f172a;">${escapeHtml(districtName)}</strong>
+      <div style="margin-top:5px;display:flex;align-items:center;gap:5px;flex-wrap:wrap;">
+        <span style="border-radius:999px;background:#ecfdf5;color:#16a34a;padding:4px 7px;font-size:10px;font-weight:900;">${score}% ${language === "de" ? "Passung" : "match"}</span>
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:9px;">${metrics}</div>
-      ${missingSources}
-      <div style="margin-top:6px;color:${statusColor};font-size:12px;font-weight:800;">${statusText}</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:7px;">${metrics}</div>
+      <div style="margin-top:5px;color:${statusColor};font-size:10px;font-weight:800;">${statusText}</div>
       ${actions}
     </div>
   `;
@@ -724,7 +719,14 @@ function attachBoundaryInteractions(
 ) {
   const pathLayer = layer as Path;
 
-  layer.bindPopup(createBoundaryPopup(feature, language));
+  layer.bindPopup(createBoundaryPopup(feature, language), {
+    autoPan: true,
+    autoPanPadding: L.point(26, 90),
+    className: "district-map-compact-popup",
+    keepInView: true,
+    maxWidth: 220,
+    minWidth: 175,
+  });
   layer.on({
     click: () => {
       const latitude = feature.properties?.latitude;

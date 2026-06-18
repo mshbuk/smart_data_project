@@ -121,6 +121,18 @@ h4 {
   scrollbar-width: none;
 }
 
+.district-map-compact-popup .leaflet-popup-content-wrapper {
+  border-radius: 18px;
+}
+
+.district-map-compact-popup .leaflet-popup-content {
+  margin: 9px 11px;
+}
+
+.district-map-compact-popup .leaflet-popup-tip {
+  box-shadow: none;
+}
+
 .preference-range {
   --range-color: var(--primary);
   --range-progress: 50%;
