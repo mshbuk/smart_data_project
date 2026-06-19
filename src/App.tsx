@@ -167,6 +167,7 @@ function App() {
     [language, preferences, selectedProfile],
   );
   const savedMatches = matches.filter((match) => savedDistrictIds.includes(match.district.id));
+  const savedEvents = cityEvents.filter((event) => likedEventIds.includes(event.id));
   const topMatch = matches[0];
   const selectedDetailMatch = selectedDistrictId
     ? matches.find((match) => match.district.id === selectedDistrictId)
@@ -350,7 +351,7 @@ function App() {
             : activeView === "saved"
               ? tx("Compare", "Vergleich")
               : tx("Profile", "Profil");
-  const canNavigateBack = flowStep !== "recommendations" || Boolean(selectedDetailMatch) || Boolean(selectedEvent);
+  const canNavigateBack = flowStep !== "recommendations" || Boolean(selectedDetailMatch) || Boolean(selectedEvent) || activeView === "map";
   const navigateBack = () => {
     if (selectedEvent) {
       setSelectedEventId(null);
@@ -359,6 +360,12 @@ function App() {
 
     if (selectedDetailMatch) {
       setSelectedDistrictId(null);
+      return;
+    }
+
+    if (activeView === "map") {
+      setMapFocusDistrictId(null);
+      setActiveView("results");
       return;
     }
 
@@ -394,7 +401,7 @@ function App() {
               <button
                 className={[
                   "truncate font-display font-semibold text-foreground",
-                  selectedEvent ? "text-2xl" : "text-lg",
+                  "text-lg",
                 ].join(" ")}
                 onClick={() => {
                   setSelectedDistrictId(null);
@@ -447,12 +454,12 @@ function App() {
               aria-label={tx("Open chats", "Chats öffnen")}
               className={[
                 "relative grid place-items-center rounded-full text-foreground transition-colors hover:bg-muted",
-                selectedEvent ? "h-10 w-10" : "h-9 w-9 border border-border bg-card shadow-card",
+                selectedEvent ? "h-9 w-9" : "h-9 w-9 border border-border bg-card shadow-card",
               ].join(" ")}
               onClick={() => setIsGlobalChatOpen(true)}
               type="button"
             >
-              <MessageCircle aria-hidden="true" className={selectedEvent ? "h-7 w-7" : "h-4 w-4"} strokeWidth={selectedEvent ? 2.4 : 2} />
+              <MessageCircle aria-hidden="true" className={selectedEvent ? "h-5 w-5" : "h-4 w-4"} strokeWidth={selectedEvent ? 2.2 : 2} />
               {(selectedEvent ? Math.max(1, signedUpEventIds.length) : signedUpEventIds.length) > 0 && (
                 <span className={[
                   "absolute grid place-items-center rounded-full bg-primary px-1 font-bold leading-none text-primary-foreground",
@@ -582,7 +589,6 @@ function App() {
               <DistrictDetail
                 isSaved={savedDistrictIds.includes(selectedDetailMatch.district.id)}
                 match={selectedDetailMatch}
-                onBack={() => setSelectedDistrictId(null)}
                 onOpenMap={openMapForDistrict}
                 onToggleSave={toggleSave}
                 preferences={preferences}
@@ -610,16 +616,16 @@ function App() {
             )}
             {!selectedDetailMatch && activeView === "saved" && (
               <SavedComparison
+                matches={matches}
                 onEditCriteria={openCriteriaEditor}
-                onFindDistricts={() => setActiveView("results")}
-                onRemoveDistrict={toggleSave}
                 preferences={preferences}
-                savedMatches={savedMatches}
               />
             )}
             {!selectedDetailMatch && activeView === "events" && (
               <EventsView
+                likedEventIds={likedEventIds}
                 onToggleSignUp={toggleEventSignUp}
+                onToggleLike={toggleEventLike}
                 onSelectEvent={setSelectedEventId}
                 selectedEventId={selectedEventId}
                 signedUpEventIds={signedUpEventIds}
@@ -637,8 +643,8 @@ function App() {
             {!selectedDetailMatch && activeView === "profile" && (
               <ProfilePage
                 city={city}
-                favoriteCount={savedDistrictIds.length}
-                savedEventCount={new Set([...likedEventIds, ...signedUpEventIds]).size}
+                favoriteMatches={savedMatches}
+                savedEvents={savedEvents}
                 onBack={() => {
                   setActiveView("results");
                   setFlowStep("recommendations");
@@ -650,6 +656,14 @@ function App() {
                 }}
                 onLogout={handleLogout}
                 onOpenComparison={() => setActiveView("saved")}
+                onOpenDistrict={(districtId) => {
+                  setActiveView("results");
+                  setSelectedDistrictId(districtId);
+                }}
+                onOpenEvent={(eventId) => {
+                  setActiveView("events");
+                  setSelectedEventId(eventId);
+                }}
                 preferences={preferences}
                 selectedProfile={selectedProfile}
               />

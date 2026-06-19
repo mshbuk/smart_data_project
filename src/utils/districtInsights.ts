@@ -221,7 +221,7 @@ export function getCriterionInsights(district: District, preferences: Preference
 }
 
 export function getDemoListings(district: District, language: Language = "en"): DemoListing[] {
-  const rentBase = Math.round(district.rentPerSqm);
+  const rentBase = Math.round(district.rentPerSqm * 50);
   const compactRent = Math.round(district.rentPerSqm * 42 + 280);
   const familyRent = Math.round(district.rentPerSqm * 78 + 520);
   const sharedRent = Math.round(district.rentPerSqm * 27 + 180);
@@ -239,7 +239,7 @@ export function getDemoListings(district: District, language: Language = "en"): 
       rooms: 1.5,
       size: 42,
       rent: compactRent,
-      tag: language === "de" ? `ca. ${rentBase} EUR/qm` : `${rentBase} EUR/sqm estimate`,
+      tag: language === "de" ? `ca. ${rentBase} EUR für 50 m²` : `about EUR ${rentBase} for 50 m²`,
     },
     {
       id: `${district.id}-family`,

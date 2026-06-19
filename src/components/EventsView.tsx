@@ -39,7 +39,9 @@ type EventChatMessage = {
 };
 
 type EventsViewProps = {
+  likedEventIds: string[];
   onSelectEvent: (eventId: string | null) => void;
+  onToggleLike: (eventId: string) => void;
   onToggleSignUp: (eventId: string) => void;
   selectedEventId: string | null;
   signedUpEventIds: string[];
@@ -142,34 +144,25 @@ function getDateFilterLabel(filter: DateFilter, tx: (english: string, german: st
   return labels[filter];
 }
 
-function createCalendarDownload(event: CityEvent) {
+function createCalendarUrl(event: CityEvent) {
   const start = event.dates[0].replace(/-/g, "");
   const endDate = new Date(parseEventDate(event.dates[0]));
   endDate.setDate(endDate.getDate() + 1);
   const end = `${endDate.getFullYear()}${String(endDate.getMonth() + 1).padStart(2, "0")}${String(endDate.getDate()).padStart(2, "0")}`;
-  const ics = [
-    "BEGIN:VCALENDAR",
-    "VERSION:2.0",
-    "PRODID:-//Locana//Hamburg Events//DE",
-    "BEGIN:VEVENT",
-    `UID:${event.id}@locana.local`,
-    `DTSTAMP:${new Date().toISOString().replace(/[-:]/g, "").split(".")[0]}Z`,
-    `DTSTART;VALUE=DATE:${start}`,
-    `DTEND;VALUE=DATE:${end}`,
-    `SUMMARY:${event.title}`,
-    `LOCATION:${event.address}`,
-    `DESCRIPTION:${event.description}`,
-    "END:VEVENT",
-    "END:VCALENDAR",
-  ].join("\r\n");
+  const params = new URLSearchParams({
+    action: "TEMPLATE",
+    text: event.title,
+    dates: `${start}/${end}`,
+    details: event.description,
+    location: event.address,
+  });
+  return `https://calendar.google.com/calendar/render?${params.toString()}`;
+}
 
-  const blob = new Blob([ics], { type: "text/calendar;charset=utf-8" });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = `${event.id}.ics`;
-  link.click();
-  URL.revokeObjectURL(url);
+function getEventWebsite(event: CityEvent) {
+  if (!event.sourceUrl) return null;
+  if (/google\.[^/]+\/maps/i.test(event.sourceUrl) || event.sourceUrl === event.mapUrl) return null;
+  return event.sourceUrl;
 }
 
 function getEventReviews(event: CityEvent): EventComment[] {
@@ -472,16 +465,8 @@ function EventDetail({
   const { language, tx } = useI18n();
   const [communityDraft, setCommunityDraft] = useState("");
   const attendees = event.attendees + (isSignedUp ? 1 : 0);
-  const signedUpComment: EventComment | null = isSignedUp
-    ? {
-        avatar: userAvatarUrl,
-        bio: tx("You are interested", "Du bist interessiert"),
-        likes: 0,
-        message: tx("I am going and would like to connect with others.", "Ich gehe hin und würde mich gern mit anderen vernetzen."),
-        name: tx("You", "Du"),
-      }
-    : null;
-  const reviews = [...(signedUpComment ? [signedUpComment] : []), ...userComments, ...getEventReviews(event)];
+  const reviews = [...userComments, ...getEventReviews(event)];
+  const eventWebsite = getEventWebsite(event);
 
   return (
     <section className="-mx-4 -mt-4 bg-background pb-28">
@@ -491,23 +476,23 @@ function EventDetail({
 
       <div className="space-y-6 px-4 py-6">
         <section>
-          <p className="text-sm font-black uppercase tracking-[0.14em] text-primary">
+          <p className="text-xs font-bold uppercase tracking-[0.1em] text-primary">
             {getEventDateRangeLabel(event, language)}
           </p>
-          <h1 className="mt-4 font-display text-4xl font-bold leading-tight text-foreground">{event.title}</h1>
-          <div className="mt-4 space-y-2 text-lg font-medium text-muted-foreground">
+          <h1 className="mt-3 font-display text-2xl font-bold leading-tight text-foreground">{event.title}</h1>
+          <div className="mt-3 space-y-2 text-sm font-medium text-muted-foreground">
             <p className="flex items-center gap-2">
-              <CalendarDays aria-hidden="true" className="h-6 w-6" />
+              <CalendarDays aria-hidden="true" className="h-4 w-4" />
               {event.time}
             </p>
             <p className="flex items-center gap-2">
-              <MapPin aria-hidden="true" className="h-6 w-6" />
+              <MapPin aria-hidden="true" className="h-4 w-4" />
               {event.venue}, {event.district}
             </p>
           </div>
           <span
             className={[
-              "mt-4 inline-flex rounded-full px-4 py-1 text-base font-bold",
+              "mt-3 inline-flex rounded-full px-3 py-1 text-xs font-bold",
               event.price.toLowerCase().includes("kostenlos") || event.price.toLowerCase().includes("frei")
                 ? "bg-emerald-100 text-emerald-700"
                 : "bg-amber-100 text-amber-950",
@@ -517,12 +502,12 @@ function EventDetail({
           </span>
         </section>
 
-        <p className="text-xl leading-9 text-foreground">{event.description}</p>
+        <p className="text-sm leading-6 text-foreground">{event.description}</p>
 
         <section className="grid gap-3">
           <button
             className={[
-              "inline-flex min-h-16 w-full items-center justify-center gap-3 rounded-[1.6rem] border-2 px-5 text-lg font-bold transition-colors",
+              "inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl border px-4 text-sm font-bold transition-colors",
               isSignedUp
                 ? "border-primary bg-primary-soft text-accent-foreground"
                 : "border-primary bg-primary-soft text-accent-foreground hover:bg-accent",
@@ -530,22 +515,23 @@ function EventDetail({
             onClick={() => onToggleSignUp(event.id)}
             type="button"
           >
-            <Users aria-hidden="true" className="h-6 w-6" />
+            <Users aria-hidden="true" className="h-4 w-4" />
             {tx("I am going", "Ich gehe hin")}
             {isSignedUp && <CheckCircle2 aria-hidden="true" className="h-5 w-5" />}
           </button>
 
           <div className="grid grid-cols-2 gap-3">
-            <button
-              className="inline-flex min-h-14 items-center justify-center gap-3 rounded-[1.35rem] border border-border bg-card px-4 text-base font-semibold text-foreground shadow-card hover:bg-muted"
-              onClick={() => createCalendarDownload(event)}
-              type="button"
+            <a
+              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-border bg-card px-3 text-xs font-semibold text-foreground shadow-card hover:bg-muted"
+              href={createCalendarUrl(event)}
+              rel="noreferrer"
+              target="_blank"
             >
               <CalendarDays aria-hidden="true" className="h-5 w-5" />
               {tx("Add to calendar", "Kalender hinzufügen")}
-            </button>
+            </a>
             <a
-              className="inline-flex min-h-14 items-center justify-center gap-3 rounded-[1.35rem] border border-border bg-card px-4 text-base font-semibold text-foreground shadow-card hover:bg-muted"
+              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-border bg-card px-3 text-xs font-semibold text-foreground shadow-card hover:bg-muted"
               href={event.mapUrl}
               rel="noreferrer"
               target="_blank"
@@ -554,10 +540,10 @@ function EventDetail({
               {tx("Plan route", "Route planen")}
             </a>
           </div>
-          {event.sourceUrl && (
+          {eventWebsite && (
             <a
-              className="inline-flex min-h-14 w-full items-center justify-center gap-3 rounded-[1.35rem] border border-border bg-card px-4 text-base font-semibold text-foreground shadow-card hover:bg-muted"
-              href={event.sourceUrl}
+              className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl border border-border bg-card px-3 text-xs font-semibold text-foreground shadow-card hover:bg-muted"
+              href={eventWebsite}
               rel="noreferrer"
               target="_blank"
             >
@@ -604,7 +590,7 @@ function EventDetail({
           <h4 className="mt-6 text-lg font-bold text-foreground">{tx("Community voices", "Stimmen aus der Community")}</h4>
           <div className="mt-3 grid gap-3">
             {reviews.map((comment) => (
-              <article className="rounded-2xl border border-border bg-card p-3 shadow-card" key={`${comment.name}-${comment.message}`}>
+              <button className="w-full rounded-2xl border border-border bg-card p-3 text-left shadow-card transition hover:border-primary/40" key={`${comment.name}-${comment.message}`} onClick={() => onChat(comment)} type="button">
                 <div className="flex justify-between gap-3">
                   <div className="flex gap-3">
                     <img alt="" className="h-11 w-11 rounded-full bg-muted object-cover" src={getAvatarUrl(comment)} />
@@ -616,15 +602,11 @@ function EventDetail({
                   <span className="text-sm font-semibold text-muted-foreground">♡ {comment.likes}</span>
                 </div>
                 <p className="mt-3 text-sm leading-6 text-foreground">{comment.message}</p>
-                <button
-                  className="mt-3 inline-flex items-center gap-2 text-sm font-bold text-foreground"
-                  onClick={() => onChat(comment)}
-                  type="button"
-                >
+                <span className="mt-3 inline-flex items-center gap-2 text-sm font-bold text-foreground">
                   <MessageCircle aria-hidden="true" className="h-4 w-4" />
                   {tx("Message", "Anschreiben")}
-                </button>
-              </article>
+                </span>
+              </button>
             ))}
           </div>
 
@@ -659,13 +641,17 @@ function EventDetail({
 }
 
 export function EventsView({
+  likedEventIds,
   onSelectEvent,
+  onToggleLike,
   onToggleSignUp,
   selectedEventId,
   signedUpEventIds,
 }: EventsViewProps) {
   const { language, tx } = useI18n();
   const [category, setCategory] = useState<EventCategory | "all">("all");
+  const [eventView, setEventView] = useState<"discover" | "saved">("discover");
+  const [searchQuery, setSearchQuery] = useState("");
   const [dateFilter, setDateFilter] = useState<DateFilter>("all");
   const [districtFilter, setDistrictFilter] = useState("all");
   const [chatComment, setChatComment] = useState<EventComment | null>(null);
@@ -678,9 +664,11 @@ export function EventsView({
       cityEvents.filter((event) => {
         const categoryMatch = category === "all" || event.category === category;
         const districtMatch = districtFilter === "all" || event.district === districtFilter;
-        return categoryMatch && districtMatch && eventMatchesDateFilter(event, dateFilter);
+        const savedMatch = eventView === "discover" || likedEventIds.includes(event.id);
+        const queryMatch = !searchQuery.trim() || `${event.title} ${event.venue} ${event.district}`.toLocaleLowerCase().includes(searchQuery.trim().toLocaleLowerCase());
+        return categoryMatch && districtMatch && savedMatch && queryMatch && eventMatchesDateFilter(event, dateFilter);
       }),
-    [category, dateFilter, districtFilter],
+    [category, dateFilter, districtFilter, eventView, likedEventIds, searchQuery],
   );
   const selectedEvent = selectedEventId ? cityEvents.find((event) => event.id === selectedEventId) : undefined;
 
@@ -720,10 +708,10 @@ export function EventsView({
       <div className="grid gap-4">
         <div className="flex items-start justify-between gap-4">
           <div className="inline-flex rounded-full bg-muted p-1 text-sm font-medium">
-            <button className="rounded-full bg-card px-3 py-1.5 text-foreground shadow-card" type="button">
+            <button className={eventView === "discover" ? "rounded-full bg-card px-3 py-1.5 text-foreground shadow-card" : "rounded-full px-3 py-1.5 text-muted-foreground"} onClick={() => setEventView("discover")} type="button">
               {tx("Discover", "Entdecken")}
             </button>
-            <button className="rounded-full px-3 py-1.5 text-muted-foreground" type="button">
+            <button className={eventView === "saved" ? "rounded-full bg-card px-3 py-1.5 text-foreground shadow-card" : "rounded-full px-3 py-1.5 text-muted-foreground"} onClick={() => setEventView("saved")} type="button">
               {tx("Saved", "Gespeichert")}
             </button>
           </div>
@@ -802,25 +790,28 @@ export function EventsView({
           <Search aria-hidden="true" className="h-4 w-4 shrink-0 text-muted-foreground" />
           <input
             className="min-w-0 flex-1 bg-transparent outline-none placeholder:text-slate-400"
+            onChange={(event) => setSearchQuery(event.target.value)}
             placeholder={tx("Search event or location...", "Event oder Location suchen...")}
             type="search"
+            value={searchQuery}
           />
         </label>
       </div>
 
       <div className="grid gap-3">
         {filteredEvents.length ? (
-          filteredEvents.map((event) => (
-            <button
-              className="flex items-stretch gap-3 rounded-2xl border border-border bg-card p-3 text-left shadow-card transition hover:border-primary/40"
+          filteredEvents.map((event) => {
+            const isLiked = likedEventIds.includes(event.id);
+            return (
+            <article
+              className="relative flex items-stretch gap-3 rounded-2xl border border-border bg-card p-3 pr-11 text-left shadow-card transition hover:border-primary/40"
               key={event.id}
-              onClick={() => onSelectEvent(event.id)}
-              type="button"
             >
-              <span className="relative grid h-20 w-16 flex-shrink-0 place-items-center overflow-hidden rounded-xl bg-muted">
+              <button aria-label={tx(`Open ${event.title}`, `${event.title} öffnen`)} className="absolute inset-0 rounded-2xl" onClick={() => onSelectEvent(event.id)} type="button" />
+              <span className="pointer-events-none relative z-[1] grid h-20 w-16 flex-shrink-0 place-items-center overflow-hidden rounded-xl bg-muted">
                 <img alt="" className="h-full w-full object-cover" loading="lazy" src={event.imageUrl} />
               </span>
-              <span className="flex min-w-0 flex-1 flex-col justify-between py-0.5">
+              <span className="pointer-events-none relative z-[1] flex min-w-0 flex-1 flex-col justify-between py-0.5">
                 <span>
                 <span className="block text-xs font-medium text-primary">{getFirstDateLabel(event, language)} · {event.time}</span>
                 <span className="block truncate font-display text-sm font-semibold text-foreground">{event.title}</span>
@@ -842,12 +833,14 @@ export function EventsView({
                   {event.price}
                 </span>
               </span>
-              <Bookmark aria-hidden="true" className="mt-3 h-4 w-4 text-muted-foreground" />
-            </button>
-          ))
+              <button aria-label={isLiked ? tx("Remove saved event", "Gespeichertes Event entfernen") : tx("Save event", "Event speichern")} className={isLiked ? "absolute right-3 top-3 z-10 grid h-8 w-8 place-items-center rounded-full bg-rose-50 text-rose-600" : "absolute right-3 top-3 z-10 grid h-8 w-8 place-items-center rounded-full bg-muted text-muted-foreground"} onClick={() => onToggleLike(event.id)} type="button">
+                <Bookmark aria-hidden="true" className={isLiked ? "h-4 w-4 fill-current" : "h-4 w-4"} />
+              </button>
+            </article>
+          );})
         ) : (
           <div className="rounded-2xl border border-border bg-card p-8 text-center shadow-card">
-            <p className="font-display text-base font-semibold text-foreground">{tx("No events match these filters", "Keine Events passen zu diesen Filtern")}</p>
+            <p className="font-display text-base font-semibold text-foreground">{eventView === "saved" ? tx("No saved events yet", "Noch keine Events gespeichert") : tx("No events match these filters", "Keine Events passen zu diesen Filtern")}</p>
             <p className="mt-2 text-sm text-muted-foreground">
               {tx("Try another date, category, or district.", "Probiere ein anderes Datum, eine andere Kategorie oder einen anderen Stadtteil.")}
             </p>

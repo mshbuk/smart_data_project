@@ -7,14 +7,16 @@ import {
   Trash2,
   UserRound,
   Globe2,
+  ChevronRight,
 } from "lucide-react";
-import type { Preferences, UserProfile } from "../types/District";
+import type { DistrictMatch, Preferences, UserProfile } from "../types/District";
+import type { CityEvent } from "../types/Event";
 import { useI18n } from "../i18n";
 
 type ProfilePageProps = {
   city: string;
-  favoriteCount: number;
-  savedEventCount: number;
+  favoriteMatches: DistrictMatch[];
+  savedEvents: CityEvent[];
   preferences: Preferences;
   selectedProfile: UserProfile;
   onBack: () => void;
@@ -23,6 +25,8 @@ type ProfilePageProps = {
   onEditCriteria: () => void;
   onLogout: () => void;
   onOpenComparison: () => void;
+  onOpenDistrict: (districtId: string) => void;
+  onOpenEvent: (eventId: string) => void;
 };
 
 function EmptyState({ children }: { children: string }) {
@@ -34,12 +38,14 @@ function EmptyState({ children }: { children: string }) {
 }
 
 export function ProfilePage({
-  favoriteCount,
-  savedEventCount,
+  favoriteMatches,
+  savedEvents,
   onClearLocalData,
   onEditCriteria,
   onLogout,
   onOpenComparison,
+  onOpenDistrict,
+  onOpenEvent,
 }: ProfilePageProps) {
   const { tx } = useI18n();
 
@@ -62,14 +68,17 @@ export function ProfilePage({
           <Heart aria-hidden="true" className="h-5 w-5 text-primary" strokeWidth={2.3} />
           Favoriten
         </h2>
-        {favoriteCount > 0 ? (
-          <button
-            className="grid min-h-20 place-items-center rounded-[1.35rem] border border-dashed border-border bg-background px-5 text-center text-base font-medium text-muted-foreground"
-            onClick={onOpenComparison}
-            type="button"
-          >
-            {favoriteCount} {tx("favorites saved", "Favoriten gespeichert")}
-          </button>
+        {favoriteMatches.length > 0 ? (
+          <div className="grid gap-2">
+            {favoriteMatches.map((match) => (
+              <button className="grid grid-cols-[3.5rem_1fr_auto] items-center gap-3 rounded-2xl border border-border bg-card p-2 text-left shadow-card" key={match.district.id} onClick={() => onOpenDistrict(match.district.id)} type="button">
+                <img alt="" className="h-14 w-14 rounded-xl bg-muted object-cover" src={match.district.imageUrl} />
+                <span className="min-w-0"><span className="block truncate text-sm font-bold">{match.district.name}</span><span className="text-xs text-muted-foreground">{match.score}% Match</span></span>
+                <ChevronRight aria-hidden="true" className="h-4 w-4 text-muted-foreground" />
+              </button>
+            ))}
+            <button className="mt-1 text-left text-xs font-bold text-primary" onClick={onOpenComparison} type="button">{tx("Open comparison", "Vergleich öffnen")} →</button>
+          </div>
         ) : (
           <EmptyState>{tx("No favorites yet", "Noch keine Favoriten")}</EmptyState>
         )}
@@ -80,9 +89,15 @@ export function ProfilePage({
           <CalendarCheck aria-hidden="true" className="h-5 w-5 text-primary" strokeWidth={2.3} />
           Gespeicherte Events
         </h2>
-        {savedEventCount > 0 ? (
-          <div className="grid min-h-20 place-items-center rounded-[1.35rem] border border-dashed border-border bg-background px-5 text-center text-base font-medium text-muted-foreground">
-            {savedEventCount} {tx("saved events", "gespeicherte Events")}
+        {savedEvents.length > 0 ? (
+          <div className="grid gap-2">
+            {savedEvents.map((event) => (
+              <button className="grid grid-cols-[3.5rem_1fr_auto] items-center gap-3 rounded-2xl border border-border bg-card p-2 text-left shadow-card" key={event.id} onClick={() => onOpenEvent(event.id)} type="button">
+                <img alt="" className="h-14 w-14 rounded-xl bg-muted object-cover" src={event.imageUrl} />
+                <span className="min-w-0"><span className="block truncate text-sm font-bold">{event.title}</span><span className="block truncate text-xs text-muted-foreground">{event.venue}</span></span>
+                <ChevronRight aria-hidden="true" className="h-4 w-4 text-muted-foreground" />
+              </button>
+            ))}
           </div>
         ) : (
           <EmptyState>{tx("No saved events yet", "Noch keine gespeicherten Events")}</EmptyState>

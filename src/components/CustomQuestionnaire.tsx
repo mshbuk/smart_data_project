@@ -469,8 +469,8 @@ export function CustomQuestionnaire({
           </h2>
           <p className="mt-1 text-sm text-muted-foreground">
             {tx(
-              "Budget is converted into an approximate €/m² value for the current scoring model.",
-              "Das Budget wird für das aktuelle Scoring in einen ungefähren €/m²-Wert umgerechnet.",
+              "Your monthly budget is used directly for the recommendation.",
+              "Dein monatliches Budget wird direkt für die Empfehlung verwendet.",
             )}
           </p>
 
@@ -505,7 +505,7 @@ export function CustomQuestionnaire({
           <div className="mt-4 rounded-2xl border border-border bg-card p-4">
             <p className="mb-2 text-sm font-medium">{tx("Rent", "Miete")}</p>
             <p className="mb-3 text-base font-semibold text-primary tabular-nums">
-              {rentMin} € - {rentMax} € · {preferences.maxRentPerSqm} €/m²
+              {rentMin} € - {rentMax} € {tx("per month", "pro Monat")}
             </p>
             <div className="space-y-3">
               <div>

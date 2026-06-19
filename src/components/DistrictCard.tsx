@@ -1,6 +1,7 @@
 import { Heart, Trophy } from "lucide-react";
 import type { DistrictMatch } from "../types/District";
 import { useI18n } from "../i18n";
+import { formatMonthlyRent50 } from "../utils/rent";
 
 type DistrictCardProps = {
   match: DistrictMatch;
@@ -13,10 +14,6 @@ type DistrictCardProps = {
 export function DistrictCard({ match, isSaved, onToggleSave, onOpenDetails, rank }: DistrictCardProps) {
   const { language, tx } = useI18n();
   const { district } = match;
-  const rentFormatter = new Intl.NumberFormat(language === "de" ? "de-DE" : "en-US", {
-    maximumFractionDigits: 2,
-    minimumFractionDigits: 0,
-  });
   const shortReason = match.strengths[0] ?? district.shortDescription;
   const isTop = rank === 1;
 
@@ -92,7 +89,7 @@ export function DistrictCard({ match, isSaved, onToggleSave, onOpenDetails, rank
                 </span>
               ))}
               <span className="rounded-full bg-success/15 px-2.5 py-1 text-xs font-medium text-success">
-                Ø {rentFormatter.format(district.rentPerSqm)} €/m²
+                Ø {formatMonthlyRent50(district.rentPerSqm, language)} € / 50 m²
               </span>
           </div>
 

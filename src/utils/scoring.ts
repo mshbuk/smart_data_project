@@ -134,8 +134,8 @@ function explainMatch(
   if (language === "de") {
     const rentText =
       district.rentPerSqm <= preferences.maxRentPerSqm
-        ? `Die Miete liegt innerhalb deines Budgets von EUR ${preferences.maxRentPerSqm}/qm.`
-        : `Die Miete liegt über deinem Budget von EUR ${preferences.maxRentPerSqm}/qm, daher wird die Bewertung reduziert.`;
+        ? `Die durchschnittliche Miete für 50 m² liegt innerhalb deines Monatsbudgets von EUR ${Math.round(preferences.maxRentPerSqm * 55)}.`
+        : `Die durchschnittliche Miete für 50 m² liegt über deinem Monatsbudget von EUR ${Math.round(preferences.maxRentPerSqm * 55)}, daher wird die Bewertung reduziert.`;
     const highlightsText = positiveHighlights.length
       ? `Starke Passung bei ${positiveHighlights.join(" und ")}.`
       : "Ausgewogene Passung über deine ausgewählten Prioritäten.";
@@ -145,8 +145,8 @@ function explainMatch(
 
   const rentText =
     district.rentPerSqm <= preferences.maxRentPerSqm
-      ? `Rent is within your EUR ${preferences.maxRentPerSqm}/sqm budget.`
-      : `Rent is above your EUR ${preferences.maxRentPerSqm}/sqm budget, so the score is reduced.`;
+      ? `The average rent for 50 m² is within your EUR ${Math.round(preferences.maxRentPerSqm * 55)} monthly budget.`
+      : `The average rent for 50 m² is above your EUR ${Math.round(preferences.maxRentPerSqm * 55)} monthly budget, so the score is reduced.`;
 
   const highlightsText = positiveHighlights.length
     ? `Strong fit for ${positiveHighlights.join(" and ")}.`
@@ -184,8 +184,8 @@ function getTradeoffs(district: District, preferences: Preferences, metrics: Wei
     district.rentPerSqm > preferences.maxRentPerSqm
       ? [
           language === "de"
-            ? `EUR ${(district.rentPerSqm - preferences.maxRentPerSqm).toFixed(1)}/qm über Budget`
-            : `EUR ${(district.rentPerSqm - preferences.maxRentPerSqm).toFixed(1)}/sqm over budget`,
+            ? `Ø 50-m²-Miete über Monatsbudget`
+            : `Average 50 m² rent over monthly budget`,
         ]
       : [];
 

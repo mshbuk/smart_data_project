@@ -1,6 +1,7 @@
 import { Heart, Sliders, Trophy } from "lucide-react";
 import type { DistrictMatch } from "../types/District";
 import { useI18n } from "../i18n";
+import { formatMonthlyRent50 } from "../utils/rent";
 
 type OverviewViewProps = {
   matches: DistrictMatch[];
@@ -10,13 +11,6 @@ type OverviewViewProps = {
   onToggleSave: (districtId: string) => void;
   savedDistrictIds: string[];
 };
-
-function formatRent(value: number, language: "de" | "en") {
-  return new Intl.NumberFormat(language === "de" ? "de-DE" : "en-US", {
-    maximumFractionDigits: 1,
-    minimumFractionDigits: 0,
-  }).format(value);
-}
 
 export function OverviewView({
   matches,
@@ -126,7 +120,7 @@ export function OverviewView({
                       </span>
                     ))}
                     <span className="rounded-full bg-success/15 px-2.5 py-1 text-xs font-medium text-success">
-                      Ø {formatRent(district.rentPerSqm, language)} €/m²
+                      Ø {formatMonthlyRent50(district.rentPerSqm, language)} € / 50 m²
                     </span>
                   </div>
 

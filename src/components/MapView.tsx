@@ -8,6 +8,7 @@ import mapSpots from "../data/mapSpots.json";
 import type { DistrictMatch } from "../types/District";
 import type { MapSpot } from "../types/Event";
 import { useI18n, type Language } from "../i18n";
+import { formatMonthlyRent50 } from "../utils/rent";
 
 type MapViewProps = {
   focusedDistrictId?: string | null;
@@ -255,14 +256,8 @@ function createBoundaryPopup(feature: DistrictBoundaryFeature, language: Languag
     (properties.sourceSummary?.includes("Miet-Check") || properties.dataQuality === "placeholder")
       ? createPopupMetric(
           language === "de" ? "Miete" : "Rent",
-          `EUR ${properties.rentPerSqm.toFixed(2)}`,
-          properties.sourceSummary?.includes("Miet-Check")
-            ? language === "de"
-              ? "pro qm"
-              : "per sqm"
-            : language === "de"
-              ? "Demo / qm"
-              : "demo / sqm",
+          `EUR ${formatMonthlyRent50(properties.rentPerSqm, language)}`,
+          language === "de" ? "Ø für 50 m²" : "avg. for 50 m²",
         )
       : null,
     typeof properties.population === "number"

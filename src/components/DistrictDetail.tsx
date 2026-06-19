@@ -7,18 +7,19 @@ import {
   MessageCircle,
   Send,
   Share2,
+  SlidersHorizontal,
   Star,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import type { DistrictMatch, Preferences } from "../types/District";
 import { getCriterionInsights } from "../utils/districtInsights";
 import { useI18n } from "../i18n";
+import { formatMonthlyRent50 } from "../utils/rent";
 
 type DistrictDetailProps = {
   isSaved: boolean;
   match: DistrictMatch;
   preferences: Preferences;
-  onBack: () => void;
   onOpenMap: (districtId: string) => void;
   onToggleSave: (districtId: string) => void;
 };
@@ -74,20 +75,28 @@ function monthlyBudgetFromRentPerSqm(value: number) {
   return Math.round((value * 55) / 50) * 50;
 }
 
-function createHousingSearchLinks(districtName: string, preferences: Preferences) {
-  const maxMonthlyRent = monthlyBudgetFromRentPerSqm(preferences.maxRentPerSqm);
-  const searchText = `Hamburg ${districtName} Wohnung mieten bis ${maxMonthlyRent} Euro`;
+type HousingFilters = {
+  balcony: boolean;
+  furnished: "any" | "yes" | "no";
+  maxMonthlyRent: number;
+  minSize: number;
+  propertyType: "apartment" | "shared" | "house";
+  rooms: number;
+};
+
+function createHousingSearchLinks(districtName: string, filters: HousingFilters) {
+  const searchText = `Hamburg ${districtName} ${filters.propertyType === "shared" ? "WG Zimmer" : filters.propertyType === "house" ? "Haus" : "Wohnung"} mieten bis ${filters.maxMonthlyRent} Euro ${filters.rooms} Zimmer ab ${filters.minSize} qm${filters.balcony ? " Balkon" : ""}${filters.furnished === "yes" ? " möbliert" : ""}`;
   const query = encodeURIComponent(searchText);
   const districtQuery = encodeURIComponent(`Hamburg ${districtName}`);
 
   return [
     {
       label: "ImmoScout24",
-      url: `https://www.immobilienscout24.de/Suche/de/hamburg/hamburg/wohnung-mieten?price=-${maxMonthlyRent}&searchQuery=${query}`,
+      url: `https://www.immobilienscout24.de/Suche/de/hamburg/hamburg/wohnung-mieten?price=-${filters.maxMonthlyRent}&numberofrooms=${filters.rooms}-${filters.rooms}&livingspace=${filters.minSize}-&searchQuery=${query}`,
     },
     {
       label: "Immowelt",
-      url: `https://www.immowelt.de/suche/hamburg/wohnungen/mieten?query=${query}&priceMax=${maxMonthlyRent}`,
+      url: `https://www.immowelt.de/suche/hamburg/wohnungen/mieten?query=${query}&priceMax=${filters.maxMonthlyRent}&roomi=${filters.rooms}&areaMin=${filters.minSize}`,
     },
     {
       label: "WG-Gesucht",
@@ -95,7 +104,7 @@ function createHousingSearchLinks(districtName: string, preferences: Preferences
     },
     {
       label: "Kleinanzeigen",
-      url: `https://www.kleinanzeigen.de/s-wohnung-mieten/hamburg/${districtQuery}/k0c203l9409?maxPrice=${maxMonthlyRent}`,
+      url: `https://www.kleinanzeigen.de/s-wohnung-mieten/hamburg/${districtQuery}/k0c203l9409?maxPrice=${filters.maxMonthlyRent}&minRooms=${filters.rooms}&minSize=${filters.minSize}`,
     },
   ];
 }
@@ -170,27 +179,36 @@ export function DistrictDetail({
   isSaved,
   match,
   preferences,
-  onBack,
   onOpenMap,
   onToggleSave,
 }: DistrictDetailProps) {
   const { language, tx } = useI18n();
   const { district } = match;
   const [showApartmentDiscovery, setShowApartmentDiscovery] = useState(false);
+  const [showAdvancedHousingFilters, setShowAdvancedHousingFilters] = useState(false);
+  const [housingFilters, setHousingFilters] = useState<HousingFilters>(() => ({
+    balcony: false,
+    furnished: "any",
+    maxMonthlyRent: monthlyBudgetFromRentPerSqm(preferences.maxRentPerSqm),
+    minSize: 45,
+    propertyType: "apartment",
+    rooms: 2,
+  }));
   const [rating, setRating] = useState(5);
   const [reviewText, setReviewText] = useState("");
   const [reviewsByDistrict, setReviewsByDistrict] = useState<Record<string, DistrictReview[]>>(loadStoredReviews);
   const insights = getCriterionInsights(district, preferences, language)
     .filter((insight) => insight.weight > 0)
     .sort((a, b) => b.weight - a.weight || b.score - a.score);
-  const housingSearchLinks = useMemo(
-    () => createHousingSearchLinks(district.name, preferences),
-    [district.name, preferences],
-  );
+  const housingSearchLinks = useMemo(() => createHousingSearchLinks(district.name, housingFilters), [district.name, housingFilters]);
   const demoReviews = useMemo(() => buildDemoReviews(district.name, language), [district.name, language]);
   const userReviews = reviewsByDistrict[district.id] ?? [];
-  const apartmentPriorities = insights.slice(0, 4);
-  const maxMonthlyRent = monthlyBudgetFromRentPerSqm(preferences.maxRentPerSqm);
+  const galleryImages = useMemo(() => {
+    const extras = ["eimsbuettel-2.jpg", "ottensen-2.jpg", "winterhude-2.jpg", "altona-2.jpg", "hafencity-2.jpg"];
+    const seed = district.name.split("").reduce((total, character) => total + character.charCodeAt(0), 0);
+    const asset = (name: string) => `${import.meta.env.BASE_URL}lovable-assets/${name}`;
+    return [district.imageUrl || asset("hamburg-hero.jpg"), asset(extras[seed % extras.length]), asset(extras[(seed + 2) % extras.length])];
+  }, [district.imageUrl, district.name]);
   const population = district.population ?? 0;
 
   useEffect(() => {
@@ -238,12 +256,10 @@ export function DistrictDetail({
 
   return (
     <section className="min-h-screen bg-background pb-32">
-      <div className="relative aspect-[4/3] w-full overflow-hidden bg-muted">
-        {district.imageUrl ? (
-          <img alt={district.name} className="h-full w-full object-cover" src={district.imageUrl} />
-        ) : (
-          <div className="h-full w-full bg-muted" />
-        )}
+      <div className="relative grid h-72 w-full grid-cols-[2fr_1fr] grid-rows-2 gap-1 overflow-hidden bg-muted">
+        {galleryImages.map((image, index) => (
+          <img alt={index === 0 ? district.name : `${district.name} ${tx("impression", "Eindruck")} ${index + 1}`} className={index === 0 ? "row-span-2 h-full w-full object-cover" : "h-full w-full object-cover"} key={image} src={image} />
+        ))}
         <div className="absolute right-3 top-3 flex gap-1">
           <button
             aria-label={isSaved ? tx("Remove from saved", "Aus Favoriten entfernen") : tx("Save district", "Stadtteil favorisieren")}
@@ -282,21 +298,14 @@ export function DistrictDetail({
           <p className="mt-3 text-sm leading-relaxed">{match.explanation}</p>
         </section>
 
-        <section className="grid grid-cols-2 gap-2">
+        <section>
           <button
-            className="flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-primary px-4 text-sm font-semibold text-primary-foreground shadow-soft"
+            className="flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-primary px-4 text-sm font-semibold text-primary-foreground shadow-soft"
             onClick={() => onOpenMap(district.id)}
             type="button"
           >
             <MapPin aria-hidden="true" className="h-4 w-4" />
             {tx("Map", "Karte")}
-          </button>
-          <button
-            className="flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-border bg-card px-4 text-sm font-semibold"
-            onClick={onBack}
-            type="button"
-          >
-            {tx("Back", "Zurück")}
           </button>
         </section>
 
@@ -315,8 +324,8 @@ export function DistrictDetail({
         <section className="grid grid-cols-2 gap-2">
           <div className="rounded-2xl border border-border bg-card p-3">
             <p className="text-xs text-muted-foreground">{tx("Average rent", "Ø Miete")}</p>
-            <p className="mt-1 font-display text-lg font-semibold">{district.rentPerSqm.toFixed(2)} €/m²</p>
-            <p className="text-[10px] text-muted-foreground">Miet-Check 2026</p>
+            <p className="mt-1 font-display text-lg font-semibold">{formatMonthlyRent50(district.rentPerSqm, language)} €</p>
+            <p className="text-[10px] text-muted-foreground">{tx("average for a 50 m² apartment", "durchschnittlich für 50 m²")} · Miet-Check 2026</p>
           </div>
           <div className="rounded-2xl border border-border bg-card p-3">
             <p className="text-xs text-muted-foreground">{tx("Population", "Einwohner")}</p>
@@ -404,31 +413,23 @@ export function DistrictDetail({
           ) : (
             <div className="mt-4 space-y-4">
               <div className="rounded-2xl bg-muted/50 p-3">
-                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  {tx("Search criteria from your answers", "Suchkriterien aus deinen Antworten")}
-                </p>
-                <div className="mt-3 flex flex-wrap gap-2">
-                  <span className="rounded-full bg-background px-3 py-1 text-xs font-semibold">
-                    {district.name}
-                  </span>
-                  <span className="rounded-full bg-background px-3 py-1 text-xs font-semibold">
-                    {tx("up to", "bis")} {maxMonthlyRent} €
-                  </span>
-                  <span className="rounded-full bg-background px-3 py-1 text-xs font-semibold">
-                    {preferences.maxRentPerSqm} €/m²
-                  </span>
-                  {apartmentPriorities.map((priority) => (
-                    <span className="rounded-full bg-background px-3 py-1 text-xs font-semibold" key={priority.key}>
-                      {priority.label} {priority.weight}/5
-                    </span>
-                  ))}
+                <div className="flex items-center justify-between gap-3">
+                  <div><p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{tx("Apartment filters", "Wohnungsfilter")}</p><p className="mt-1 text-sm font-semibold">{district.name}</p></div>
+                  <button className="inline-flex items-center gap-1 rounded-full border border-border bg-card px-3 py-1.5 text-xs font-semibold" onClick={() => setShowAdvancedHousingFilters((value) => !value)} type="button"><SlidersHorizontal className="h-3.5 w-3.5" />{tx("More filters", "Mehr Filter")}</button>
                 </div>
-                <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
-                  {tx(
-                    "The outgoing links include your district and budget filters where the partner platform supports them.",
-                    "Die ausgehenden Links übernehmen Stadtteil und Budget, soweit die Partnerplattform diese Filter unterstützt.",
-                  )}
-                </p>
+                <div className="mt-3 grid grid-cols-3 gap-2">
+                  <label className="grid gap-1 text-[10px] font-semibold text-muted-foreground">{tx("Max. rent/month", "Max. Miete/Monat")}<input className="min-w-0 rounded-xl border border-border bg-card px-2 py-2 text-sm font-semibold text-foreground" min="300" onChange={(event) => setHousingFilters((current) => ({ ...current, maxMonthlyRent: Number(event.target.value) }))} step="50" type="number" value={housingFilters.maxMonthlyRent} /></label>
+                  <label className="grid gap-1 text-[10px] font-semibold text-muted-foreground">{tx("Rooms", "Zimmer")}<input className="min-w-0 rounded-xl border border-border bg-card px-2 py-2 text-sm font-semibold text-foreground" min="1" onChange={(event) => setHousingFilters((current) => ({ ...current, rooms: Number(event.target.value) }))} step="0.5" type="number" value={housingFilters.rooms} /></label>
+                  <label className="grid gap-1 text-[10px] font-semibold text-muted-foreground">{tx("Min. size", "Min. Fläche")}<input className="min-w-0 rounded-xl border border-border bg-card px-2 py-2 text-sm font-semibold text-foreground" min="10" onChange={(event) => setHousingFilters((current) => ({ ...current, minSize: Number(event.target.value) }))} step="5" type="number" value={housingFilters.minSize} /></label>
+                </div>
+                {showAdvancedHousingFilters && (
+                  <div className="mt-3 grid grid-cols-2 gap-2 border-t border-border pt-3">
+                    <label className="grid gap-1 text-[10px] font-semibold text-muted-foreground">{tx("Home type", "Wohnungstyp")}<select className="rounded-xl border border-border bg-card px-2 py-2 text-sm text-foreground" onChange={(event) => setHousingFilters((current) => ({ ...current, propertyType: event.target.value as HousingFilters["propertyType"] }))} value={housingFilters.propertyType}><option value="apartment">{tx("Apartment", "Wohnung")}</option><option value="shared">WG-Zimmer</option><option value="house">{tx("House", "Haus")}</option></select></label>
+                    <label className="grid gap-1 text-[10px] font-semibold text-muted-foreground">{tx("Furnished", "Möbliert")}<select className="rounded-xl border border-border bg-card px-2 py-2 text-sm text-foreground" onChange={(event) => setHousingFilters((current) => ({ ...current, furnished: event.target.value as HousingFilters["furnished"] }))} value={housingFilters.furnished}><option value="any">{tx("No preference", "Egal")}</option><option value="yes">{tx("Yes", "Ja")}</option><option value="no">{tx("No", "Nein")}</option></select></label>
+                    <label className="col-span-2 flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-2 text-sm font-semibold"><input checked={housingFilters.balcony} onChange={(event) => setHousingFilters((current) => ({ ...current, balcony: event.target.checked }))} type="checkbox" />{tx("Balcony or terrace", "Balkon oder Terrasse")}</label>
+                  </div>
+                )}
+                <p className="mt-3 text-xs leading-relaxed text-muted-foreground">{tx("Partner links use these apartment filters where supported.", "Die Partnerlinks übernehmen diese Wohnungsfilter, soweit unterstützt.")}</p>
               </div>
 
               <div className="grid gap-2">
