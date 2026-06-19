@@ -464,6 +464,7 @@ function EventDetail({
 }) {
   const { language, tx } = useI18n();
   const [communityDraft, setCommunityDraft] = useState("");
+  const [lightboxAvatar, setLightboxAvatar] = useState<string | null>(null);
   const attendees = event.attendees + (isSignedUp ? 1 : 0);
   const reviews = [...userComments, ...getEventReviews(event)];
   const eventWebsite = getEventWebsite(event);
@@ -590,10 +591,12 @@ function EventDetail({
           <h4 className="mt-6 text-lg font-bold text-foreground">{tx("Community voices", "Stimmen aus der Community")}</h4>
           <div className="mt-3 grid gap-3">
             {reviews.map((comment) => (
-              <button className="w-full rounded-2xl border border-border bg-card p-3 text-left shadow-card transition hover:border-primary/40" key={`${comment.name}-${comment.message}`} onClick={() => onChat(comment)} type="button">
+              <article className="w-full rounded-2xl border border-border bg-card p-3 text-left shadow-card" key={`${comment.name}-${comment.message}`}>
                 <div className="flex justify-between gap-3">
                   <div className="flex gap-3">
-                    <img alt="" className="h-11 w-11 rounded-full bg-muted object-cover" src={getAvatarUrl(comment)} />
+                    <button aria-label={tx(`Enlarge ${comment.name}'s photo`, `Foto von ${comment.name} vergrößern`)} className="h-11 w-11 shrink-0 rounded-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary" onClick={() => setLightboxAvatar(getAvatarUrl(comment))} type="button">
+                      <img alt="" className="h-11 w-11 rounded-full bg-muted object-cover" src={getAvatarUrl(comment)} />
+                    </button>
                     <div>
                       <h4 className="text-base font-bold text-foreground">{comment.name}</h4>
                       <p className="text-xs font-semibold text-muted-foreground">{comment.bio}</p>
@@ -602,11 +605,11 @@ function EventDetail({
                   <span className="text-sm font-semibold text-muted-foreground">♡ {comment.likes}</span>
                 </div>
                 <p className="mt-3 text-sm leading-6 text-foreground">{comment.message}</p>
-                <span className="mt-3 inline-flex items-center gap-2 text-sm font-bold text-foreground">
+                <button className="mt-3 inline-flex items-center gap-2 text-sm font-bold text-foreground" onClick={() => onChat(comment)} type="button">
                   <MessageCircle aria-hidden="true" className="h-4 w-4" />
                   {tx("Message", "Anschreiben")}
-                </span>
-              </button>
+                </button>
+              </article>
             ))}
           </div>
 
@@ -636,6 +639,12 @@ function EventDetail({
           </form>
         </section>
       </div>
+      {lightboxAvatar && (
+        <div aria-modal="true" className="fixed inset-0 z-[1900] grid place-items-center bg-foreground/75 p-5 backdrop-blur-sm" role="dialog">
+          <button aria-label={tx("Close photo", "Foto schließen")} className="absolute right-4 top-4 grid h-10 w-10 place-items-center rounded-full bg-card text-foreground shadow-card" onClick={() => setLightboxAvatar(null)} type="button"><X aria-hidden="true" className="h-5 w-5" /></button>
+          <img alt="" className="max-h-[78vh] max-w-full rounded-2xl object-contain shadow-2xl" src={lightboxAvatar} />
+        </div>
+      )}
     </section>
   );
 }

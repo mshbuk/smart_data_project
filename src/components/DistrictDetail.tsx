@@ -1,5 +1,8 @@
 import {
+  Check,
   CheckCircle2,
+  ChevronLeft,
+  ChevronRight,
   ExternalLink,
   Heart,
   Home,
@@ -7,8 +10,9 @@ import {
   MessageCircle,
   Send,
   Share2,
-  SlidersHorizontal,
+  RotateCcw,
   Star,
+  X,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import type { DistrictMatch, Preferences } from "../types/District";
@@ -25,6 +29,7 @@ type DistrictDetailProps = {
 };
 
 type DistrictReview = {
+  avatarUrl?: string;
   author: string;
   id: string;
   isUser?: boolean;
@@ -34,6 +39,7 @@ type DistrictReview = {
 };
 
 const reviewStorageKey = "district-finder-community-reviews-v1";
+const assetUrl = (path: string) => `${import.meta.env.BASE_URL}${path.replace(/^\/+/, "")}`;
 
 function loadStoredReviews(): Record<string, DistrictReview[]> {
   if (typeof window === "undefined") return {};
@@ -79,24 +85,44 @@ type HousingFilters = {
   balcony: boolean;
   furnished: "any" | "yes" | "no";
   maxMonthlyRent: number;
+  maxSize: number;
+  minMonthlyRent: number;
   minSize: number;
-  propertyType: "apartment" | "shared" | "house";
+  petsAllowed: boolean;
+  propertyType: "any" | "apartment" | "shared" | "house";
   rooms: number;
+  socialHousingOnly: boolean;
 };
 
+function createDefaultHousingFilters(preferences: Preferences): HousingFilters {
+  return {
+    balcony: false,
+    furnished: "any",
+    maxMonthlyRent: Math.max(1_400, monthlyBudgetFromRentPerSqm(preferences.maxRentPerSqm)),
+    maxSize: 90,
+    minMonthlyRent: 600,
+    minSize: 40,
+    petsAllowed: false,
+    propertyType: "any",
+    rooms: 2,
+    socialHousingOnly: false,
+  };
+}
+
 function createHousingSearchLinks(districtName: string, filters: HousingFilters) {
-  const searchText = `Hamburg ${districtName} ${filters.propertyType === "shared" ? "WG Zimmer" : filters.propertyType === "house" ? "Haus" : "Wohnung"} mieten bis ${filters.maxMonthlyRent} Euro ${filters.rooms} Zimmer ab ${filters.minSize} qm${filters.balcony ? " Balkon" : ""}${filters.furnished === "yes" ? " möbliert" : ""}`;
+  const homeType = filters.propertyType === "shared" ? "WG Zimmer" : filters.propertyType === "house" ? "Haus" : filters.propertyType === "apartment" ? "Wohnung" : "Immobilie";
+  const searchText = `Hamburg ${districtName} ${homeType} mieten ${filters.minMonthlyRent} bis ${filters.maxMonthlyRent} Euro ${filters.rooms} Zimmer ${filters.minSize} bis ${filters.maxSize} qm${filters.balcony ? " Balkon" : ""}${filters.petsAllowed ? " Haustiere erlaubt" : ""}${filters.socialHousingOnly ? " WBS" : ""}${filters.furnished === "yes" ? " möbliert" : filters.furnished === "no" ? " unmöbliert" : ""}`;
   const query = encodeURIComponent(searchText);
   const districtQuery = encodeURIComponent(`Hamburg ${districtName}`);
 
   return [
     {
       label: "ImmoScout24",
-      url: `https://www.immobilienscout24.de/Suche/de/hamburg/hamburg/wohnung-mieten?price=-${filters.maxMonthlyRent}&numberofrooms=${filters.rooms}-${filters.rooms}&livingspace=${filters.minSize}-&searchQuery=${query}`,
+      url: `https://www.immobilienscout24.de/Suche/de/hamburg/hamburg/wohnung-mieten?price=${filters.minMonthlyRent}-${filters.maxMonthlyRent}&numberofrooms=${filters.rooms}-${filters.rooms}&livingspace=${filters.minSize}-${filters.maxSize}&searchQuery=${query}`,
     },
     {
       label: "Immowelt",
-      url: `https://www.immowelt.de/suche/hamburg/wohnungen/mieten?query=${query}&priceMax=${filters.maxMonthlyRent}&roomi=${filters.rooms}&areaMin=${filters.minSize}`,
+      url: `https://www.immowelt.de/suche/hamburg/wohnungen/mieten?query=${query}&priceMin=${filters.minMonthlyRent}&priceMax=${filters.maxMonthlyRent}&roomi=${filters.rooms}&areaMin=${filters.minSize}&areaMax=${filters.maxSize}`,
     },
     {
       label: "WG-Gesucht",
@@ -127,6 +153,7 @@ function buildDemoReviews(districtName: string, language: "de" | "en"): District
   if (language === "de") {
     return [
       {
+        avatarUrl: assetUrl("event-avatars/anna.jpg"),
         author: "Lea",
         id: "demo-lea",
         meta: "Wohnt seit 2 Jahren hier",
@@ -134,6 +161,7 @@ function buildDemoReviews(districtName: string, language: "de" | "en"): District
         text: `${districtName} fühlt sich im Alltag sehr gut angebunden an. Besonders die kurzen Wege und kleinen Cafés machen den Stadtteil angenehm.`,
       },
       {
+        avatarUrl: assetUrl("event-avatars/felix.jpg"),
         author: "Nico",
         id: "demo-nico",
         meta: "Hat Wohnungen besichtigt",
@@ -141,6 +169,7 @@ function buildDemoReviews(districtName: string, language: "de" | "en"): District
         text: "Die ruhigeren Straßen sind schön, aber bei der Wohnungssuche lohnt es sich, einzelne Mikrolagen genau zu vergleichen.",
       },
       {
+        avatarUrl: assetUrl("event-avatars/samira.jpg"),
         author: "Samira",
         id: "demo-samira",
         meta: "Community-Mitglied",
@@ -152,6 +181,7 @@ function buildDemoReviews(districtName: string, language: "de" | "en"): District
 
   return [
     {
+      avatarUrl: assetUrl("event-avatars/anna.jpg"),
       author: "Lea",
       id: "demo-lea",
       meta: "Lives here for 2 years",
@@ -159,6 +189,7 @@ function buildDemoReviews(districtName: string, language: "de" | "en"): District
       text: `${districtName} feels well connected day to day. Short routes and small cafes make the district pleasant.`,
     },
     {
+      avatarUrl: assetUrl("event-avatars/felix.jpg"),
       author: "Nico",
       id: "demo-nico",
       meta: "Viewed apartments",
@@ -166,6 +197,7 @@ function buildDemoReviews(districtName: string, language: "de" | "en"): District
       text: "The calmer streets are lovely, but it is worth comparing micro-locations carefully during the apartment search.",
     },
     {
+      avatarUrl: assetUrl("event-avatars/samira.jpg"),
       author: "Samira",
       id: "demo-samira",
       meta: "Community member",
@@ -184,16 +216,13 @@ export function DistrictDetail({
 }: DistrictDetailProps) {
   const { language, tx } = useI18n();
   const { district } = match;
+  const [activeGalleryIndex, setActiveGalleryIndex] = useState(0);
   const [showApartmentDiscovery, setShowApartmentDiscovery] = useState(false);
-  const [showAdvancedHousingFilters, setShowAdvancedHousingFilters] = useState(false);
-  const [housingFilters, setHousingFilters] = useState<HousingFilters>(() => ({
-    balcony: false,
-    furnished: "any",
-    maxMonthlyRent: monthlyBudgetFromRentPerSqm(preferences.maxRentPerSqm),
-    minSize: 45,
-    propertyType: "apartment",
-    rooms: 2,
-  }));
+  const [housingFilters, setHousingFilters] = useState<HousingFilters>(() => createDefaultHousingFilters(preferences));
+  const [draftHousingFilters, setDraftHousingFilters] = useState<HousingFilters>(() => createDefaultHousingFilters(preferences));
+  const [lightboxImage, setLightboxImage] = useState<string | null>(null);
+  const [messageReview, setMessageReview] = useState<DistrictReview | null>(null);
+  const [messageDraft, setMessageDraft] = useState("");
   const [rating, setRating] = useState(5);
   const [reviewText, setReviewText] = useState("");
   const [reviewsByDistrict, setReviewsByDistrict] = useState<Record<string, DistrictReview[]>>(loadStoredReviews);
@@ -204,16 +233,33 @@ export function DistrictDetail({
   const demoReviews = useMemo(() => buildDemoReviews(district.name, language), [district.name, language]);
   const userReviews = reviewsByDistrict[district.id] ?? [];
   const galleryImages = useMemo(() => {
-    const extras = ["eimsbuettel-2.jpg", "ottensen-2.jpg", "winterhude-2.jpg", "altona-2.jpg", "hafencity-2.jpg"];
-    const seed = district.name.split("").reduce((total, character) => total + character.charCodeAt(0), 0);
-    const asset = (name: string) => `${import.meta.env.BASE_URL}lovable-assets/${name}`;
-    return [district.imageUrl || asset("hamburg-hero.jpg"), asset(extras[seed % extras.length]), asset(extras[(seed + 2) % extras.length])];
+    return [
+      district.imageUrl || assetUrl("lovable-assets/hamburg-hero.jpg"),
+      assetUrl("lovable-assets/district-carousel-canal.png"),
+      assetUrl("lovable-assets/district-carousel-market.png"),
+    ];
   }, [district.imageUrl, district.name]);
   const population = district.population ?? 0;
 
   useEffect(() => {
     storeReviews(reviewsByDistrict);
   }, [reviewsByDistrict]);
+
+  useEffect(() => {
+    setActiveGalleryIndex(0);
+  }, [district.id]);
+
+  const moveGallery = (direction: -1 | 1) => {
+    setActiveGalleryIndex((current) => (current + direction + galleryImages.length) % galleryImages.length);
+  };
+
+  const resetHousingFilters = () => {
+    setDraftHousingFilters(createDefaultHousingFilters(preferences));
+  };
+
+  const applyHousingFilters = () => {
+    setHousingFilters(draftHousingFilters);
+  };
 
   const shareDistrict = () => {
     const message =
@@ -238,6 +284,7 @@ export function DistrictDetail({
     if (!text) return;
 
     const review: DistrictReview = {
+      avatarUrl: assetUrl("event-avatars/samira.jpg"),
       author: tx("You", "Du"),
       id: `user-${Date.now()}`,
       isUser: true,
@@ -256,10 +303,40 @@ export function DistrictDetail({
 
   return (
     <section className="min-h-screen bg-background pb-32">
-      <div className="relative grid h-72 w-full grid-cols-[2fr_1fr] grid-rows-2 gap-1 overflow-hidden bg-muted">
-        {galleryImages.map((image, index) => (
-          <img alt={index === 0 ? district.name : `${district.name} ${tx("impression", "Eindruck")} ${index + 1}`} className={index === 0 ? "row-span-2 h-full w-full object-cover" : "h-full w-full object-cover"} key={image} src={image} />
-        ))}
+      <div className="relative h-72 w-full overflow-hidden bg-muted">
+        <img
+          alt={`${district.name} ${tx("impression", "Eindruck")} ${activeGalleryIndex + 1}`}
+          className="h-full w-full object-cover transition-opacity duration-200"
+          src={galleryImages[activeGalleryIndex]}
+        />
+        <button
+          aria-label={tx("Previous photo", "Vorheriges Foto")}
+          className="absolute left-3 top-1/2 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-full bg-background/85 text-foreground shadow-card backdrop-blur transition hover:bg-background"
+          onClick={() => moveGallery(-1)}
+          type="button"
+        >
+          <ChevronLeft aria-hidden="true" className="h-5 w-5" />
+        </button>
+        <button
+          aria-label={tx("Next photo", "Nächstes Foto")}
+          className="absolute right-3 top-1/2 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-full bg-background/85 text-foreground shadow-card backdrop-blur transition hover:bg-background"
+          onClick={() => moveGallery(1)}
+          type="button"
+        >
+          <ChevronRight aria-hidden="true" className="h-5 w-5" />
+        </button>
+        <div className="absolute bottom-3 left-1/2 flex -translate-x-1/2 items-center gap-1.5 rounded-full bg-foreground/35 px-2.5 py-1.5 backdrop-blur">
+          {galleryImages.map((image, index) => (
+            <button
+              aria-label={tx(`Show photo ${index + 1}`, `Foto ${index + 1} anzeigen`)}
+              aria-pressed={activeGalleryIndex === index}
+              className={activeGalleryIndex === index ? "h-2 w-5 rounded-full bg-white transition-all" : "h-2 w-2 rounded-full bg-white/65 transition-all"}
+              key={image}
+              onClick={() => setActiveGalleryIndex(index)}
+              type="button"
+            />
+          ))}
+        </div>
         <div className="absolute right-3 top-3 flex gap-1">
           <button
             aria-label={isSaved ? tx("Remove from saved", "Aus Favoriten entfernen") : tx("Save district", "Stadtteil favorisieren")}
@@ -412,24 +489,72 @@ export function DistrictDetail({
             </button>
           ) : (
             <div className="mt-4 space-y-4">
-              <div className="rounded-2xl bg-muted/50 p-3">
+              <p className="text-sm text-muted-foreground">{tx("We continue with your filters.", "Wir leiten dich mit deinen Filtern weiter.")}</p>
+              <div className="rounded-2xl border border-border bg-card p-4 shadow-card">
                 <div className="flex items-center justify-between gap-3">
-                  <div><p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{tx("Apartment filters", "Wohnungsfilter")}</p><p className="mt-1 text-sm font-semibold">{district.name}</p></div>
-                  <button className="inline-flex items-center gap-1 rounded-full border border-border bg-card px-3 py-1.5 text-xs font-semibold" onClick={() => setShowAdvancedHousingFilters((value) => !value)} type="button"><SlidersHorizontal className="h-3.5 w-3.5" />{tx("More filters", "Mehr Filter")}</button>
+                  <h4 className="text-sm font-bold">{tx("Your filters", "Deine Filter")}</h4>
+                  <button className="inline-flex items-center gap-1 text-xs font-semibold text-primary" onClick={applyHousingFilters} type="button">
+                    <Check aria-hidden="true" className="h-3.5 w-3.5" />
+                    {tx("Apply", "Übernehmen")}
+                  </button>
                 </div>
-                <div className="mt-3 grid grid-cols-3 gap-2">
-                  <label className="grid gap-1 text-[10px] font-semibold text-muted-foreground">{tx("Max. rent/month", "Max. Miete/Monat")}<input className="min-w-0 rounded-xl border border-border bg-card px-2 py-2 text-sm font-semibold text-foreground" min="300" onChange={(event) => setHousingFilters((current) => ({ ...current, maxMonthlyRent: Number(event.target.value) }))} step="50" type="number" value={housingFilters.maxMonthlyRent} /></label>
-                  <label className="grid gap-1 text-[10px] font-semibold text-muted-foreground">{tx("Rooms", "Zimmer")}<input className="min-w-0 rounded-xl border border-border bg-card px-2 py-2 text-sm font-semibold text-foreground" min="1" onChange={(event) => setHousingFilters((current) => ({ ...current, rooms: Number(event.target.value) }))} step="0.5" type="number" value={housingFilters.rooms} /></label>
-                  <label className="grid gap-1 text-[10px] font-semibold text-muted-foreground">{tx("Min. size", "Min. Fläche")}<input className="min-w-0 rounded-xl border border-border bg-card px-2 py-2 text-sm font-semibold text-foreground" min="10" onChange={(event) => setHousingFilters((current) => ({ ...current, minSize: Number(event.target.value) }))} step="5" type="number" value={housingFilters.minSize} /></label>
-                </div>
-                {showAdvancedHousingFilters && (
-                  <div className="mt-3 grid grid-cols-2 gap-2 border-t border-border pt-3">
-                    <label className="grid gap-1 text-[10px] font-semibold text-muted-foreground">{tx("Home type", "Wohnungstyp")}<select className="rounded-xl border border-border bg-card px-2 py-2 text-sm text-foreground" onChange={(event) => setHousingFilters((current) => ({ ...current, propertyType: event.target.value as HousingFilters["propertyType"] }))} value={housingFilters.propertyType}><option value="apartment">{tx("Apartment", "Wohnung")}</option><option value="shared">WG-Zimmer</option><option value="house">{tx("House", "Haus")}</option></select></label>
-                    <label className="grid gap-1 text-[10px] font-semibold text-muted-foreground">{tx("Furnished", "Möbliert")}<select className="rounded-xl border border-border bg-card px-2 py-2 text-sm text-foreground" onChange={(event) => setHousingFilters((current) => ({ ...current, furnished: event.target.value as HousingFilters["furnished"] }))} value={housingFilters.furnished}><option value="any">{tx("No preference", "Egal")}</option><option value="yes">{tx("Yes", "Ja")}</option><option value="no">{tx("No", "Nein")}</option></select></label>
-                    <label className="col-span-2 flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-2 text-sm font-semibold"><input checked={housingFilters.balcony} onChange={(event) => setHousingFilters((current) => ({ ...current, balcony: event.target.checked }))} type="checkbox" />{tx("Balcony or terrace", "Balkon oder Terrasse")}</label>
+
+                <label className="mt-4 block text-xs font-medium text-muted-foreground">
+                  <span className="flex items-center justify-between"><span>{tx("Rooms", "Zimmer")}</span><b className="text-foreground">{draftHousingFilters.rooms}</b></span>
+                  <input className="preference-range mt-2 w-full accent-primary" max="5" min="1" onChange={(event) => setDraftHousingFilters((current) => ({ ...current, rooms: Number(event.target.value) }))} step="0.5" type="range" value={draftHousingFilters.rooms} />
+                </label>
+
+                <fieldset className="mt-4">
+                  <legend className="flex w-full items-center justify-between text-xs font-medium text-muted-foreground"><span>{tx("Monthly rent (€)", "Kaltmiete (€)")}</span><b className="text-foreground">{draftHousingFilters.minMonthlyRent} – {draftHousingFilters.maxMonthlyRent} €</b></legend>
+                  <div className="mt-2 grid grid-cols-2 gap-2">
+                    <input aria-label={tx("Minimum monthly rent", "Minimale Kaltmiete")} className="min-w-0 rounded-full border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary" min="0" onChange={(event) => setDraftHousingFilters((current) => ({ ...current, minMonthlyRent: Number(event.target.value) }))} step="50" type="number" value={draftHousingFilters.minMonthlyRent} />
+                    <input aria-label={tx("Maximum monthly rent", "Maximale Kaltmiete")} className="min-w-0 rounded-full border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary" min="0" onChange={(event) => setDraftHousingFilters((current) => ({ ...current, maxMonthlyRent: Number(event.target.value) }))} step="50" type="number" value={draftHousingFilters.maxMonthlyRent} />
                   </div>
-                )}
-                <p className="mt-3 text-xs leading-relaxed text-muted-foreground">{tx("Partner links use these apartment filters where supported.", "Die Partnerlinks übernehmen diese Wohnungsfilter, soweit unterstützt.")}</p>
+                </fieldset>
+
+                <fieldset className="mt-4">
+                  <legend className="flex w-full items-center justify-between text-xs font-medium text-muted-foreground"><span>{tx("Living space (m²)", "Wohnfläche (m²)")}</span><b className="text-foreground">{draftHousingFilters.minSize} – {draftHousingFilters.maxSize} m²</b></legend>
+                  <div className="mt-2 grid grid-cols-2 gap-2">
+                    <input aria-label={tx("Minimum living space", "Minimale Wohnfläche")} className="min-w-0 rounded-full border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary" min="10" onChange={(event) => setDraftHousingFilters((current) => ({ ...current, minSize: Number(event.target.value) }))} step="5" type="number" value={draftHousingFilters.minSize} />
+                    <input aria-label={tx("Maximum living space", "Maximale Wohnfläche")} className="min-w-0 rounded-full border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary" min="10" onChange={(event) => setDraftHousingFilters((current) => ({ ...current, maxSize: Number(event.target.value) }))} step="5" type="number" value={draftHousingFilters.maxSize} />
+                  </div>
+                </fieldset>
+
+                <fieldset className="mt-4">
+                  <legend className="text-xs font-medium text-muted-foreground">{tx("Property type", "Objektart")}</legend>
+                  <div className="mt-2 grid grid-cols-4 gap-1.5">
+                    {([['any', tx('Any', 'Egal')], ['apartment', tx('Apartment', 'Wohnung')], ['house', tx('House', 'Haus')], ['shared', 'WG-Zimmer']] as const).map(([value, label]) => (
+                      <button aria-pressed={draftHousingFilters.propertyType === value} className={draftHousingFilters.propertyType === value ? "min-h-9 rounded-full border border-primary bg-primary-soft px-2 text-[11px] font-semibold text-primary" : "min-h-9 rounded-full border border-border bg-background px-2 text-[11px] font-semibold"} key={value} onClick={() => setDraftHousingFilters((current) => ({ ...current, propertyType: value }))} type="button">{label}</button>
+                    ))}
+                  </div>
+                </fieldset>
+
+                <fieldset className="mt-4">
+                  <legend className="text-xs font-medium text-muted-foreground">{tx("Furnished", "Möbliert")}</legend>
+                  <div className="mt-2 grid grid-cols-3 gap-1.5">
+                    {([['any', tx('Any', 'Egal')], ['yes', tx('Furnished', 'Möbliert')], ['no', tx('Unfurnished', 'Unmöbliert')]] as const).map(([value, label]) => (
+                      <button aria-pressed={draftHousingFilters.furnished === value} className={draftHousingFilters.furnished === value ? "min-h-9 rounded-full border border-primary bg-primary-soft px-2 text-[11px] font-semibold text-primary" : "min-h-9 rounded-full border border-border bg-background px-2 text-[11px] font-semibold"} key={value} onClick={() => setDraftHousingFilters((current) => ({ ...current, furnished: value }))} type="button">{label}</button>
+                    ))}
+                  </div>
+                </fieldset>
+
+                <div className="mt-4 grid gap-2">
+                  {([
+                    ["balcony", tx("Balcony / terrace", "Balkon / Terrasse")],
+                    ["petsAllowed", tx("Pets allowed", "Haustiere erlaubt")],
+                    ["socialHousingOnly", tx("Social housing only", "Nur WBS-Wohnungen")],
+                  ] as const).map(([key, label]) => (
+                    <label className="flex min-h-10 items-center justify-between rounded-full border border-border bg-background px-3 text-sm" key={key}>
+                      {label}
+                      <input checked={draftHousingFilters[key]} className="h-4 w-4 accent-primary" onChange={(event) => setDraftHousingFilters((current) => ({ ...current, [key]: event.target.checked }))} type="checkbox" />
+                    </label>
+                  ))}
+                </div>
+
+                <div className="mt-4 grid grid-cols-2 gap-2">
+                  <button className="inline-flex min-h-10 items-center justify-center gap-1.5 rounded-full border border-border bg-background text-xs font-semibold" onClick={resetHousingFilters} type="button"><RotateCcw aria-hidden="true" className="h-3.5 w-3.5" />{tx("Reset", "Zurücksetzen")}</button>
+                  <button className="inline-flex min-h-10 items-center justify-center gap-1.5 rounded-full bg-primary text-xs font-semibold text-primary-foreground shadow-soft" onClick={applyHousingFilters} type="button"><Check aria-hidden="true" className="h-3.5 w-3.5" />{tx("Apply", "Übernehmen")}</button>
+                </div>
               </div>
 
               <div className="grid gap-2">
@@ -469,13 +594,29 @@ export function DistrictDetail({
                 key={review.id}
               >
                 <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <p className="text-sm font-semibold">{review.author}</p>
-                    <p className="text-[11px] text-muted-foreground">{review.meta}</p>
+                  <div className="flex min-w-0 items-center gap-3">
+                    <button
+                      aria-label={tx(`Enlarge ${review.author}'s photo`, `Foto von ${review.author} vergrößern`)}
+                      className="shrink-0 rounded-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
+                      onClick={() => setLightboxImage(review.avatarUrl ?? assetUrl("event-avatars/samira.jpg"))}
+                      type="button"
+                    >
+                      <img alt="" className="h-11 w-11 rounded-full bg-muted object-cover" src={review.avatarUrl ?? assetUrl("event-avatars/samira.jpg")} />
+                    </button>
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-semibold">{review.author}</p>
+                      <p className="truncate text-[11px] text-muted-foreground">{review.meta}</p>
+                    </div>
                   </div>
                   <RatingStars rating={review.rating} />
                 </div>
                 <p className="mt-2 text-sm leading-relaxed">{review.text}</p>
+                {!review.isUser && (
+                  <button className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-primary" onClick={() => setMessageReview(review)} type="button">
+                    <MessageCircle aria-hidden="true" className="h-3.5 w-3.5" />
+                    {tx("Message", "Anschreiben")}
+                  </button>
+                )}
               </article>
             ))}
           </div>
@@ -524,6 +665,29 @@ export function DistrictDetail({
           </p>
         </section>
       </div>
+
+      {lightboxImage && (
+        <div className="fixed inset-0 z-[1900] grid place-items-center bg-foreground/75 p-5 backdrop-blur-sm" role="dialog" aria-modal="true">
+          <button aria-label={tx("Close photo", "Foto schließen")} className="absolute right-4 top-4 grid h-10 w-10 place-items-center rounded-full bg-card text-foreground shadow-card" onClick={() => setLightboxImage(null)} type="button"><X aria-hidden="true" className="h-5 w-5" /></button>
+          <img alt="" className="max-h-[78vh] max-w-full rounded-2xl object-contain shadow-2xl" src={lightboxImage} />
+        </div>
+      )}
+
+      {messageReview && (
+        <div className="fixed inset-0 z-[1900] grid place-items-end bg-foreground/40 p-3 backdrop-blur-sm sm:place-items-center" role="dialog" aria-modal="true">
+          <section className="w-full max-w-md rounded-[1.5rem] bg-card p-4 shadow-card">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <img alt="" className="h-11 w-11 rounded-full object-cover" src={messageReview.avatarUrl ?? assetUrl("event-avatars/samira.jpg")} />
+                <div><h3 className="text-sm font-bold">{messageReview.author}</h3><p className="text-xs text-muted-foreground">{tx("Direct message", "Direkte Nachricht")}</p></div>
+              </div>
+              <button aria-label={tx("Close message", "Nachricht schließen")} className="rounded-full p-2 hover:bg-muted" onClick={() => { setMessageReview(null); setMessageDraft(""); }} type="button"><X aria-hidden="true" className="h-4 w-4" /></button>
+            </div>
+            <textarea autoFocus className="mt-4 min-h-28 w-full resize-none rounded-2xl border border-border bg-background p-3 text-sm outline-none focus:border-primary" onChange={(event) => setMessageDraft(event.target.value)} placeholder={tx(`Write to ${messageReview.author}...`, `${messageReview.author} schreiben...`)} value={messageDraft} />
+            <button className="mt-3 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-full bg-primary text-sm font-semibold text-primary-foreground disabled:opacity-40" disabled={!messageDraft.trim()} onClick={() => { setMessageReview(null); setMessageDraft(""); }} type="button"><Send aria-hidden="true" className="h-4 w-4" />{tx("Send message", "Nachricht senden")}</button>
+          </section>
+        </div>
+      )}
     </section>
   );
 }

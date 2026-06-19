@@ -18,6 +18,10 @@ Current local pool:
 - `sternschanze.jpg`, `sternschanze-2.jpg`
 - `winterhude.jpg`, `winterhude-2.jpg`
 
+## Generated District Carousel Images
+
+`district-carousel-canal.png` and `district-carousel-market.png` were generated locally with the built-in image generation tool on 2026-06-19 for the district-detail carousel. They depict plausible Hamburg neighborhood scenes for interface demonstration only and must not be treated as evidence of an exact district, address, property, or current local condition.
+
 ## Demo Apartment Preview Image Pool
 
 `DistrictDetail.tsx` no longer renders in-platform apartment preview cards. It links out to housing portals only.

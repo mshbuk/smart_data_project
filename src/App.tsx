@@ -351,7 +351,7 @@ function App() {
             : activeView === "saved"
               ? tx("Compare", "Vergleich")
               : tx("Profile", "Profil");
-  const canNavigateBack = flowStep !== "recommendations" || Boolean(selectedDetailMatch) || Boolean(selectedEvent) || activeView === "map";
+  const canNavigateBack = flowStep !== "recommendations" || Boolean(selectedDetailMatch) || Boolean(selectedEvent) || activeView !== "results";
   const navigateBack = () => {
     if (selectedEvent) {
       setSelectedEventId(null);
@@ -363,9 +363,10 @@ function App() {
       return;
     }
 
-    if (activeView === "map") {
-      setMapFocusDistrictId(null);
+    if (activeView !== "results") {
+      if (activeView === "map") setMapFocusDistrictId(null);
       setActiveView("results");
+      setShowFullResults(false);
       return;
     }
 
