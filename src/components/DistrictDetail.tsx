@@ -304,28 +304,43 @@ export function DistrictDetail({
   return (
     <section className="min-h-screen bg-background pb-32">
       <div className="relative h-72 w-full overflow-hidden bg-muted">
-        <img
-          alt={`${district.name} ${tx("impression", "Eindruck")} ${activeGalleryIndex + 1}`}
-          className="h-full w-full object-cover transition-opacity duration-200"
-          src={galleryImages[activeGalleryIndex]}
-        />
+        {galleryImages.map((image, index) => (
+          <img
+            alt={`${district.name} ${tx("impression", "Eindruck")} ${index + 1}`}
+            aria-hidden={activeGalleryIndex !== index}
+            className={[
+              "absolute inset-0 h-full w-full object-cover transition duration-300 ease-out",
+              activeGalleryIndex === index
+                ? "translate-x-0 opacity-100"
+                : index < activeGalleryIndex
+                  ? "-translate-x-8 opacity-0"
+                  : "translate-x-8 opacity-0",
+            ].join(" ")}
+            key={image}
+            src={image}
+          />
+        ))}
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-black/20 via-transparent to-black/20" />
         <button
           aria-label={tx("Previous photo", "Vorheriges Foto")}
-          className="absolute left-3 top-1/2 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-full bg-background/85 text-foreground shadow-card backdrop-blur transition hover:bg-background"
+          className="absolute left-3 top-1/2 z-10 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full border border-white/30 bg-black/65 text-white shadow-lg backdrop-blur transition hover:bg-black/80"
           onClick={() => moveGallery(-1)}
           type="button"
         >
-          <ChevronLeft aria-hidden="true" className="h-5 w-5" />
+          <ChevronLeft aria-hidden="true" className="h-6 w-6" />
         </button>
         <button
           aria-label={tx("Next photo", "Nächstes Foto")}
-          className="absolute right-3 top-1/2 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-full bg-background/85 text-foreground shadow-card backdrop-blur transition hover:bg-background"
+          className="absolute right-3 top-1/2 z-10 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full border border-white/30 bg-black/65 text-white shadow-lg backdrop-blur transition hover:bg-black/80"
           onClick={() => moveGallery(1)}
           type="button"
         >
-          <ChevronRight aria-hidden="true" className="h-5 w-5" />
+          <ChevronRight aria-hidden="true" className="h-6 w-6" />
         </button>
-        <div className="absolute bottom-3 left-1/2 flex -translate-x-1/2 items-center gap-1.5 rounded-full bg-foreground/35 px-2.5 py-1.5 backdrop-blur">
+        <span className="absolute bottom-3 left-3 z-10 rounded-full bg-black/65 px-2.5 py-1 text-xs font-semibold text-white backdrop-blur">
+          {activeGalleryIndex + 1} / {galleryImages.length}
+        </span>
+        <div className="absolute bottom-3 left-1/2 z-10 flex -translate-x-1/2 items-center gap-1.5 rounded-full bg-black/55 px-2.5 py-1.5 backdrop-blur">
           {galleryImages.map((image, index) => (
             <button
               aria-label={tx(`Show photo ${index + 1}`, `Foto ${index + 1} anzeigen`)}
@@ -337,7 +352,7 @@ export function DistrictDetail({
             />
           ))}
         </div>
-        <div className="absolute right-3 top-3 flex gap-1">
+        <div className="absolute right-3 top-3 z-10 flex gap-1">
           <button
             aria-label={isSaved ? tx("Remove from saved", "Aus Favoriten entfernen") : tx("Save district", "Stadtteil favorisieren")}
             className="grid h-10 w-10 place-items-center rounded-full bg-background/85 shadow-card backdrop-blur"
