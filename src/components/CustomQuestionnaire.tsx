@@ -5,6 +5,7 @@ import {
   GraduationCap,
   Home,
   Music,
+  Sparkles,
   ShieldCheck,
   Train,
   Trees,
@@ -151,6 +152,57 @@ function rentPerSqmToMonthly(value: number) {
   return Math.round(value * 55 / 50) * 50;
 }
 
+function demoRequestToPreferences(request: string): Preferences {
+  const normalized = request.toLocaleLowerCase("de-DE");
+  const next = { ...profileDefaults.custom };
+  const includesAny = (terms: string[]) => terms.some((term) => normalized.includes(term));
+
+  if (includesAny(["ruhig", "ruhe", "quiet", "calm", "wenig lärm"])) {
+    next.quietness = 5;
+    next.nightlife = Math.min(next.nightlife, 2);
+  }
+  if (includesAny(["famil", "kind", "schule", "kita", "school", "daycare"])) {
+    next.safety = 5;
+    next.quietness = Math.max(next.quietness, 4);
+    next.green = Math.max(next.green, 4);
+    next.schools = 5;
+    next.kindergartens = 5;
+    next.nightlife = Math.min(next.nightlife, 2);
+  }
+  if (includesAny(["park", "natur", "grün", "green", "wasser", "water", "elbe", "alster"])) {
+    next.green = 5;
+  }
+  if (includesAny(["sicher", "safety", "safe", "wenig kriminalität"])) {
+    next.safety = 5;
+  }
+  if (includesAny(["öpnv", "bahn", "bus", "zentral", "central", "transit", "commute", "arbeitsweg"])) {
+    next.publicTransport = 5;
+  }
+  if (includesAny(["bar", "party", "nachtleben", "nightlife", "kultur", "event", "café", "cafe", "lebendig", "lively"])) {
+    next.nightlife = 5;
+    next.quietness = Math.min(next.quietness, 2);
+  }
+  if (includesAny(["student", "studium", "universität", "university"])) {
+    next.maxRentPerSqm = 14;
+    next.publicTransport = 5;
+    next.nightlife = Math.max(next.nightlife, 4);
+  }
+  if (includesAny(["günstig", "bezahlbar", "preiswert", "budget", "cheap", "affordable"])) {
+    next.maxRentPerSqm = 13;
+  }
+  if (includesAny(["tourist", "besuch", "urlaub", "visit", "short stay", "kurzaufenthalt"])) {
+    next.publicTransport = 5;
+    next.nightlife = Math.max(next.nightlife, 4);
+    next.schools = 0;
+    next.kindergartens = 0;
+  }
+
+  const monthlyBudget = normalized.match(/\b([4-9]\d{2}|[1-3]\d{3})\s*(?:€|euro)/)?.[1];
+  if (monthlyBudget) next.maxRentPerSqm = monthlyToRentPerSqm(Number(monthlyBudget));
+
+  return next;
+}
+
 function FollowUp({ title, question, children }: { title: string; question: string; children: ReactNode }) {
   return (
     <div className="mt-4 rounded-2xl border border-border bg-card p-4">
@@ -171,6 +223,7 @@ export function CustomQuestionnaire({
 }: CustomQuestionnaireProps) {
   const { language, tx } = useI18n();
   const [step, setStep] = useState(1);
+  const [aiRequest, setAiRequest] = useState("");
   const [rooms, setRooms] = useState(2);
   const [rentMin, setRentMin] = useState(600);
   const [rentMax, setRentMax] = useState(() => Math.max(700, rentPerSqmToMonthly(preferences.maxRentPerSqm)));
@@ -185,6 +238,7 @@ export function CustomQuestionnaire({
     setRentMax(Math.max(700, rentPerSqmToMonthly(defaults.maxRentPerSqm)));
     setSelectedChips(new Set());
     setPreferencesBeforeExtras(null);
+    if (profile !== "custom") setAiRequest("");
   };
 
   const setPreference = (key: PriorityKey, value: number) => {
@@ -222,7 +276,9 @@ export function CustomQuestionnaire({
 
   const next = () => {
     if (step === 1 && selectedProfile === "custom") {
-      applyProfile("longTerm");
+      const translatedPreferences = demoRequestToPreferences(aiRequest);
+      onChange(translatedPreferences);
+      setRentMax(Math.max(700, rentPerSqmToMonthly(translatedPreferences.maxRentPerSqm)));
     }
 
     if (step < totalSteps) {
@@ -308,17 +364,17 @@ export function CustomQuestionnaire({
       {step === 1 && (
         <section>
           <h2 className="font-display text-2xl font-semibold">
-            {tx("What brings you to Hamburg?", "Wie möchtest du Hamburg nutzen?")}
+            {tx("What brings you to Hamburg?", "Was führt Sie nach Hamburg?")}
           </h2>
           <p className="mt-1 text-sm text-muted-foreground">
             {tx(
               "Choose the situation that fits best. We will prefill the district criteria for you.",
-              "Wähle die Situation, die am besten passt. Wir füllen die Stadtteil-Kriterien passend vor.",
+              "Wählen Sie die Situation, die am besten passt. Wir füllen die Stadtteil-Kriterien passend vor.",
             )}
           </p>
           <div className="mt-6 space-y-3">
             {personaOptions.map(({ profile, icon: Icon, label, description }) => {
-              const active = selectedProfile === profile || (selectedProfile === "custom" && profile === "longTerm");
+              const active = selectedProfile === profile;
 
               return (
                 <button
@@ -348,6 +404,54 @@ export function CustomQuestionnaire({
                 </button>
               );
             })}
+
+            <div className={selectedProfile === "custom" ? "overflow-hidden rounded-2xl border border-primary bg-primary-soft" : "overflow-hidden rounded-2xl border border-border bg-card"}>
+              <button
+                aria-pressed={selectedProfile === "custom"}
+                className="flex w-full items-center gap-3 p-4 text-left transition hover:bg-primary-soft/60"
+                onClick={() => applyProfile("custom")}
+                type="button"
+              >
+                <span className={selectedProfile === "custom" ? "grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground" : "grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-muted text-foreground"}>
+                  <Sparkles aria-hidden="true" className="h-5 w-5" />
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="flex flex-wrap items-center gap-2 font-medium">
+                    {tx("Describe it in your own words", "Mit eigenen Worten beschreiben")}
+                    <span className="rounded-full bg-primary px-2 py-0.5 text-[10px] font-semibold uppercase text-primary-foreground">AI-Demo</span>
+                  </span>
+                  <span className="mt-0.5 block text-xs leading-snug text-muted-foreground">
+                    {tx("Tell us what you are looking for and the demo will suggest matching criteria.", "Beschreiben Sie, wonach Sie suchen. Die Demo schlägt dazu passende Kriterien vor.")}
+                  </span>
+                </span>
+                {selectedProfile === "custom" && <Check aria-hidden="true" className="h-5 w-5 shrink-0 text-primary" />}
+              </button>
+
+              {selectedProfile === "custom" && (
+                <div className="border-t border-primary/20 p-4 pt-3">
+                  <label className="text-xs font-semibold text-foreground" htmlFor="ai-district-request">
+                    {tx("What would your ideal neighborhood be like?", "Wie soll Ihr idealer Stadtteil sein?")}
+                  </label>
+                  <textarea
+                    autoFocus
+                    className="mt-2 min-h-28 w-full resize-none rounded-2xl border border-border bg-background px-3 py-3 text-sm leading-relaxed outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15"
+                    id="ai-district-request"
+                    onChange={(event) => setAiRequest(event.target.value)}
+                    placeholder={tx(
+                      "For example: Quiet, affordable, close to parks and well connected to the city center...",
+                      "Zum Beispiel: Ruhig, bezahlbar, nah an Parks und gut an die Innenstadt angebunden...",
+                    )}
+                    value={aiRequest}
+                  />
+                  <p className="mt-2 text-xs leading-relaxed text-amber-700">
+                    {tx(
+                      "This feature is not working properly yet, we are working on it.",
+                      "Diese Funktion funktioniert noch nicht richtig, wir arbeiten daran.",
+                    )}
+                  </p>
+                </div>
+              )}
+            </div>
           </div>
         </section>
       )}
