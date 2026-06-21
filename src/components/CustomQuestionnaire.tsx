@@ -175,10 +175,10 @@ function demoRequestToPreferences(request: string): Preferences {
   if (includesAny(["sicher", "safety", "safe", "wenig kriminalität"])) {
     next.safety = 5;
   }
-  if (includesAny(["öpnv", "bahn", "bus", "zentral", "central", "transit", "commute", "arbeitsweg"])) {
+  if (includesAny(["öpnv", "bahn", "bus", "zentral", "central", "transit", "commute", "arbeitsweg", "berufstätig", "arbeitnehmer", "worker", "employed", "office", "büro"])) {
     next.publicTransport = 5;
   }
-  if (includesAny(["bar", "party", "nachtleben", "nightlife", "kultur", "event", "café", "cafe", "lebendig", "lively"])) {
+  if (includesAny(["bar", "party", "nachtleben", "nightlife", "kultur", "event", "café", "cafe", "lebendig", "lively", "essen gehen", "restaurant", "gastronomie", "foodie", "dining out"])) {
     next.nightlife = 5;
     next.quietness = Math.min(next.quietness, 2);
   }
@@ -279,6 +279,8 @@ export function CustomQuestionnaire({
       const translatedPreferences = demoRequestToPreferences(aiRequest);
       onChange(translatedPreferences);
       setRentMax(Math.max(700, rentPerSqmToMonthly(translatedPreferences.maxRentPerSqm)));
+      onNext();
+      return;
     }
 
     if (step < totalSteps) {
@@ -432,6 +434,21 @@ export function CustomQuestionnaire({
                   <label className="text-xs font-semibold text-foreground" htmlFor="ai-district-request">
                     {tx("What would your ideal neighborhood be like?", "Wie soll Ihr idealer Stadtteil sein?")}
                   </label>
+                  <div className="mt-2 rounded-xl border border-border bg-background/70 p-3 text-xs leading-relaxed text-muted-foreground">
+                    <p className="font-semibold text-foreground">{tx("Helpful details", "Hilfreiche Angaben")}</p>
+                    <ul className="mt-1.5 space-y-1">
+                      <li>• {tx("Status: student, employed, self-employed, or retired", "Status: Student/in, berufstätig, selbstständig oder im Ruhestand")}</li>
+                      <li>• {tx("Household: living alone, as a couple, or as a young family", "Haushalt: allein, als Paar oder als junge Familie")}</li>
+                      <li>• {tx("Daily life: monthly budget, workplace or university, and preferred transport", "Alltag: Monatsbudget, Arbeitsort oder Universität und bevorzugte Verkehrsmittel")}</li>
+                      <li>• {tx("Leisure: parks, culture, cafes, restaurants, or nightlife", "Freizeit: Parks, Kultur, Cafés, Restaurants oder Nachtleben")}</li>
+                    </ul>
+                    <p className="mt-2 text-[11px] text-muted-foreground">
+                      {tx(
+                        "In this demo, eating out, restaurants, and cafes are interpreted as city life/nightlife.",
+                        "In dieser Demo werden gern essen gehen, Restaurants und Cafés als Stadtleben/Nachtleben gewertet.",
+                      )}
+                    </p>
+                  </div>
                   <textarea
                     autoFocus
                     className="mt-2 min-h-28 w-full resize-none rounded-2xl border border-border bg-background px-3 py-3 text-sm leading-relaxed outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15"
@@ -651,11 +668,16 @@ export function CustomQuestionnaire({
           {tx("Back", "Zurück")}
         </button>
         <button
-          className="flex-1 rounded-2xl bg-primary py-3 text-sm font-semibold text-primary-foreground shadow-soft"
+          className="flex-1 rounded-2xl bg-primary py-3 text-sm font-semibold text-primary-foreground shadow-soft disabled:cursor-not-allowed disabled:opacity-45"
+          disabled={step === 1 && selectedProfile === "custom" && !aiRequest.trim()}
           onClick={next}
           type="button"
         >
-          {step === totalSteps ? tx("See results", "Ergebnisse ansehen") : tx("Continue", "Weiter")}
+          {step === 1 && selectedProfile === "custom"
+            ? tx("Show AI demo recommendations", "AI-Demo-Empfehlungen anzeigen")
+            : step === totalSteps
+              ? tx("See results", "Ergebnisse ansehen")
+              : tx("Continue", "Weiter")}
         </button>
       </div>
 
